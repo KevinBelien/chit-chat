@@ -7,5 +7,11 @@ import { LibConfig, LibConfigService } from '../chit-chat.module';
 })
 export class ChatService {
 
-  constructor(@Inject(LibConfigService) private config: LibConfig, private http: HttpClient) { }
+  constructor(@Inject(LibConfigService) private config: LibConfig, private http: HttpClient) {
+    console.log('config', config)
+  }
+  
+  fetch = () => {
+    return "hello"
+  }
 }
