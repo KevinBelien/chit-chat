@@ -3,5 +3,38 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "chit-chat": {
+      "projectType": "library",
+      "root": "projects/chit-chat",
+      "sourceRoot": "projects/chit-chat/src",
+      "prefix": "chit-chat",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/chit-chat/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/chit-chat/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/chit-chat/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/chit-chat/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    }
   }
 }
