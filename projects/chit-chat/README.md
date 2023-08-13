@@ -28,6 +28,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ng build
 cd dist/chit-chat
 npm link
+ng build --watch
 
 GO TO EXAMPLE
 npm link chit-chat
