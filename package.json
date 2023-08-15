@@ -7,7 +7,8 @@
 		"build": "ng build",
 		"watch": "ng build --watch --configuration development",
 		"test": "ng test",
-		"publish": "ng build && cd ./projects/chit-chat && npm run build && cd ../../dist/chit-chat && npm publish && cd ../../projects/chit-chat"
+		"publish": "ng build && cd ./projects/chit-chat && npm run build && cd ../../dist/chit-chat && npm publish && cd ../../projects/chit-chat",
+		"link": "ng build && cd dist/chit-chat && npm link && cd ../../projects/chit-chat && ng build --watch"
 	},
 	"private": true,
 	"dependencies": {

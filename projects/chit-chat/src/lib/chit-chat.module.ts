@@ -13,7 +13,7 @@ import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { IonicModule } from '@ionic/angular';
 import { ChitChatComponent } from './chit-chat.component';
-import { ChatService } from './services';
+import { AuthService, UserService } from './services';
 
 export interface LibConfig {
 	firebaseConfig: {
@@ -50,9 +50,9 @@ export class ChitChatModule {
 	): ModuleWithProviders<ChitChatModule> {
 		return {
 			ngModule: ChitChatModule,
-
 			providers: [
-				ChatService,
+				AuthService,
+				UserService,
 				{
 					provide: FIREBASE_OPTIONS,
 					useValue: config.firebaseConfig,

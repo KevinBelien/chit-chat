@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ChatService } from './services/chat.service';
+import { AuthService } from './services';
 
 @Component({
 	selector: 'chit-chat',
@@ -7,9 +7,5 @@ import { ChatService } from './services/chat.service';
 	styles: [],
 })
 export class ChitChatComponent {
-	constructor(private test: ChatService) {
-		this.test.fetch().subscribe((result: any) => {
-			console.log('data', result);
-		});
-	}
+	constructor(private test: AuthService) {}
 }

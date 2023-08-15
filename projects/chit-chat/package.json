@@ -7,7 +7,8 @@
 	"scripts": {
 		"build": "tsc -p tsconfig.schematics.json",
 		"postbuild": "copyfiles schematics/collection.json ../../dist/chit-chat/",
-		"publish": "cd ../../ && ng build && cd ./projects/chit-chat && npm run build && cd ../../dist/chit-chat && npm publish && cd ../../projects/chit-chat"
+		"publish": "cd ../../ && ng build && cd ./projects/chit-chat && npm run build && cd ../../dist/chit-chat && npm publish && cd ../../projects/chit-chat",
+		"link": "cd ../../ && ng build && cd dist/chit-chat && npm link && cd ../../projects/chit-chat && ng build --watch"
 	},
 	"ng-add": {
 		"save": "true"
@@ -17,8 +18,10 @@
 		"@angular/common": "^16.2.0",
 		"@angular/core": "^16.2.0",
 		"@angular/fire": "^7.6.1",
+		"@capacitor/core": "^5.2.3",
 		"@ctrl/ngx-emoji-mart": "^9.2.0",
-		"@ionic/angular": "^7.2.3"
+		"@ionic/angular": "^7.2.3",
+		"firebase": "^9.23.0"
 	},
 	"dependencies": {
 		"tslib": "^2.3.0"
@@ -28,9 +31,11 @@
 		"@angular-devkit/core": "^16.2.0",
 		"@angular-devkit/schematics": "^16.2.0",
 		"@angular/fire": "^7.6.1",
+		"@capacitor/core": "^5.2.3",
 		"@ctrl/ngx-emoji-mart": "^9.2.0",
 		"@ionic/angular": "^7.2.3",
 		"@schematics/angular": "^16.2.0",
-		"copyfiles": "^2.4.1"
+		"copyfiles": "^2.4.1",
+		"firebase": "^9.23.0"
 	}
 }
