@@ -14,7 +14,6 @@ import {
 	first,
 	from,
 	map,
-	mergeMap,
 	of,
 	switchMap,
 } from 'rxjs';
@@ -36,37 +35,20 @@ export class AuthService {
 		private auth: Auth,
 		private userService: UserService
 	) {
-		// this.isLoggedInIntoFirebase$
-		// 	.pipe(
-		// 		switchMap((user) => {
-		// 			if (!!user)
-		// 				return from(
-		// 					this.userService.setUserStatus(user.uid, 'available')
-		// 				).pipe(map(() => user));
-		// 			else return of(null);
-		// 		}),
-		// 		switchMap((user) => {
-		// 			return !!user ? this.getUserByFireBaseUser(user) : of(null);
-		// 		}),
-		// 		catchError((error) => {
-		// 			console.log(error);
-		// 			return of(null);
-		// 		})
-		// 	)
-		// 	.subscribe(async (user: User | null) => {
-		// 		if (!!user) {
-		// 			console.log('user logged in', user);
-		// 		} else {
-		// 			console.log('user logged out', user);
-		// 		}
-		// 		this.user.next(user);
-		// 	});
 		this.isLoggedInIntoFirebase$
 			.pipe(
-				mergeMap((user) => {
+				switchMap((user) => {
+					const previousUser = this.user.getValue();
 					if (!!user)
 						from(
 							this.userService.setUserStatus(user.uid, 'available')
+						);
+					else if (!!previousUser)
+						from(
+							this.userService.setUserStatus(
+								previousUser.uid,
+								'offline'
+							)
 						);
 					return of(user);
 				}),
@@ -129,8 +111,6 @@ export class AuthService {
 	signOut = async (): Promise<void> => {
 		const user = this.getCurrentFireBaseUser();
 		if (!user) return;
-
-		await this.userService.setUserStatus(user.uid, 'offline');
 
 		return this.auth.signOut();
 	};
