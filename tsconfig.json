@@ -23,11 +23,11 @@
     "skipLibCheck": true,
     "preserveSymlinks": true,
     "importHelpers": true,
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "ES2018",
+    "module": "ES2020",
     "useDefineForClassFields": false,
     "lib": [
-      "ES2022",
+      "ES2018",
       "dom"
     ]
   },
