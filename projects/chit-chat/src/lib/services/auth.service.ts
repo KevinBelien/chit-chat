@@ -7,11 +7,12 @@ import {
 	signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+import * as _ from 'lodash';
 import {
 	BehaviorSubject,
 	Observable,
 	catchError,
-	first,
+	distinctUntilChanged,
 	from,
 	map,
 	of,
@@ -38,7 +39,10 @@ export class AuthService {
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user) => {
+					console.log('first');
+
 					const previousUser = this.user.getValue();
+
 					if (!!user)
 						from(
 							this.userService.setUserStatus(user.uid, 'available')
@@ -53,6 +57,7 @@ export class AuthService {
 					return of(user);
 				}),
 				switchMap((user) => {
+					console.log('second');
 					return !!user ? this.getUserByFireBaseUser(user) : of(null);
 				}),
 				catchError((error) => {
@@ -84,16 +89,17 @@ export class AuthService {
 					.where('isActivated', '==', true)
 					.where('isDeleted', '==', false)
 			)
-			.snapshotChanges()
+			.valueChanges(user.uid)
 			.pipe(
+				distinctUntilChanged((prev, curr) => _.isEqual(prev, curr)),
 				map((user) =>
-					!!user[0] ? User.fromFireStore(user[0]) : null
+					!!user[0] ? User.fromObject({ ...user[0] }) : null
 				),
+
 				catchError((error) => {
 					console.log(error);
 					return of(null);
-				}),
-				first()
+				})
 			);
 	};
 

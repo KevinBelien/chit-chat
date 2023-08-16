@@ -1,6 +1,6 @@
 {
 	"name": "chit-chat",
-	"version": "0.0.17",
+	"version": "0.0.18",
 	"publishConfig": {
 		"registry": "http://localhost:4873"
 	},
@@ -35,7 +35,9 @@
 		"@ctrl/ngx-emoji-mart": "^9.2.0",
 		"@ionic/angular": "^7.2.3",
 		"@schematics/angular": "^16.2.0",
+		"@types/lodash": "^4.14.197",
 		"copyfiles": "^2.4.1",
-		"firebase": "^9.23.0"
+		"firebase": "^9.23.0",
+		"lodash": "^4.17.21"
 	}
 }

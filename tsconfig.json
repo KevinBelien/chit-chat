@@ -21,6 +21,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
+    "preserveSymlinks": true,
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
