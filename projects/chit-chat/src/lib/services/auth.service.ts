@@ -25,7 +25,7 @@ import {
 } from 'rxjs/operators';
 import { DtoUser } from '../dto';
 import { FireStoreCollection } from '../enums';
-import { User, UserRole } from '../models';
+import { User } from '../models';
 import { UserService } from './user.service';
 
 @Injectable({
@@ -45,7 +45,6 @@ export class AuthService {
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
-					console.log(user);
 					//Set online status of user depending if user logged in/off
 					const previousUser = this.user.getValue();
 
@@ -74,7 +73,6 @@ export class AuthService {
 			)
 			.subscribe(async (user: MapResult<User>) => {
 				this.user.next(user.data);
-				console.log(user.data);
 				if (!!user.error) {
 					throw user.error;
 				}
@@ -97,7 +95,7 @@ export class AuthService {
 			.valueChanges(user.uid)
 			.pipe(
 				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
-				switchMap((users: DtoUser[]) => {
+				switchMap((users) => {
 					const userRole$ =
 						this.userService.getUserRoleWithPermissions(
 							users[0].roleId
@@ -107,18 +105,13 @@ export class AuthService {
 						userRole: userRole$,
 					});
 				}),
-				map(
-					(data: {
-						user: DtoUser;
-						userRole: MapResult<UserRole>;
-					}) => {
-						if (!!data.userRole.error) {
-							return { data: null, error: data.userRole.error };
-						}
-
-						return User.fromDto(data.user, data.userRole);
+				map((data) => {
+					if (!!data.userRole.error) {
+						return { data: null, error: data.userRole.error };
 					}
-				),
+
+					return User.fromDto(data.user, data.userRole);
+				}),
 				catchError((error) => {
 					return of({ data: null, error: new Error(error) });
 				})

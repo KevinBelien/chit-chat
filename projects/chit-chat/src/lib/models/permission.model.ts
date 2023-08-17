@@ -1,7 +1,7 @@
 import { DtoPermission } from '../dto';
 import { MapResult, MapResultCollection } from '../interfaces';
 
-export class Permission {
+export class Permission implements Omit<DtoPermission, 'role'> {
 	id: string;
 	name: string;
 	description: string;
