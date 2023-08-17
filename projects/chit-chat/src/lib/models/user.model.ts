@@ -69,7 +69,7 @@ export class User implements Omit<FsUser, 'roleId'> {
 		uid: string,
 		data: Record<string, any>,
 		role: UserRole | null
-	) => {
+	): boolean => {
 		if (
 			!uid ||
 			!data['name'] ||

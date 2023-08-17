@@ -25,7 +25,7 @@ export class UserRole {
 
 	public static fromFsSubcollection = (
 		permissions: FsPermission[]
-	) => {
+	): MapResult<UserRole> => {
 		const role = permissions.map((permission) => permission.role)[0];
 		return UserRole.fromObject(
 			Object.assign({}, role, { permissions: permissions })
