@@ -1,13 +1,13 @@
+import { DtoUser } from '../dto';
 import { MapResult } from '../interfaces';
-import { FsPermission, FsUser } from '../interfaces/fs-collections';
 import { UserStatus, userStatuses } from '../types';
 import { UserRole } from './user-role.model';
 
-export class User implements Omit<FsUser, 'roleId'> {
+export class User implements Omit<DtoUser, 'roleId'> {
 	uid: string;
 	name: string;
 	role: UserRole;
-	creationDate: Date;
+	creationDateMs: number;
 	avatar: string | null;
 	onlineStatus: UserStatus;
 	isActivated: boolean;
@@ -16,7 +16,7 @@ export class User implements Omit<FsUser, 'roleId'> {
 		uid: string,
 		name: string,
 		role: UserRole,
-		creationDate: Date,
+		creationDateMs: number,
 		avatar: string | null,
 		onlineStatus: UserStatus,
 		isActivated: boolean
@@ -24,48 +24,46 @@ export class User implements Omit<FsUser, 'roleId'> {
 		this.uid = uid;
 		this.name = name;
 		this.role = role;
-		this.creationDate = creationDate;
+		this.creationDateMs = creationDateMs;
 		this.avatar = avatar;
 		this.onlineStatus = onlineStatus;
 		this.isActivated = isActivated;
 	}
 
-	public static fromFs = (
-		user: FsUser,
-		permissions: FsPermission[]
+	public static fromDto = (
+		dto: DtoUser,
+		userRole: MapResult<UserRole>
 	): MapResult<User> => {
-		const mappedUserRole = UserRole.fromFsSubcollection(permissions);
-		if (!!mappedUserRole.error)
-			return { data: null, error: mappedUserRole.error };
+		if (!!userRole.error)
+			return { data: null, error: userRole.error };
 
-		if (!User.isUserValid(user['uid'], user, mappedUserRole.data))
+		if (!User.isValid(dto.uid, dto, userRole.data))
 			return {
 				data: null,
 				error: new Error(
-					`Mapping error: Couldn't map ${user} to a valid user object`
+					`Mapping error: Couldn't map ${dto} to a valid user object\n${JSON.stringify(
+						dto
+					)}`
 				),
 			};
 
-		const avatar = !!user['avatar'] ? user['avatar'] : null;
-
-		const isActivated = !!user['isActivated']
-			? user['isActivated']
-			: false;
+		const avatar = !!dto.avatar ? dto.avatar : null;
+		const isActivated = !!dto.isActivated ? dto.isActivated : false;
 
 		return {
 			data: new User(
-				user['uid'],
-				user['name'],
-				mappedUserRole.data!,
-				user['creationDate'],
+				dto.uid,
+				dto.name,
+				userRole.data!,
+				dto.creationDateMs,
 				avatar,
-				user['onlineStatus'],
+				dto.onlineStatus,
 				isActivated
 			),
 		};
 	};
 
-	public static isUserValid = (
+	public static isValid = (
 		uid: string,
 		data: Record<string, any>,
 		role: UserRole | null

@@ -8,12 +8,10 @@ import {
 } from 'firebase/firestore';
 import { Observable, map } from 'rxjs';
 import { LibConfig, LibConfigService } from '../chit-chat.module';
+import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
 import { FireStoreCollection } from '../enums';
-import {
-	FsPermission,
-	FsUserRole,
-} from '../interfaces/fs-collections';
-import { User } from '../models';
+import { MapResult } from '../interfaces';
+import { User, UserRole } from '../models';
 import { UserStatus } from './../types/user-status.type';
 
 @Injectable({
@@ -24,17 +22,16 @@ export class UserService {
 		@Inject(LibConfigService) private config: LibConfig,
 		private afs: AngularFirestore
 	) {
-		// this.createUser(
-		// 	new User(
-		// 		'Test-1234',
-		// 		'Test again',
-		// 		new UserRole('test-role', 'test role', Date.now(), []),
-		// 		new Date(),
-		// 		null,
-		// 		'available',
-		// 		true
-		// 	)
-		// );
+		// const user: DtoUser = {
+		// 	uid: 'zX3f1LIbs1XceEcOMKkIh9vMYkz1',
+		// 	name: 'Test again',
+		// 	roleId: 'admin',
+		// 	creationDate: new Date(),
+		// 	avatar: null,
+		// 	onlineStatus: 'available',
+		// 	isActivated: true,
+		// };
+		// this.createUser(user);
 	}
 
 	getUsers = () => {
@@ -61,7 +58,7 @@ export class UserService {
 			.update({ onlineStatus: status });
 	};
 
-	createUser = async (data: User): Promise<void> => {
+	createUser = async (data: DtoUser): Promise<void> => {
 		const fireStore = getFirestore();
 		const usersRef = collection(fireStore, FireStoreCollection.USERS);
 
@@ -77,19 +74,24 @@ export class UserService {
 		}
 	};
 
-	getPermissions = (roleId: string): Observable<FsPermission[]> => {
+	getUserRoleWithPermissions = (
+		roleId: string
+	): Observable<MapResult<UserRole>> => {
 		const query = this.afs
-			.collection<FsUserRole>(FireStoreCollection.ROLES)
+			.collection<DtoUserRole>(FireStoreCollection.ROLES)
 			.doc(roleId)
-			.collection<FsPermission>(FireStoreCollection.PERMISSIONS);
-		return query
-			.get()
-			.pipe(
-				map((data) =>
-					data.docs.map((doc) =>
-						Object.assign(doc.data(), { id: doc.ref.id })
-					)
-				)
-			);
+			.collection<DtoPermission>(FireStoreCollection.PERMISSIONS);
+		return query.get().pipe(
+			map((result) => {
+				const permissions: (DtoPermission & { id: string })[] =
+					result.docs.map((permission) =>
+						Object.assign(permission.data(), {
+							id: permission.ref.id,
+						})
+					);
+
+				return UserRole.fromPermissionDto(permissions);
+			})
+		);
 	};
 }

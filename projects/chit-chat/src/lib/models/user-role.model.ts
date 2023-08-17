@@ -1,8 +1,9 @@
+import { DtoPermission, DtoUserRole } from '../dto';
 import { MapResult } from '../interfaces';
-import { FsPermission } from '../interfaces/fs-collections';
+
 import { Permission } from './permission.model';
 
-export class UserRole {
+export class UserRole implements DtoUserRole {
 	id: string;
 	name: string;
 	description?: string;
@@ -23,8 +24,8 @@ export class UserRole {
 		this.permissions = permissions;
 	}
 
-	public static fromFsSubcollection = (
-		permissions: FsPermission[]
+	public static fromPermissionDto = (
+		permissions: (DtoPermission & { id: string })[]
 	): MapResult<UserRole> => {
 		const role = permissions.map((permission) => permission.role)[0];
 		return UserRole.fromObject(
@@ -43,7 +44,9 @@ export class UserRole {
 				),
 			};
 
-		const permissions = Permission.fromCollection(obj['permissions']);
+		const permissions = Permission.fromDtoCollection(
+			obj['permissions']
+		);
 
 		if (permissions.errors.length > 0)
 			return { data: null, error: permissions.errors[0].error };

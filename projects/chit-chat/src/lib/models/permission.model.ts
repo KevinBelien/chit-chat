@@ -1,3 +1,4 @@
+import { DtoPermission } from '../dto';
 import { MapResult, MapResultCollection } from '../interfaces';
 
 export class Permission {
@@ -11,10 +12,11 @@ export class Permission {
 		this.description = description;
 	}
 
-	public static fromObject = (
-		obj: Record<string, any>
+	public static fromDto = (
+		id: string,
+		obj: DtoPermission
 	): MapResult<Permission> => {
-		if (!obj['id'] || !obj['name'] || !obj['description'])
+		if (!obj.name || !obj.description)
 			return {
 				data: null,
 				error: new Error(
@@ -23,19 +25,15 @@ export class Permission {
 			};
 
 		return {
-			data: new Permission(
-				obj['id'],
-				obj['name'],
-				obj['description']
-			),
+			data: new Permission(id, obj.name, obj.description),
 		};
 	};
 
-	public static fromCollection = (
-		collection: Array<Record<string, any>>
+	public static fromDtoCollection = (
+		collection: (DtoPermission & { id: string })[]
 	): MapResultCollection<Permission> => {
 		const mapResult = collection.map((permission) =>
-			Permission.fromObject(permission)
+			Permission.fromDto(permission.id, permission)
 		);
 
 		const permissions = mapResult

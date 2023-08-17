@@ -1,5 +1,4 @@
-export interface FsUserRole {
-	id: string;
+export interface DtoUserRole {
 	name: string;
 	description?: string;
 	creationDateMs: number;

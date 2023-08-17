@@ -1,8 +1,8 @@
-export interface FsUser {
+export interface DtoUser {
 	uid: string;
 	name: string;
 	roleId: string;
-	creationDate: Date;
+	creationDateMs: number;
 	avatar: string | null;
 	onlineStatus: string;
 	isActivated: boolean;
