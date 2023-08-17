@@ -1,3 +1,5 @@
+import { MapResult, MapResultCollection } from '../interfaces';
+
 export class Permission {
 	id: string;
 	name: string;
@@ -11,18 +13,41 @@ export class Permission {
 
 	public static fromObject = (
 		obj: Record<string, any>
-	): Permission | null => {
+	): MapResult<Permission> => {
 		if (!obj['id'] || !obj['name'] || !obj['description'])
-			return null;
+			return {
+				data: null,
+				error: new Error(
+					`Mapping error: Couldn't map ${obj} to a valid Permission object`
+				),
+			};
 
-		return new Permission(obj['id'], obj['name'], obj['description']);
+		return {
+			data: new Permission(
+				obj['id'],
+				obj['name'],
+				obj['description']
+			),
+		};
 	};
 
 	public static fromCollection = (
 		collection: Array<Record<string, any>>
-	): Array<Permission> => {
-		return collection
-			.map((permission) => Permission.fromObject(permission))
-			.filter((s): s is Permission => Boolean(s));
+	): MapResultCollection<Permission> => {
+		const mapResult = collection.map((permission) =>
+			Permission.fromObject(permission)
+		);
+
+		const permissions = mapResult
+			.map((result) => result.data)
+			.filter((permission): permission is Permission =>
+				Boolean(permission)
+			);
+
+		const errors = mapResult.filter((result) =>
+			Boolean(result.error)
+		);
+
+		return { data: permissions, errors: errors };
 	};
 }

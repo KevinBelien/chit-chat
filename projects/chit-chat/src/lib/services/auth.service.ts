@@ -7,18 +7,24 @@ import {
 	signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import * as _ from 'lodash';
+import { isEqual } from 'lodash';
+
 import {
 	BehaviorSubject,
 	Observable,
+	forkJoin,
+	from,
+	of,
+} from 'rxjs';
+import {
 	catchError,
 	distinctUntilChanged,
-	from,
 	map,
-	of,
 	switchMap,
-} from 'rxjs';
+} from 'rxjs/operators';
 import { FireStoreCollection } from '../enums';
+import { MapResult } from '../interfaces';
+import { FsPermission, FsUser } from '../interfaces/fs-collections';
 import { User } from './../models/user.model';
 import { UserService } from './user.service';
 
@@ -39,8 +45,7 @@ export class AuthService {
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user) => {
-					console.log('first');
-
+					//Set online status of user depending if user logged in/off
 					const previousUser = this.user.getValue();
 
 					if (!!user)
@@ -54,24 +59,24 @@ export class AuthService {
 								'offline'
 							)
 						);
+
 					return of(user);
 				}),
 				switchMap((user) => {
-					console.log('second');
-					return !!user ? this.getUserByFireBaseUser(user) : of(null);
+					return !!user
+						? this.getUserByFireBaseUser(user)
+						: of({ data: null });
 				}),
 				catchError((error) => {
-					console.log(error);
-					return of(null);
+					return of({ data: null, error: new Error(error) });
 				})
 			)
-			.subscribe(async (user: User | null) => {
-				if (!!user) {
-					console.log('user logged in', user);
-				} else {
-					console.log('user logged out', user);
+			.subscribe(async (result: MapResult<User>) => {
+				this.user.next(result.data);
+
+				if (!!result.error) {
+					throw result.error;
 				}
-				this.user.next(user);
 			});
 	}
 
@@ -81,9 +86,9 @@ export class AuthService {
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser
-	): Observable<User | null> => {
+	): Observable<MapResult<User>> => {
 		return this.afs
-			.collection<User>(FireStoreCollection.USERS, (ref) =>
+			.collection<FsUser>(FireStoreCollection.USERS, (ref: any) =>
 				ref
 					.where('uid', '==', user.uid)
 					.where('isActivated', '==', true)
@@ -91,14 +96,21 @@ export class AuthService {
 			)
 			.valueChanges(user.uid)
 			.pipe(
-				distinctUntilChanged((prev, curr) => _.isEqual(prev, curr)),
-				map((user) =>
-					!!user[0] ? User.fromObject({ ...user[0] }) : null
+				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				switchMap((users: FsUser[]) => {
+					const permissions$ = this.userService.getPermissions(
+						users[0].roleId
+					);
+					return forkJoin({
+						user: of(users[0]),
+						permissions: permissions$,
+					});
+				}),
+				map((data: { user: FsUser; permissions: FsPermission[] }) =>
+					User.fromFs(data.user, data.permissions)
 				),
-
 				catchError((error) => {
-					console.log(error);
-					return of(null);
+					return of({ data: null, error: new Error(error) });
 				})
 			);
 	};

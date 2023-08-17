@@ -1,3 +1,5 @@
+import { MapResult } from '../interfaces';
+import { FsPermission } from '../interfaces/fs-collections';
 import { Permission } from './permission.model';
 
 export class UserRole {
@@ -21,22 +23,39 @@ export class UserRole {
 		this.permissions = permissions;
 	}
 
+	public static fromFsSubcollection = (
+		permissions: FsPermission[]
+	) => {
+		const role = permissions.map((permission) => permission.role)[0];
+		return UserRole.fromObject(
+			Object.assign({}, role, { permissions: permissions })
+		);
+	};
+
 	public static fromObject = (
 		obj: Record<string, any>
-	): UserRole | null => {
+	): MapResult<UserRole> => {
 		if (!obj['id'] || !obj['name'] || !obj['creationDateMs'])
-			return null;
+			return {
+				data: null,
+				error: new Error(
+					`Mapping error: Couldn't map ${obj} to a valid UserRole object`
+				),
+			};
 
-		const permissions = !!obj['permissions']
-			? Permission.fromCollection(obj['permissions'])
-			: [];
+		const permissions = Permission.fromCollection(obj['permissions']);
 
-		return new UserRole(
-			obj['id'],
-			obj['name'],
-			obj['creationDateMs'],
-			permissions,
-			obj['description']
-		);
+		if (permissions.errors.length > 0)
+			return { data: null, error: permissions.errors[0].error };
+
+		return {
+			data: new UserRole(
+				obj['id'],
+				obj['name'],
+				obj['creationDateMs'],
+				permissions.data,
+				obj['description']
+			),
+		};
 	};
 }

@@ -6,9 +6,13 @@ import {
 	getFirestore,
 	setDoc,
 } from 'firebase/firestore';
-import { map } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { LibConfig, LibConfigService } from '../chit-chat.module';
 import { FireStoreCollection } from '../enums';
+import {
+	FsPermission,
+	FsUserRole,
+} from '../interfaces/fs-collections';
 import { User } from '../models';
 import { UserStatus } from './../types/user-status.type';
 
@@ -35,7 +39,7 @@ export class UserService {
 
 	getUsers = () => {
 		return this.afs
-			.collection<User>('users')
+			.collection<User>(FireStoreCollection.USERS)
 			.snapshotChanges()
 			.pipe(
 				map((changes) =>
@@ -71,5 +75,21 @@ export class UserService {
 				`Something went wrong when creating user with uid ${data.uid}. ${e}`
 			);
 		}
+	};
+
+	getPermissions = (roleId: string): Observable<FsPermission[]> => {
+		const query = this.afs
+			.collection<FsUserRole>(FireStoreCollection.ROLES)
+			.doc(roleId)
+			.collection<FsPermission>(FireStoreCollection.PERMISSIONS);
+		return query
+			.get()
+			.pipe(
+				map((data) =>
+					data.docs.map((doc) =>
+						Object.assign(doc.data(), { id: doc.ref.id })
+					)
+				)
+			);
 	};
 }

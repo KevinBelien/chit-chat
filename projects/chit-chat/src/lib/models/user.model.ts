@@ -1,8 +1,9 @@
-import { DocumentChangeAction } from '@angular/fire/compat/firestore';
+import { MapResult } from '../interfaces';
+import { FsPermission, FsUser } from '../interfaces/fs-collections';
 import { UserStatus, userStatuses } from '../types';
 import { UserRole } from './user-role.model';
 
-export class User {
+export class User implements Omit<FsUser, 'roleId'> {
 	uid: string;
 	name: string;
 	role: UserRole;
@@ -29,59 +30,39 @@ export class User {
 		this.isActivated = isActivated;
 	}
 
-	public static fromDocumentChange = (
-		obj: DocumentChangeAction<User>
-	): User | null => {
-		const uid = obj.payload.doc.id;
-		const data = obj.payload.doc.data();
-		const role = UserRole.fromObject(data.role);
+	public static fromFs = (
+		user: FsUser,
+		permissions: FsPermission[]
+	): MapResult<User> => {
+		const mappedUserRole = UserRole.fromFsSubcollection(permissions);
+		if (!!mappedUserRole.error)
+			return { data: null, error: mappedUserRole.error };
 
-		if (!User.isUserValid(uid, data, role)) return null;
+		if (!User.isUserValid(user['uid'], user, mappedUserRole.data))
+			return {
+				data: null,
+				error: new Error(
+					`Mapping error: Couldn't map ${user} to a valid user object`
+				),
+			};
 
-		const avatar = !!data['avatar'] ? data['avatar'] : null;
-		const isActivated = !!data['isActivated']
-			? data['isActivated']
+		const avatar = !!user['avatar'] ? user['avatar'] : null;
+
+		const isActivated = !!user['isActivated']
+			? user['isActivated']
 			: false;
 
-		return new User(
-			uid,
-			data['name'],
-			role!,
-			data['creationDate'],
-			avatar,
-			data['onlineStatus'],
-			isActivated
-		);
-	};
-
-	public static fromObject = (obj: Record<string, any>) => {
-		const role = UserRole.fromObject(obj['role']);
-
-		if (!User.isUserValid(obj['uid'], obj, role)) return null;
-
-		const avatar = !!obj['avatar'] ? obj['avatar'] : null;
-
-		const isActivated = !!obj['isActivated']
-			? obj['isActivated']
-			: false;
-
-		return new User(
-			obj['uid'],
-			obj['name'],
-			role!,
-			obj['creationDate'],
-			avatar,
-			obj['onlineStatus'],
-			isActivated
-		);
-	};
-
-	public static fromCollection = (
-		collection: Record<string, any>[]
-	): User[] => {
-		return collection
-			.map((user) => User.fromObject(user))
-			.filter((s): s is User => Boolean(s));
+		return {
+			data: new User(
+				user['uid'],
+				user['name'],
+				mappedUserRole.data!,
+				user['creationDate'],
+				avatar,
+				user['onlineStatus'],
+				isActivated
+			),
+		};
 	};
 
 	public static isUserValid = (
@@ -90,7 +71,7 @@ export class User {
 		role: UserRole | null
 	) => {
 		if (
-			uid ||
+			!uid ||
 			!data['name'] ||
 			!data['creationDate'] ||
 			!role ||
