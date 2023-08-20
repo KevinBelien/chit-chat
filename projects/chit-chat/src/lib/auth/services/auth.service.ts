@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
 	Auth,
 	User as FirebaseUser,
@@ -10,16 +10,15 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { isEqual } from 'lodash-es';
 
 import {
-	DtoUser,
 	FireStoreCollection,
 	MapResult,
-	User,
-} from 'chit-chat/src/lib/database-utils';
+} from 'chit-chat/src/lib/utils';
 
-import {
-	LibConfig,
-	LibConfigService,
-} from 'chit-chat/src/lib/lib-config';
+// import {
+// 	LibConfig,
+// 	LibConfigService,
+// } from 'chit-chat/src/lib/lib-config';
+import { DtoUser, User, UserService } from 'chit-chat/src/lib/users';
 import {
 	BehaviorSubject,
 	Observable,
@@ -33,7 +32,6 @@ import {
 	map,
 	switchMap,
 } from 'rxjs/operators';
-import { UserService } from './';
 
 @Injectable({
 	providedIn: 'root',
@@ -47,10 +45,9 @@ export class AuthService {
 	constructor(
 		private afs: AngularFirestore,
 		private auth: Auth,
-		private userService: UserService,
-		@Inject(LibConfigService) private config: LibConfig
+		private userService: UserService // @Inject(LibConfigService) private config: LibConfig
 	) {
-		console.log(config);
+		// console.log(config);
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
@@ -82,7 +79,6 @@ export class AuthService {
 			)
 			.subscribe(async (user: MapResult<User>) => {
 				this.user.next(user.data);
-				console.log(user.data);
 				if (!!user.error) {
 					throw user.error;
 				}

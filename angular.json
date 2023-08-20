@@ -7,7 +7,9 @@
 			"projectType": "library",
 			"schematics": {
 				"@schematics/angular:component": {
-					"standalone": true
+					"standalone": true,
+					"skipTests": true,
+					"style": "scss"
 				},
 				"@schematics/angular:directive": {
 					"standalone": true
@@ -18,7 +20,7 @@
 			},
 			"root": "projects/chit-chat",
 			"sourceRoot": "projects/chit-chat/src",
-			"prefix": "chit-chat",
+			"prefix": "ch",
 			"architect": {
 				"build": {
 					"builder": "@angular-devkit/build-angular:ng-packagr",

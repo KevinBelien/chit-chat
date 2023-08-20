@@ -2,15 +2,9 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 
 import {
-	DtoPermission,
-	DtoUser,
-	DtoUserRole,
 	FireStoreCollection,
 	MapResult,
-	User,
-	UserRole,
-	UserStatus,
-} from 'chit-chat/src/lib/database-utils';
+} from 'chit-chat/src/lib/utils';
 
 import {
 	collection,
@@ -19,6 +13,9 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import { Observable, map } from 'rxjs';
+import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
+import { UserRole } from '../models';
+import { UserStatus } from '../types';
 
 @Injectable({
 	providedIn: 'root',
@@ -39,7 +36,7 @@ export class UserService {
 
 	getUsers = () => {
 		return this.afs
-			.collection<User>(FireStoreCollection.USERS)
+			.collection<DtoUser>(FireStoreCollection.USERS)
 			.snapshotChanges()
 			.pipe(
 				map((changes) =>
@@ -83,7 +80,9 @@ export class UserService {
 		const query = this.afs
 			.collection<DtoUserRole>(FireStoreCollection.ROLES)
 			.doc(roleId)
-			.collection<DtoPermission>(FireStoreCollection.PERMISSIONS);
+			.collection<DtoPermission>(
+				FireStoreCollection.ROLES_PERMISSIONS
+			);
 		return query.get().pipe(
 			map((result) => {
 				const permissions: (DtoPermission & { id: string })[] =
@@ -96,5 +95,10 @@ export class UserService {
 				return UserRole.fromPermissionDto(permissions);
 			})
 		);
+	};
+
+	calcInitials = (displayName: string): string | null => {
+		const matches = displayName.match(/\b(\w)/g);
+		return !!matches ? matches.join('') : displayName;
 	};
 }

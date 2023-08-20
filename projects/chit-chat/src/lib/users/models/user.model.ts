@@ -1,5 +1,5 @@
+import { MapResult } from 'chit-chat/src/lib/utils';
 import { DtoUser } from '../dto';
-import { MapResult } from '../interfaces';
 import { UserStatus, userStatuses } from '../types';
 import { UserRole } from './';
 

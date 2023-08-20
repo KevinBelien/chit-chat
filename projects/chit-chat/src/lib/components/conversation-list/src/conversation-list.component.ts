@@ -1,13 +1,39 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	ViewEncapsulation,
+} from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
+import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
+import { User, UserService } from 'chit-chat/src/lib/users';
+import { Observable } from 'rxjs';
 
 @Component({
-	selector: 'chit-chat-conversation-list',
+	selector: 'ch-conversation-list',
 	templateUrl: './conversation-list.component.html',
+	standalone: true,
+	imports: [CommonModule, IonicModule, UserAvatarComponent],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	encapsulation: ViewEncapsulation.None,
 	styleUrls: ['./conversation-list.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class ConversationListComponent {
-	constructor(private auth: AuthService) {
-		setTimeout(() => console.log(this.auth.getCurrentUser()), 5000);
+	user$: Observable<User | null>;
+
+	constructor(
+		private auth: AuthService,
+		private userService: UserService
+	) {
+		this.user$ = this.auth.user.asObservable();
 	}
+
+	calcInitials = (displayName: string) => {
+		return this.userService.calcInitials(displayName);
+	};
 }

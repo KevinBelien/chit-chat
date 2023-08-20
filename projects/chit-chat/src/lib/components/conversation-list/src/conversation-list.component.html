@@ -1,1 +1,3 @@
-<p>conversation-list works!</p>
+<ng-container *ngIf="user$ | async as user">
+    <ch-user-avatar [src]="user.avatar" [initials]="calcInitials(user.name)" ></ch-user-avatar>
+</ng-container>
