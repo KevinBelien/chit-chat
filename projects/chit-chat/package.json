@@ -21,7 +21,8 @@
 		"@capacitor/core": "^5.2.3",
 		"@ctrl/ngx-emoji-mart": "^9.2.0",
 		"@ionic/angular": "^7.2.3",
-		"firebase": "^9.23.0"
+		"firebase": "^9.23.0",
+		"lodash-es": "^4.17.21"
 	},
 	"dependencies": {
 		"tslib": "^2.3.0"
@@ -35,9 +36,9 @@
 		"@ctrl/ngx-emoji-mart": "^9.2.0",
 		"@ionic/angular": "^7.2.3",
 		"@schematics/angular": "^16.2.0",
-		"@types/lodash": "^4.14.197",
+		"@types/lodash-es": "^4.17.8",
 		"copyfiles": "^2.4.1",
 		"firebase": "^9.23.0",
-		"lodash": "^4.17.21"
+		"lodash-es": "^4.17.21"
 	}
 }

@@ -5,6 +5,17 @@
 	"projects": {
 		"chit-chat": {
 			"projectType": "library",
+			"schematics": {
+				"@schematics/angular:component": {
+					"standalone": true
+				},
+				"@schematics/angular:directive": {
+					"standalone": true
+				},
+				"@schematics/angular:pipe": {
+					"standalone": true
+				}
+			},
 			"root": "projects/chit-chat",
 			"sourceRoot": "projects/chit-chat/src",
 			"prefix": "chit-chat",

@@ -7,7 +7,7 @@ import {
 	signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { isEqual } from 'lodash';
+import { isEqual } from 'lodash-es';
 import { MapResult } from './../interfaces/map-result.interface';
 
 import {

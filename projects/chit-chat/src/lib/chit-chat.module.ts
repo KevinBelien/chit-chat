@@ -12,7 +12,6 @@ import {
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { IonicModule } from '@ionic/angular';
-import { ChitChatComponent } from './chit-chat.component';
 import { AuthService, UserService } from './services';
 
 export interface LibConfig {
@@ -33,7 +32,6 @@ export const LibConfigService = new InjectionToken<LibConfig>(
 );
 
 @NgModule({
-	declarations: [ChitChatComponent],
 	imports: [
 		CommonModule,
 		HttpClientModule,
@@ -42,7 +40,6 @@ export const LibConfigService = new InjectionToken<LibConfig>(
 		AngularFireModule,
 		AngularFirestoreModule,
 	],
-	exports: [ChitChatComponent],
 })
 export class ChitChatModule {
 	static forRoot(

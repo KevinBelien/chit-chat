@@ -4,8 +4,10 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "chit-chat/*":["projects/chit-chat/*/public_api"],
       "chit-chat": [
-        "dist/chit-chat"
+        "dist/chit-chat",
+        "dist/chit-chat/lib"
       ]
     },
     "outDir": "./dist/out-tsc",
@@ -23,11 +25,11 @@
     "skipLibCheck": true,
     "preserveSymlinks": true,
     "importHelpers": true,
-    "target": "ES2018",
-    "module": "ES2020",
+    "target": "ES2022",
+    "module": "ES2022",
     "useDefineForClassFields": false,
     "lib": [
-      "ES2018",
+      "ES2022",
       "dom"
     ]
   },
