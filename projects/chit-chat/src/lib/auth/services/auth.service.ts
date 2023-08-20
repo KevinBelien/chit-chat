@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
 	Auth,
 	User as FirebaseUser,
@@ -8,8 +8,18 @@ import {
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { isEqual } from 'lodash-es';
-import { MapResult } from './../interfaces/map-result.interface';
 
+import {
+	DtoUser,
+	FireStoreCollection,
+	MapResult,
+	User,
+} from 'chit-chat/src/lib/database-utils';
+
+import {
+	LibConfig,
+	LibConfigService,
+} from 'chit-chat/src/lib/lib-config';
 import {
 	BehaviorSubject,
 	Observable,
@@ -23,10 +33,7 @@ import {
 	map,
 	switchMap,
 } from 'rxjs/operators';
-import { DtoUser } from '../dto';
-import { FireStoreCollection } from '../enums';
-import { User } from '../models';
-import { UserService } from './user.service';
+import { UserService } from './';
 
 @Injectable({
 	providedIn: 'root',
@@ -40,8 +47,10 @@ export class AuthService {
 	constructor(
 		private afs: AngularFirestore,
 		private auth: Auth,
-		private userService: UserService
+		private userService: UserService,
+		@Inject(LibConfigService) private config: LibConfig
 	) {
+		console.log(config);
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
@@ -73,15 +82,20 @@ export class AuthService {
 			)
 			.subscribe(async (user: MapResult<User>) => {
 				this.user.next(user.data);
+				console.log(user.data);
 				if (!!user.error) {
 					throw user.error;
 				}
 			});
 	}
 
-	getCurrentFireBaseUser(): FirebaseUser | null {
+	getCurrentUser = (): User | null => {
+		return this.user.getValue();
+	};
+
+	getCurrentFireBaseUser = (): FirebaseUser | null => {
 		return this.auth.currentUser;
-	}
+	};
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser

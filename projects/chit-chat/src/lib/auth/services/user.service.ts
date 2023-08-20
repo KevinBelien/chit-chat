@@ -1,5 +1,17 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
+
+import {
+	DtoPermission,
+	DtoUser,
+	DtoUserRole,
+	FireStoreCollection,
+	MapResult,
+	User,
+	UserRole,
+	UserStatus,
+} from 'chit-chat/src/lib/database-utils';
+
 import {
 	collection,
 	doc,
@@ -7,21 +19,12 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import { Observable, map } from 'rxjs';
-import { LibConfig, LibConfigService } from '../chit-chat.module';
-import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
-import { FireStoreCollection } from '../enums';
-import { MapResult } from '../interfaces';
-import { User, UserRole } from '../models';
-import { UserStatus } from './../types/user-status.type';
 
 @Injectable({
 	providedIn: 'root',
 })
 export class UserService {
-	constructor(
-		@Inject(LibConfigService) private config: LibConfig,
-		private afs: AngularFirestore
-	) {
+	constructor(private afs: AngularFirestore) {
 		// const user: DtoUser = {
 		// 	uid: 'zX3f1LIbs1XceEcOMKkIh9vMYkz1',
 		// 	name: 'Test again',

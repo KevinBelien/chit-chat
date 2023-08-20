@@ -1,7 +1,9 @@
 /*
  * Public API Surface of chit-chat
  */
-export * from './lib/services';
+export * from './lib/database-utils';
+
+export * from './lib/auth';
 
 export * from './lib/components/conversation-list';
 

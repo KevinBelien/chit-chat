@@ -1,7 +1,7 @@
 import { DtoUser } from '../dto';
 import { MapResult } from '../interfaces';
 import { UserStatus, userStatuses } from '../types';
-import { UserRole } from './user-role.model';
+import { UserRole } from './';
 
 export class User implements Omit<DtoUser, 'roleId'> {
 	uid: string;
@@ -71,7 +71,7 @@ export class User implements Omit<DtoUser, 'roleId'> {
 		if (
 			!uid ||
 			!data['name'] ||
-			!data['creationDate'] ||
+			!data['creationDateMs'] ||
 			!role ||
 			!userStatuses.includes(data['onlineStatus'])
 		) {
