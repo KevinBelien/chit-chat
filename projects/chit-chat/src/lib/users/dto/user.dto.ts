@@ -5,5 +5,6 @@ export interface DtoUser {
 	creationDateMs: number;
 	avatar: string | null;
 	onlineStatus: string;
+	color: string;
 	isActivated: boolean;
 }

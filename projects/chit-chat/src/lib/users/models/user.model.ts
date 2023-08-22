@@ -10,6 +10,7 @@ export class User implements Omit<DtoUser, 'roleId'> {
 	creationDateMs: number;
 	avatar: string | null;
 	onlineStatus: UserStatus;
+	color: string;
 	isActivated: boolean;
 
 	constructor(
@@ -19,6 +20,8 @@ export class User implements Omit<DtoUser, 'roleId'> {
 		creationDateMs: number,
 		avatar: string | null,
 		onlineStatus: UserStatus,
+		color: string,
+
 		isActivated: boolean
 	) {
 		this.uid = uid;
@@ -27,6 +30,7 @@ export class User implements Omit<DtoUser, 'roleId'> {
 		this.creationDateMs = creationDateMs;
 		this.avatar = avatar;
 		this.onlineStatus = onlineStatus;
+		this.color = color;
 		this.isActivated = isActivated;
 	}
 
@@ -49,7 +53,7 @@ export class User implements Omit<DtoUser, 'roleId'> {
 
 		const avatar = !!dto.avatar ? dto.avatar : null;
 		const isActivated = !!dto.isActivated ? dto.isActivated : false;
-
+		console.log(dto.onlineStatus);
 		return {
 			data: new User(
 				dto.uid,
@@ -58,6 +62,7 @@ export class User implements Omit<DtoUser, 'roleId'> {
 				dto.creationDateMs,
 				avatar,
 				dto.onlineStatus,
+				dto.color,
 				isActivated
 			),
 		};

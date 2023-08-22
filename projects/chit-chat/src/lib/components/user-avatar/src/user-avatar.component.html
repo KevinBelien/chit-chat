@@ -9,8 +9,19 @@
 
 		<ng-template #noProfilePic>
 			<ng-container *ngIf="!!initials; else noUser">
-				<div class="ch-avatar-initials">
-					<span class="ch-initials">{{ initials }}</span>
+				<div
+					class="ch-avatar-initials"
+					[style]="{
+						backgroundColor: !!userColor ? userColor : '#80848e'
+					}"
+				>
+					<span
+						class="ch-initials"
+						[style]="{
+							color: !!initialTextColor ? initialTextColor : '#80848e'
+						}"
+						>{{ initials }}</span
+					>
 				</div>
 			</ng-container>
 
