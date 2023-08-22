@@ -1,3 +1,7 @@
 <ng-container *ngIf="user$ | async as user">
-    <ch-user-avatar [src]="user.avatar" [initials]="calcInitials(user.name)" ></ch-user-avatar>
+	<ch-user-avatar
+		[src]="user.avatar"
+		[displayName]="user.name"
+		[onlineStatus]="user.onlineStatus"
+	></ch-user-avatar>
 </ng-container>

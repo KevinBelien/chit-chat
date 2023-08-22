@@ -96,9 +96,4 @@ export class UserService {
 			})
 		);
 	};
-
-	calcInitials = (displayName: string): string | null => {
-		const matches = displayName.match(/\b(\w)/g);
-		return !!matches ? matches.join('') : displayName;
-	};
 }

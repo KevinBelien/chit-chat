@@ -1,14 +1,21 @@
-.ch-avatar-initials{
-    height: 100%;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: green;
-    line-height:1;
+.ch-badge-container {
+	display: inline-block;
+	position: relative;
+}
 
-    .ch-initials{
-        letter-spacing: .8px;
-    }
+.ch-avatar-initials {
+	height: 100%;
+	border-radius: 50%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	background-color: green;
+	line-height: 1;
+
+	.ch-initials {
+		letter-spacing: 0.8px;
+		font-size: 0.85em;
+		font-weight: 500;
+	}
 }
