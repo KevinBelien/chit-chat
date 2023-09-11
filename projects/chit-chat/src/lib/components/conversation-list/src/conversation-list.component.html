@@ -1,8 +1,8 @@
 <ng-container *ngIf="user$ | async as user">
 	<ch-user-avatar
-		[src]="user.avatar"
-		[displayName]="user.name"
-		[onlineStatus]="user.onlineStatus"
-		[userColor]="user.color"
+		[src]="user.userInfo.avatar"
+		[displayName]="user.userInfo.name"
+		[onlineStatus]="user.userInfo.onlineStatus"
+		[userColor]="user.userInfo.color"
 	></ch-user-avatar>
 </ng-container>

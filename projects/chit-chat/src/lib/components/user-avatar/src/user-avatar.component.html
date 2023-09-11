@@ -1,4 +1,7 @@
-<div class="ch-avatar ch-badge-container">
+<div
+	class="ch-avatar ch-badge-container"
+	[ngClass]="{ 'ch-hover-disabled': !hoverEnabled }"
+>
 	<ion-avatar
 		[style.height.px]="dimensions"
 		[style.width.px]="dimensions"

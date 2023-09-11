@@ -18,7 +18,13 @@ import {
 // 	LibConfig,
 // 	LibConfigService,
 // } from 'chit-chat/src/lib/lib-config';
-import { DtoUser, User, UserService } from 'chit-chat/src/lib/users';
+import {
+	DtoUser,
+	FullUser,
+	User,
+	UserService,
+} from 'chit-chat/src/lib/users';
+
 import {
 	BehaviorSubject,
 	Observable,
@@ -39,8 +45,8 @@ import {
 export class AuthService {
 	readonly isLoggedInIntoFirebase$ = authState(this.auth);
 
-	user: BehaviorSubject<User | null> =
-		new BehaviorSubject<User | null>(null);
+	user: BehaviorSubject<FullUser | null> =
+		new BehaviorSubject<FullUser | null>(null);
 
 	constructor(
 		private afs: AngularFirestore,
@@ -61,7 +67,7 @@ export class AuthService {
 					else if (!!previousUser)
 						from(
 							this.userService.setUserStatus(
-								previousUser.uid,
+								previousUser.userInfo.uid,
 								'offline'
 							)
 						);
@@ -77,7 +83,7 @@ export class AuthService {
 					return of({ data: null, error: new Error(error) });
 				})
 			)
-			.subscribe(async (user: MapResult<User>) => {
+			.subscribe(async (user: MapResult<FullUser | null>) => {
 				this.user.next(user.data);
 				if (!!user.error) {
 					throw user.error;
@@ -85,7 +91,7 @@ export class AuthService {
 			});
 	}
 
-	getCurrentUser = (): User | null => {
+	getCurrentUser = (): FullUser | null => {
 		return this.user.getValue();
 	};
 
@@ -95,7 +101,7 @@ export class AuthService {
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser
-	): Observable<MapResult<User>> => {
+	): Observable<MapResult<FullUser | null>> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref: any) =>
 				ref
@@ -115,12 +121,32 @@ export class AuthService {
 						userRole: userRole$,
 					});
 				}),
-				map((data) => {
-					if (!!data.userRole.error) {
-						return { data: null, error: data.userRole.error };
+				map((fullUser) => {
+					if (!!fullUser.userRole.error) {
+						return { data: null, error: fullUser.userRole.error };
 					}
 
-					return User.fromDto(data.user, data.userRole);
+					const mappedUser: MapResult<User> = User.fromDto(
+						fullUser.user
+					);
+
+					if (!!mappedUser.error)
+						return { data: null, error: mappedUser.error };
+
+					if (!mappedUser.data || !fullUser.userRole.data)
+						return {
+							data: null,
+							error: new Error(
+								`${!mappedUser.data ? 'User' : 'UserRole'} is null`
+							),
+						};
+
+					return {
+						data: {
+							userInfo: mappedUser.data,
+							role: fullUser.userRole.data,
+						},
+					};
 				}),
 				catchError((error) => {
 					return of({ data: null, error: new Error(error) });

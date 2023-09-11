@@ -7,7 +7,7 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
-import { User } from 'chit-chat/src/lib/users';
+import { FullUser } from 'chit-chat/src/lib/users';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -24,7 +24,7 @@ import { Observable } from 'rxjs';
 	},
 })
 export class ConversationListComponent {
-	user$: Observable<User | null>;
+	user$: Observable<FullUser | null>;
 
 	constructor(private auth: AuthService) {
 		this.user$ = this.auth.user.asObservable();

@@ -1,0 +1,29 @@
+<!-- <div *ngFor="let user of users$ | async">
+	<div>{{ user.uid }}</div>
+</div> -->
+<ion-content>
+	<ion-list class="ch-list ch-user-list">
+		<ng-container *ngIf="users$ | async as users">
+			<ion-item
+				class="ch-list___no-data-container"
+				*ngIf="users.length === 0"
+			>
+				<div class="ion-text-center list___no-data">No users</div>
+			</ion-item>
+			<ion-item
+				*ngFor="let user of users; trackBy: trackUser"
+				class="ch-list-item"
+			>
+				<ch-user-avatar
+					slot="start"
+					[src]="user.avatar"
+					[displayName]="user.name"
+					[onlineStatus]="user.onlineStatus"
+					[userColor]="user.color"
+				></ch-user-avatar>
+
+				<ion-label>{{ user.name }}</ion-label>
+			</ion-item>
+		</ng-container>
+	</ion-list>
+</ion-content>

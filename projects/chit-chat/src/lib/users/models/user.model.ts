@@ -1,32 +1,33 @@
-import { MapResult } from 'chit-chat/src/lib/utils';
+import {
+	MapResult,
+	MapResultCollection,
+} from 'chit-chat/src/lib/utils';
 import { DtoUser } from '../dto';
 import { UserStatus, userStatuses } from '../types';
-import { UserRole } from './';
 
-export class User implements Omit<DtoUser, 'roleId'> {
+export class User implements DtoUser {
 	uid: string;
 	name: string;
-	role: UserRole;
+	roleId: string;
 	creationDateMs: number;
 	avatar: string | null;
 	onlineStatus: UserStatus;
-	color: string;
+	color: string | null;
 	isActivated: boolean;
 
 	constructor(
 		uid: string,
 		name: string,
-		role: UserRole,
+		roleId: string,
 		creationDateMs: number,
 		avatar: string | null,
 		onlineStatus: UserStatus,
-		color: string,
-
+		color: string | null,
 		isActivated: boolean
 	) {
 		this.uid = uid;
 		this.name = name;
-		this.role = role;
+		this.roleId = roleId;
 		this.creationDateMs = creationDateMs;
 		this.avatar = avatar;
 		this.onlineStatus = onlineStatus;
@@ -34,14 +35,8 @@ export class User implements Omit<DtoUser, 'roleId'> {
 		this.isActivated = isActivated;
 	}
 
-	public static fromDto = (
-		dto: DtoUser,
-		userRole: MapResult<UserRole>
-	): MapResult<User> => {
-		if (!!userRole.error)
-			return { data: null, error: userRole.error };
-
-		if (!User.isValid(dto.uid, dto, userRole.data))
+	public static fromDto = (dto: DtoUser): MapResult<User> => {
+		if (!User.isValid(dto.uid, dto))
 			return {
 				data: null,
 				error: new Error(
@@ -53,31 +48,45 @@ export class User implements Omit<DtoUser, 'roleId'> {
 
 		const avatar = !!dto.avatar ? dto.avatar : null;
 		const isActivated = !!dto.isActivated ? dto.isActivated : false;
-		console.log(dto.onlineStatus);
 		return {
 			data: new User(
 				dto.uid,
 				dto.name,
-				userRole.data!,
+				dto.roleId,
 				dto.creationDateMs,
 				avatar,
 				dto.onlineStatus,
-				dto.color,
+				!!dto.color ? dto.color : null,
 				isActivated
 			),
 		};
 	};
 
+	public static fromCollection = (
+		collection: DtoUser[]
+	): MapResultCollection<DtoUser> => {
+		const mapResult = collection.map((user) => User.fromDto(user));
+
+		const users = mapResult
+			.map((result) => result.data)
+			.filter((user): user is User => Boolean(user));
+
+		const errors = mapResult.filter((result) =>
+			Boolean(result.error)
+		);
+
+		return { data: users, errors: errors };
+	};
+
 	public static isValid = (
 		uid: string,
-		data: Record<string, any>,
-		role: UserRole | null
+		data: Record<string, any>
 	): boolean => {
 		if (
 			!uid ||
 			!data['name'] ||
 			!data['creationDateMs'] ||
-			!role ||
+			!data['roleId'] ||
 			!userStatuses.includes(data['onlineStatus'])
 		) {
 			return false;

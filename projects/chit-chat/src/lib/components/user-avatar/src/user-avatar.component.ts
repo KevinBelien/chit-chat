@@ -27,7 +27,10 @@ import { UserStatus } from 'chit-chat/src/lib/users';
 })
 export class UserAvatarComponent implements OnChanges {
 	@Input()
-	dimensions: number = 40;
+	dimensions: number = 42;
+
+	@Input()
+	hoverEnabled: boolean = false;
 
 	@Input()
 	src: string | null = null;
@@ -64,16 +67,12 @@ export class UserAvatarComponent implements OnChanges {
 				return;
 			}
 
-			// const color = tinycolor(changes['userColor'].currentValue);
-			// console.log(color);
-
 			this.initialTextColor = this.isColorLight(
 				changes['userColor'].currentValue
 			)
 				? this.colorShade(changes['userColor'].currentValue, -130)
 				: this.colorShade(changes['userColor'].currentValue, 130);
 
-			console.log(this.initialTextColor);
 			this.cd.detectChanges();
 		}
 	}
@@ -95,87 +94,64 @@ export class UserAvatarComponent implements OnChanges {
 			usePound = true;
 		}
 		const num = parseInt(colorCode, 16);
-		let r = (num >> 16) + amount;
+		let red = (num >> 16) + amount;
 
-		if (r > 255) {
-			r = 255;
-		} else if (r < 0) {
-			r = 0;
+		if (red > 255) {
+			red = 255;
+		} else if (red < 0) {
+			red = 0;
 		}
 
-		let b = ((num >> 8) & 0x00ff) + amount;
+		let blue = ((num >> 8) & 0x00ff) + amount;
 
-		if (b > 255) {
-			b = 255;
-		} else if (b < 0) {
-			b = 0;
+		if (blue > 255) {
+			blue = 255;
+		} else if (blue < 0) {
+			blue = 0;
 		}
 
-		let g = (num & 0x0000ff) + amount;
+		let green = (num & 0x0000ff) + amount;
 
-		if (g > 255) {
-			g = 255;
-		} else if (g < 0) {
-			g = 0;
+		if (green > 255) {
+			green = 255;
+		} else if (green < 0) {
+			green = 0;
 		}
-		let color = (g | (b << 8) | (r << 16)).toString(16);
+		let color = (green | (blue << 8) | (red << 16)).toString(16);
 		while (color.length < 6) {
 			color = 0 + color;
 		}
 		return (usePound ? '#' : '') + color;
 	};
 
-	// lightenColor = (hexColor: string, magnitude: number) => {
-	// 	hexColor = hexColor.replace(`#`, ``);
-	// 	if (hexColor.length === 6) {
-	// 		const decimalColor = parseInt(hexColor, 16);
-	// 		let r = (decimalColor >> 16) + magnitude;
-	// 		r > 255 && (r = 255);
-	// 		r < 0 && (r = 0);
-	// 		let g = (decimalColor & 0x0000ff) + magnitude;
-	// 		g > 255 && (g = 255);
-	// 		g < 0 && (g = 0);
-	// 		let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
-	// 		b > 255 && (b = 255);
-	// 		b < 0 && (b = 0);
-	// 		return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
-	// 	} else {
-	// 		return hexColor;
-	// 	}
-	// };
-
 	isColorLight(color: any) {
-		// Variables for red, green, blue values
-		var r: number, g: number, b: number, hsp: number;
+		var red: number, green: number, blue: number, hsp: number;
 
-		// Check the format of the color, HEX or RGB?
 		if (color.match(/^rgb/)) {
-			// If RGB --> store the red, green, blue values in separate variables
 			color = color.match(
 				/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/
 			);
 
-			r = color[1];
-			g = color[2];
-			b = color[3];
+			red = color[1];
+			green = color[2];
+			blue = color[3];
 		} else {
-			// If hex --> Convert it to RGB: http://gist.github.com/983661
 			color = +(
 				'0x' +
 				color.slice(1).replace(color.length < 5 && /./g, '$&$&')
 			);
 
-			r = color >> 16;
-			g = (color >> 8) & 255;
-			b = color & 255;
+			red = color >> 16;
+			green = (color >> 8) & 255;
+			blue = color & 255;
 		}
 
-		// HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
 		hsp = Math.sqrt(
-			0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b)
+			0.299 * (red * red) +
+				0.587 * (green * green) +
+				0.114 * (blue * blue)
 		);
 
-		// Using the HSP value, determine whether the color is light or dark
 		if (hsp > 127.5) {
 			return true;
 		} else {

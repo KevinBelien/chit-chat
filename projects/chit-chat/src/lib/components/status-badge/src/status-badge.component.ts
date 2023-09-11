@@ -25,7 +25,7 @@ export class StatusBadgeComponent implements OnChanges {
 	status!: UserStatus;
 
 	@Input()
-	size: number = 18;
+	size: number = 21;
 
 	badgeStyle: BadgeStyle = {
 		backgroundColor: 'transparent',
@@ -56,8 +56,14 @@ export class StatusBadgeComponent implements OnChanges {
 				};
 			case 'away':
 				return { backgroundColor: '#dea704', icon: 'time' };
-			case 'offline' || 'show-offline':
+			case 'offline':
 				return { backgroundColor: '#80848e', icon: 'close-circle' };
+			case 'show-offline':
+				return {
+					backgroundColor: '#80848e',
+					icon: 'close-circle',
+				};
+
 			default:
 				return { backgroundColor: 'transparent', icon: 'ellipse' };
 		}

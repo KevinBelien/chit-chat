@@ -4,6 +4,7 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import {
 	FireStoreCollection,
 	MapResult,
+	MapResultCollection,
 } from 'chit-chat/src/lib/utils';
 
 import {
@@ -12,9 +13,10 @@ import {
 	getFirestore,
 	setDoc,
 } from 'firebase/firestore';
-import { Observable, map } from 'rxjs';
+import { isEqual } from 'lodash-es';
+import { Observable, distinctUntilChanged, map, tap } from 'rxjs';
 import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
-import { UserRole } from '../models';
+import { User, UserRole } from '../models';
 import { UserStatus } from '../types';
 
 @Injectable({
@@ -34,16 +36,21 @@ export class UserService {
 		// this.createUser(user);
 	}
 
-	getUsers = () => {
+	getUsers = (
+		activatedUsersOnly: boolean = false
+	): Observable<MapResultCollection<User>> => {
 		return this.afs
-			.collection<DtoUser>(FireStoreCollection.USERS)
-			.snapshotChanges()
+			.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
+				!!activatedUsersOnly
+					? ref.where('isActivated', '==', true).orderBy('name')
+					: ref.orderBy('name')
+			)
+			.valueChanges()
 			.pipe(
-				map((changes) =>
-					changes.map((c) => ({
-						key: c.payload.doc.id,
-						...(c.payload.doc.data() as any),
-					}))
+				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				tap((result) => console.log(result)),
+				map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
+					User.fromCollection(result)
 				)
 			);
 	};
