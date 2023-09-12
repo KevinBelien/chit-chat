@@ -55,6 +55,40 @@ export class UserService {
 			);
 	};
 
+	getUsersBatch = (
+		lastSeenName: string | null,
+		batchSize: number,
+		activatedUsersOnly: boolean = false
+	): Observable<any> => {
+		return this.afs
+			.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
+				!!activatedUsersOnly
+					? ref
+							.where('isActivated', '==', true)
+							.orderBy('name')
+							.startAfter(lastSeenName)
+							.limit(batchSize)
+					: ref
+							.orderBy('name')
+							.startAfter(lastSeenName)
+							.limit(batchSize)
+			)
+			.snapshotChanges()
+			.pipe(
+				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				map((result) => {
+					return result.reduce((acc, cur) => {
+						const id = cur.payload.doc.id;
+						const data = cur.payload.doc.data();
+						return { ...acc, [id]: data };
+					}, {});
+				})
+				// map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
+				// 	User.fromCollection(result)
+				// ),
+			);
+	};
+
 	setUserStatus = async (
 		documentID: string,
 		status: UserStatus

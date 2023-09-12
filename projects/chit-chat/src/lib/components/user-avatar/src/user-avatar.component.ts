@@ -27,7 +27,7 @@ import { UserStatus } from 'chit-chat/src/lib/users';
 })
 export class UserAvatarComponent implements OnChanges {
 	@Input()
-	dimensions: number = 42;
+	dimensions: number = 50;
 
 	@Input()
 	hoverEnabled: boolean = false;
@@ -77,7 +77,7 @@ export class UserAvatarComponent implements OnChanges {
 		}
 	}
 
-	calcInitials = (displayName: string): string | null => {
+	private calcInitials = (displayName: string): string | null => {
 		const matches = displayName.match(/\b(\w)/g);
 		const initials =
 			!!matches && matches.length > 1
@@ -86,7 +86,7 @@ export class UserAvatarComponent implements OnChanges {
 		return !!initials ? initials.join('') : displayName;
 	};
 
-	colorShade = (colorCode: string, amount: number) => {
+	private colorShade = (colorCode: string, amount: number) => {
 		let usePound = false;
 
 		if (colorCode[0] == '#') {
@@ -124,7 +124,7 @@ export class UserAvatarComponent implements OnChanges {
 		return (usePound ? '#' : '') + color;
 	};
 
-	isColorLight(color: any) {
+	private isColorLight(color: any) {
 		var red: number, green: number, blue: number, hsp: number;
 
 		if (color.match(/^rgb/)) {

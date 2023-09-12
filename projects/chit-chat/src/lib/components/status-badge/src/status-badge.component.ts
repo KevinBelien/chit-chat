@@ -25,7 +25,7 @@ export class StatusBadgeComponent implements OnChanges {
 	status!: UserStatus;
 
 	@Input()
-	size: number = 21;
+	size: number = 20;
 
 	badgeStyle: BadgeStyle = {
 		backgroundColor: 'transparent',
@@ -42,7 +42,7 @@ export class StatusBadgeComponent implements OnChanges {
 		}
 	}
 
-	calcBadgeStyle = (status: UserStatus): BadgeStyle => {
+	private calcBadgeStyle = (status: UserStatus): BadgeStyle => {
 		switch (status) {
 			case 'available':
 				return {
