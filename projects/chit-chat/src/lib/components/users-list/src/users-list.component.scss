@@ -3,6 +3,12 @@ cdk-virtual-scroll-viewport.ch-vscroll-viewport {
 	width: 100%;
 }
 
+.ch-user-list-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
 ::ng-deep .ch-user-list {
 	.ch-list-item {
 		--min-height: 65px;

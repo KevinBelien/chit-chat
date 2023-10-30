@@ -1,40 +1,45 @@
-<ion-searchbar
-	[debounce]="searchbarOptions.debounce"
-	[placeholder]="searchbarOptions.placeholder"
-	[showClearButton]="searchbarOptions.showClearButton"
-	(ionInput)="searchUsers($event)"
-></ion-searchbar>
-<ng-container *ngIf="users$ | async as users">
-	<cdk-virtual-scroll-viewport
-		class="ch-vscroll-viewport"
-		itemSize="65"
-	>
-		<ion-list class="ch-list ch-user-list">
-			<ion-item
-				class="ch-list___no-data-container"
-				*ngIf="users.length === 0"
-			>
-				<div class="ion-text-center list___no-data">No users</div>
-			</ion-item>
-			<ion-item
-				*cdkVirtualFor="let user of users; trackBy: trackUser"
-				button
-				[detail]="false"
-				class="ch-list-item"
-				(click)="handleUserClick(user)"
-			>
-				<ch-user-avatar
-					slot="start"
-					[src]="user.avatar"
-					[displayName]="user.name"
-					[onlineStatus]="user.onlineStatus"
-					[userColor]="user.color"
-				></ch-user-avatar>
+<div class="ch-user-list-container">
+	<ion-searchbar
+		mode="ios"
+		[debounce]="searchbarOptions.debounce"
+		[placeholder]="searchbarOptions.placeholder"
+		[showClearButton]="searchbarOptions.showClearButton"
+		(ionInput)="searchUsers($event)"
+	></ion-searchbar>
+	<ng-container *ngIf="users$ | async as users">
+		<cdk-virtual-scroll-viewport
+			class="ch-vscroll-viewport"
+			itemSize="65"
+		>
+			<ion-list class="ch-list ch-user-list" mode="ios">
+				<ion-item
+					*ngIf="users.length === 0"
+					class="ch-list___no-data-container"
+					mode="ios"
+				>
+					<div class="ion-text-center list___no-data">No users</div>
+				</ion-item>
+				<ion-item
+					*cdkVirtualFor="let user of users; trackBy: trackUser"
+					mode="ios"
+					button
+					[detail]="false"
+					class="ch-list-item"
+					(click)="handleUserClick(user)"
+				>
+					<ch-user-avatar
+						slot="start"
+						[src]="user.avatar"
+						[displayName]="user.name"
+						[onlineStatus]="user.onlineStatus"
+						[userColor]="user.color"
+					></ch-user-avatar>
 
-				<ion-label class="ch-list-item-label">{{
-					user.name
-				}}</ion-label>
-			</ion-item>
-		</ion-list>
-	</cdk-virtual-scroll-viewport>
-</ng-container>
+					<ion-label class="ch-list-item-label">{{
+						user.name
+					}}</ion-label>
+				</ion-item>
+			</ion-list>
+		</cdk-virtual-scroll-viewport>
+	</ng-container>
+</div>
