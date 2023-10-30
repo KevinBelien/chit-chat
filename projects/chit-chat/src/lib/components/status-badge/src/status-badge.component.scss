@@ -15,8 +15,12 @@
 
 .ch-badge-icon {
 	border-radius: 50%;
-	background: var(--ion-background-color, #fff);
-	box-shadow: 0 0 0 0.5px var(--ion-background-color, #fff);
+	background: var(
+		--ion-item-background,
+		var(--ion-background-color, #fff)
+	);
+	box-shadow: 0 0 0 0.5px
+		var(--ion-item-background, var(--ion-background-color, #fff));
 }
 
 .ch-icon-md {
