@@ -1,10 +1,13 @@
+<ion-searchbar
+	[debounce]="searchbarOptions.debounce"
+	[placeholder]="searchbarOptions.placeholder"
+	[showClearButton]="searchbarOptions.showClearButton"
+	(ionInput)="searchUsers($event)"
+></ion-searchbar>
 <ng-container *ngIf="users$ | async as users">
 	<cdk-virtual-scroll-viewport
 		class="ch-vscroll-viewport"
 		itemSize="65"
-		(scrolledIndexChange)="
-			getNextBatch($event, users[users.length - 1].name)
-		"
 	>
 		<ion-list class="ch-list ch-user-list">
 			<ion-item
@@ -28,7 +31,9 @@
 					[userColor]="user.color"
 				></ch-user-avatar>
 
-				<ion-label>{{ user.name }}</ion-label>
+				<ion-label class="ch-list-item-label">{{
+					user.name
+				}}</ion-label>
 			</ion-item>
 		</ion-list>
 	</cdk-virtual-scroll-viewport>

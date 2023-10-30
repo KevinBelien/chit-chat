@@ -20,11 +20,10 @@ import { MapResultCollection } from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
 	Observable,
+	combineLatest,
 	map,
-	mergeMap,
-	scan,
-	tap,
 } from 'rxjs';
+import { SearchbarOptions } from '../interfaces';
 
 @Component({
 	selector: 'ch-users-list',
@@ -43,13 +42,14 @@ export class UsersListComponent implements OnInit {
 	viewport?: CdkVirtualScrollViewport;
 
 	@Input()
-	batchSize: number = 40;
+	searchbarOptions: SearchbarOptions;
 
 	users$?: Observable<User[]>;
+
 	currentUser$: Observable<FullUser | null>;
-	private reachedEnd: boolean = false;
-	private offset: BehaviorSubject<string | null> =
-		new BehaviorSubject<string | null>(null);
+
+	private searchValue: BehaviorSubject<string> =
+		new BehaviorSubject<string>('');
 
 	@Output()
 	onUserClick = new EventEmitter<User>();
@@ -58,55 +58,30 @@ export class UsersListComponent implements OnInit {
 		private userService: UserService,
 		private authService: AuthService
 	) {
+		this.searchbarOptions = { debounce: 350 };
 		this.currentUser$ = this.authService.user.asObservable();
 
-		const batch = this.offset.pipe(
-			mergeMap((lastSeen) =>
-				this.userService.getUsersBatch(lastSeen, this.batchSize, true)
-			),
-			tap((result) => {
-				this.reachedEnd = !this.reachedEnd
-					? Object.keys(result).length === 0
-					: this.reachedEnd;
-			}),
-			scan((acc, batch) => {
-				return { ...acc, ...batch };
-			}, {}),
-			map<Record<string, any>, DtoUser[]>((batch) =>
-				Object.values(batch)
-			),
-			map((mappedBatch) => User.fromCollection(mappedBatch)),
-			map((users: MapResultCollection<User>) => users.data)
-		);
+		const allUsers$: Observable<MapResultCollection<DtoUser>> =
+			this.userService.getUsers();
 
-		this.users$ = this.currentUser$.pipe(
-			mergeMap((currentUser: FullUser | null) => {
-				return batch.pipe(
-					map((users: Array<User>) =>
-						users.filter(
-							(user) =>
-								!currentUser || user.uid !== currentUser.userInfo.uid
-						)
-					)
+		this.users$ = combineLatest([
+			allUsers$,
+			this.searchValue,
+			this.currentUser$,
+		]).pipe(
+			map(([users, filterValue, currentUser]) => {
+				return users.data.filter(
+					(user: DtoUser) =>
+						(!currentUser || user.uid !== currentUser.userInfo.uid) &&
+						(!filterValue ||
+							filterValue.trim().length === 0 ||
+							user.name
+								.trim()
+								.toLowerCase()
+								.indexOf(filterValue.trim().toLowerCase()) > -1)
 				);
 			})
 		);
-		// map((users) =>
-		// 	users.filter((user) => user.uidthis.authService.getuser())
-		// )
-		// this.users$ = this.currentUser$.pipe(
-		// 	switchMap((currentUser: FullUser | null) => {
-		// 		return this.userService.getUsers().pipe(
-		// 			map((users: MapResultCollection<User>) => users.data),
-		// 			map((users: Array<User>) =>
-		// 				users.filter(
-		// 					(user) =>
-		// 						!currentUser || user.uid !== currentUser.userInfo.uid
-		// 				)
-		// 			)
-		// 		);
-		// 	})
-		// );
 	}
 
 	ngOnInit(): void {}
@@ -119,12 +94,7 @@ export class UsersListComponent implements OnInit {
 		this.onUserClick.emit(user);
 	};
 
-	getNextBatch = (e: any, lastSeen: string) => {
-		if (this.reachedEnd) return;
-
-		const end = this.viewport?.getRenderedRange().end;
-		const total = this.viewport?.getDataLength();
-
-		if (end === total) this.offset.next(lastSeen);
+	searchUsers = (e: Event) => {
+		this.searchValue.next((e.target as HTMLInputElement).value);
 	};
 }

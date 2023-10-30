@@ -14,7 +14,7 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import { isEqual } from 'lodash-es';
-import { Observable, distinctUntilChanged, map, tap } from 'rxjs';
+import { Observable, distinctUntilChanged, map } from 'rxjs';
 import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
 import { User, UserRole } from '../models';
 import { UserStatus } from '../types';
@@ -38,7 +38,7 @@ export class UserService {
 
 	getUsers = (
 		activatedUsersOnly: boolean = false
-	): Observable<MapResultCollection<User>> => {
+	): Observable<MapResultCollection<DtoUser>> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
 				!!activatedUsersOnly
@@ -48,7 +48,6 @@ export class UserService {
 			.valueChanges()
 			.pipe(
 				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
-				tap((result) => console.log(result)),
 				map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
 					User.fromCollection(result)
 				)
