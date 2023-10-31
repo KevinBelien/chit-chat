@@ -1,0 +1,28 @@
+.ch-badge {
+	position: absolute;
+	border-radius: 50%;
+	background-color: var(--ion-background-color);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+.ch-badge-icon-container {
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+.ch-badge-icon {
+	border-radius: 50%;
+	background: var(
+		--ion-item-background,
+		var(--ion-background-color, #fff)
+	);
+	box-shadow: 0 0 0 0.5px
+		var(--ion-item-background, var(--ion-background-color, #fff));
+}
+
+.ch-icon-md {
+	font-size: 20px;
+}

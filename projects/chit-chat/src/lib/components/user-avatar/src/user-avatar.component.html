@@ -1,0 +1,41 @@
+<div
+	class="ch-avatar ch-badge-container"
+	[ngClass]="{ 'ch-hover-disabled': !hoverEnabled }"
+>
+	<ion-avatar
+		[style.height.px]="dimensions"
+		[style.width.px]="dimensions"
+	>
+		<ng-container *ngIf="!!src; else noProfilePic">
+			<img [alt]="alt" [src]="src" />
+		</ng-container>
+
+		<ng-template #noProfilePic>
+			<ng-container *ngIf="!!initials; else noUser">
+				<div
+					class="ch-avatar-initials"
+					[style]="{
+						backgroundColor: !!userColor ? userColor : '#80848e'
+					}"
+				>
+					<span
+						class="ch-initials"
+						[style]="{
+							color: !!initialTextColor ? initialTextColor : '#80848e'
+						}"
+						>{{ initials }}</span
+					>
+				</div>
+			</ng-container>
+
+			<ng-template #noUser>
+				<img
+					alt="No User"
+					src="https://ionicframework.com/docs/img/demos/avatar.svg"
+				/>
+			</ng-template>
+		</ng-template>
+	</ion-avatar>
+
+	<ch-status-badge [status]="onlineStatus"></ch-status-badge>
+</div>

@@ -1,0 +1,23 @@
+.ch-badge-container {
+	display: inline-block;
+	position: relative;
+
+	&:hover {
+	}
+}
+
+.ch-avatar-initials {
+	height: 100%;
+	border-radius: 50%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	line-height: 1;
+
+	.ch-initials {
+		letter-spacing: 0.3px;
+		font-size: 1rem;
+		font-weight: 500;
+	}
+}
