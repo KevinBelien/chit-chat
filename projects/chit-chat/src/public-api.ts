@@ -1,7 +1,12 @@
 /*
  * Public API Surface of chit-chat
  */
-export * from './lib/services/';
+export * from './lib/utils';
 
-export * from './lib/chit-chat.component';
+export * from './lib/auth';
+export * from './lib/users';
+
+export * from './lib/components/conversation-list';
+export * from './lib/components/user-avatar';
+
 export * from './lib/chit-chat.module';
