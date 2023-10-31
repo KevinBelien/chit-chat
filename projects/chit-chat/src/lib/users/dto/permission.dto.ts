@@ -1,4 +1,4 @@
-import { DtoUserRole } from './userRole.dto';
+import { DtoUserRole } from './user-role.dto';
 
 export interface DtoPermission {
 	name: string;

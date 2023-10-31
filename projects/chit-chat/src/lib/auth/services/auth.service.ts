@@ -19,8 +19,8 @@ import {
 // 	LibConfigService,
 // } from 'chit-chat/src/lib/lib-config';
 import {
+	AuthUser,
 	DtoUser,
-	FullUser,
 	User,
 	UserService,
 } from 'chit-chat/src/lib/users';
@@ -45,8 +45,8 @@ import {
 export class AuthService {
 	readonly isLoggedInIntoFirebase$ = authState(this.auth);
 
-	user: BehaviorSubject<FullUser | null> =
-		new BehaviorSubject<FullUser | null>(null);
+	user: BehaviorSubject<AuthUser | null> =
+		new BehaviorSubject<AuthUser | null>(null);
 
 	constructor(
 		private afs: AngularFirestore,
@@ -83,7 +83,7 @@ export class AuthService {
 					return of({ data: null, error: new Error(error) });
 				})
 			)
-			.subscribe(async (user: MapResult<FullUser | null>) => {
+			.subscribe(async (user: MapResult<AuthUser | null>) => {
 				this.user.next(user.data);
 				if (!!user.error) {
 					throw user.error;
@@ -91,7 +91,7 @@ export class AuthService {
 			});
 	}
 
-	getCurrentUser = (): FullUser | null => {
+	getCurrentUser = (): AuthUser | null => {
 		return this.user.getValue();
 	};
 
@@ -101,7 +101,7 @@ export class AuthService {
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser
-	): Observable<MapResult<FullUser | null>> => {
+	): Observable<MapResult<AuthUser | null>> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref: any) =>
 				ref
@@ -121,19 +121,19 @@ export class AuthService {
 						userRole: userRole$,
 					});
 				}),
-				map((fullUser) => {
-					if (!!fullUser.userRole.error) {
-						return { data: null, error: fullUser.userRole.error };
+				map((authUser) => {
+					if (!!authUser.userRole.error) {
+						return { data: null, error: authUser.userRole.error };
 					}
 
 					const mappedUser: MapResult<User> = User.fromDto(
-						fullUser.user
+						authUser.user
 					);
 
 					if (!!mappedUser.error)
 						return { data: null, error: mappedUser.error };
 
-					if (!mappedUser.data || !fullUser.userRole.data)
+					if (!mappedUser.data || !authUser.userRole.data)
 						return {
 							data: null,
 							error: new Error(
@@ -144,7 +144,7 @@ export class AuthService {
 					return {
 						data: {
 							userInfo: mappedUser.data,
-							role: fullUser.userRole.data,
+							role: authUser.userRole.data,
 						},
 					};
 				}),

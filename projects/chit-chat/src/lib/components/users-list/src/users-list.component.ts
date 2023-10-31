@@ -12,10 +12,10 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { DtoUser } from 'chit-chat';
+import { AuthUser, DtoUser } from 'chit-chat';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
-import { FullUser, User, UserService } from 'chit-chat/src/lib/users';
+import { User, UserService } from 'chit-chat/src/lib/users';
 import { MapResultCollection } from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
@@ -46,7 +46,7 @@ export class UsersListComponent implements OnInit {
 
 	users$?: Observable<User[]>;
 
-	currentUser$: Observable<FullUser | null>;
+	currentUser$: Observable<AuthUser | null>;
 
 	private searchValue: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');

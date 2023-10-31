@@ -1,6 +1,6 @@
 import { User, UserRole } from '../models';
 
-export type FullUser = {
+export type AuthUser = {
 	userInfo: User;
 	role: UserRole;
 };
