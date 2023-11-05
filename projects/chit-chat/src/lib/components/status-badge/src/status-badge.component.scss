@@ -1,7 +1,7 @@
 .ch-badge {
 	position: absolute;
 	border-radius: 50%;
-	background-color: var(--ion-background-color);
+	background-color: var(--ion-background-color, #fff);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;

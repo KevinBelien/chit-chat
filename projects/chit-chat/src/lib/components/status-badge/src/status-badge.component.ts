@@ -19,6 +19,10 @@ import { BadgeStyle } from './interfaces/badge-style.interface';
 	encapsulation: ViewEncapsulation.None,
 	templateUrl: './status-badge.component.html',
 	styleUrls: ['./status-badge.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class StatusBadgeComponent implements OnChanges {
 	@Input({ required: true })

@@ -70,8 +70,8 @@ export class UserAvatarComponent implements OnChanges {
 			this.initialTextColor = this.isColorLight(
 				changes['userColor'].currentValue
 			)
-				? this.colorShade(changes['userColor'].currentValue, -130)
-				: this.colorShade(changes['userColor'].currentValue, 130);
+				? '#31363b'
+				: '#fff';
 
 			this.cd.detectChanges();
 		}
@@ -86,43 +86,43 @@ export class UserAvatarComponent implements OnChanges {
 		return !!initials ? initials.join('') : displayName;
 	};
 
-	private colorShade = (colorCode: string, amount: number) => {
-		let usePound = false;
+	// private colorShade = (colorCode: string, amount: number) => {
+	// 	let usePound = false;
 
-		if (colorCode[0] == '#') {
-			colorCode = colorCode.slice(1);
-			usePound = true;
-		}
-		const num = parseInt(colorCode, 16);
-		let red = (num >> 16) + amount;
+	// 	if (colorCode[0] == '#') {
+	// 		colorCode = colorCode.slice(1);
+	// 		usePound = true;
+	// 	}
+	// 	const num = parseInt(colorCode, 16);
+	// 	let red = (num >> 16) + amount;
 
-		if (red > 255) {
-			red = 255;
-		} else if (red < 0) {
-			red = 0;
-		}
+	// 	if (red > 255) {
+	// 		red = 255;
+	// 	} else if (red < 0) {
+	// 		red = 0;
+	// 	}
 
-		let blue = ((num >> 8) & 0x00ff) + amount;
+	// 	let blue = ((num >> 8) & 0x00ff) + amount;
 
-		if (blue > 255) {
-			blue = 255;
-		} else if (blue < 0) {
-			blue = 0;
-		}
+	// 	if (blue > 255) {
+	// 		blue = 255;
+	// 	} else if (blue < 0) {
+	// 		blue = 0;
+	// 	}
 
-		let green = (num & 0x0000ff) + amount;
+	// 	let green = (num & 0x0000ff) + amount;
 
-		if (green > 255) {
-			green = 255;
-		} else if (green < 0) {
-			green = 0;
-		}
-		let color = (green | (blue << 8) | (red << 16)).toString(16);
-		while (color.length < 6) {
-			color = 0 + color;
-		}
-		return (usePound ? '#' : '') + color;
-	};
+	// 	if (green > 255) {
+	// 		green = 255;
+	// 	} else if (green < 0) {
+	// 		green = 0;
+	// 	}
+	// 	let color = (green | (blue << 8) | (red << 16)).toString(16);
+	// 	while (color.length < 6) {
+	// 		color = 0 + color;
+	// 	}
+	// 	return (usePound ? '#' : '') + color;
+	// };
 
 	private isColorLight(color: any) {
 		var red: number, green: number, blue: number, hsp: number;
@@ -152,10 +152,6 @@ export class UserAvatarComponent implements OnChanges {
 				0.114 * (blue * blue)
 		);
 
-		if (hsp > 127.5) {
-			return true;
-		} else {
-			return false;
-		}
+		return hsp > 150;
 	}
 }

@@ -4,6 +4,7 @@ import {
 } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
+	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
 	Input,
@@ -22,6 +23,7 @@ import {
 	Observable,
 	combineLatest,
 	map,
+	tap,
 } from 'rxjs';
 import { SearchbarOptions } from '../interfaces';
 
@@ -34,8 +36,14 @@ import { SearchbarOptions } from '../interfaces';
 		UserAvatarComponent,
 		ScrollingModule,
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+
 	templateUrl: './users-list.component.html',
 	styleUrls: ['./users-list.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class UsersListComponent implements OnInit {
 	@ViewChild(CdkVirtualScrollViewport)
@@ -51,6 +59,9 @@ export class UsersListComponent implements OnInit {
 	private searchValue: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');
 
+	itemSize: number = 65;
+	buffers: { minBufferPx: number; maxBufferPx: number };
+
 	@Output()
 	onUserClick = new EventEmitter<User>();
 
@@ -58,6 +69,7 @@ export class UsersListComponent implements OnInit {
 		private userService: UserService,
 		private authService: AuthService
 	) {
+		this.buffers = this.calcBuffer();
 		this.searchbarOptions = { debounce: 350 };
 		this.currentUser$ = this.authService.user.asObservable();
 
@@ -80,9 +92,18 @@ export class UsersListComponent implements OnInit {
 								.toLowerCase()
 								.indexOf(filterValue.trim().toLowerCase()) > -1)
 				);
-			})
+			}),
+			tap((users) => console.log('users?', users))
 		);
 	}
+
+	//CALCULATE BUFFER SIZE REGARDING SCREEN HEIGHT AND LIST ITEM SIZE
+	calcBuffer = () => {
+		return {
+			minBufferPx: window.innerHeight - 60,
+			maxBufferPx: window.innerHeight - 60 + this.itemSize * 5,
+		};
+	};
 
 	ngOnInit(): void {}
 

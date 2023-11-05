@@ -1,4 +1,4 @@
-<div class="ch-user-list-container">
+<div class="ch-list-container">
 	<ion-searchbar
 		mode="ios"
 		[debounce]="searchbarOptions.debounce"
@@ -9,7 +9,9 @@
 	<ng-container *ngIf="users$ | async as users">
 		<cdk-virtual-scroll-viewport
 			class="ch-vscroll-viewport"
-			itemSize="65"
+			[itemSize]="itemSize"
+			[minBufferPx]="buffers.minBufferPx"
+			[maxBufferPx]="buffers.maxBufferPx"
 		>
 			<ion-list class="ch-list ch-user-list" mode="ios">
 				<ion-item

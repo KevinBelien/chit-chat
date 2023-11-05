@@ -1,9 +1,5 @@
 .ch-badge-container {
-	display: inline-block;
 	position: relative;
-
-	&:hover {
-	}
 }
 
 .ch-avatar-initials {
@@ -16,7 +12,6 @@
 	line-height: 1;
 
 	.ch-initials {
-		letter-spacing: 0.3px;
 		font-size: 1rem;
 		font-weight: 500;
 	}
