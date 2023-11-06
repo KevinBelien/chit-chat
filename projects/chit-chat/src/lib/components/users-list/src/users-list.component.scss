@@ -4,7 +4,7 @@
 }
 
 cdk-virtual-scroll-viewport.ch-vscroll-viewport {
-	height: calc(100% - 60px);
+	height: 100%;
 	width: 100%;
 }
 
@@ -19,6 +19,10 @@ cdk-virtual-scroll-viewport.ch-vscroll-viewport {
 	height: 100%;
 	.ch-list-item {
 		--min-height: 65px;
+
+		.ch-initials {
+			font-weight: 500;
+		}
 	}
 }
 

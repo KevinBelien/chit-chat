@@ -36,9 +36,6 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 	selectedIndex: number = 0;
 
 	@Output()
-	selectedIndexChange = new EventEmitter<number>();
-
-	@Output()
 	onSelectionChanged = new EventEmitter<{
 		component: TabComponent | null;
 		currentIndex: number;
@@ -92,7 +89,6 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 
 		tab.isActive = true;
 
-		this.selectedIndexChange.emit(index);
 		this.onSelectionChanged.emit({
 			component: tab,
 			currentIndex: index,

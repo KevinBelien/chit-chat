@@ -6,6 +6,7 @@ import {
 	TabsComponent,
 } from 'chit-chat/src/lib/components/tabs';
 import { UsersListComponent } from 'chit-chat/src/lib/components/users-list';
+import { MenuHeaderComponent } from '../menu-header/menu-header.component';
 import { MenuItem, menuItems } from './../types/menu-item.type';
 
 @Component({
@@ -16,6 +17,7 @@ import { MenuItem, menuItems } from './../types/menu-item.type';
 		IonicModule,
 		TabsComponent,
 		TabComponent,
+		MenuHeaderComponent,
 		UsersListComponent,
 	],
 	templateUrl: './menu.component.html',
@@ -29,4 +31,11 @@ export class MenuComponent {
 	selectedIndex: number = 0;
 
 	constructor() {}
+
+	onTabChanged = (e: {
+		component: TabComponent;
+		currentIndex: number;
+	}) => {
+		this.selectedIndex = e.currentIndex;
+	};
 }

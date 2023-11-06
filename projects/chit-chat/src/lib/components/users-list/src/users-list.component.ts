@@ -1,4 +1,11 @@
 import {
+	animate,
+	state,
+	style,
+	transition,
+	trigger,
+} from '@angular/animations';
+import {
 	CdkVirtualScrollViewport,
 	ScrollingModule,
 } from '@angular/cdk/scrolling';
@@ -8,8 +15,10 @@ import {
 	Component,
 	EventEmitter,
 	Input,
+	OnChanges,
 	OnInit,
 	Output,
+	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
@@ -23,9 +32,8 @@ import {
 	Observable,
 	combineLatest,
 	map,
-	tap,
 } from 'rxjs';
-import { SearchbarOptions } from '../interfaces';
+import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 
 @Component({
 	selector: 'ch-users-list',
@@ -44,8 +52,16 @@ import { SearchbarOptions } from '../interfaces';
 		'collision-id': crypto.randomUUID(),
 		class: 'ch-element',
 	},
+	animations: [
+		trigger('openCloseSearchBar', [
+			state('show', style({ height: '60px' })),
+			state('hide', style({ height: '0' })),
+			transition('show => hide', animate('300ms ease-out')),
+			transition('hide => show', animate('300ms ease-in')),
+		]),
+	],
 })
-export class UsersListComponent implements OnInit {
+export class UsersListComponent implements OnInit, OnChanges {
 	@ViewChild(CdkVirtualScrollViewport)
 	viewport?: CdkVirtualScrollViewport;
 
@@ -62,8 +78,12 @@ export class UsersListComponent implements OnInit {
 	itemSize: number = 65;
 	buffers: { minBufferPx: number; maxBufferPx: number };
 
+	isSearchbarVisible: boolean = true;
+
 	@Output()
 	onUserClick = new EventEmitter<User>();
+
+	viewportTopItemIndex?: number;
 
 	constructor(
 		private userService: UserService,
@@ -92,20 +112,49 @@ export class UsersListComponent implements OnInit {
 								.toLowerCase()
 								.indexOf(filterValue.trim().toLowerCase()) > -1)
 				);
-			}),
-			tap((users) => console.log('users?', users))
+			})
 		);
+	}
+
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes['searchbarOptions']) {
+			this.isSearchbarVisible =
+				!('visible' in this.searchbarOptions) ||
+				!!this.searchbarOptions.visible;
+		}
 	}
 
 	//CALCULATE BUFFER SIZE REGARDING SCREEN HEIGHT AND LIST ITEM SIZE
 	calcBuffer = () => {
+		const searchbarHeight = this.isSearchbarVisible ? 60 : 0;
 		return {
-			minBufferPx: window.innerHeight - 60,
-			maxBufferPx: window.innerHeight - 60 + this.itemSize * 5,
+			minBufferPx: window.innerHeight - searchbarHeight,
+			maxBufferPx:
+				window.innerHeight - searchbarHeight + this.itemSize * 5,
 		};
 	};
 
 	ngOnInit(): void {}
+
+	onScroll = (topItemIndex: number) => {
+		if (this.viewportTopItemIndex === topItemIndex) return;
+
+		const searchValue = this.searchValue.getValue();
+		const scrolledUp: boolean =
+			!this.viewportTopItemIndex ||
+			topItemIndex < this.viewportTopItemIndex;
+
+		if (scrolledUp && this.searchbarOptions.hideOnScroll) {
+			this.isSearchbarVisible = true;
+		} else if (
+			this.searchbarOptions.hideOnScroll &&
+			searchValue.trim().length === 0
+		) {
+			this.isSearchbarVisible = false;
+		}
+
+		this.viewportTopItemIndex = topItemIndex;
+	};
 
 	trackUser = (index: number, user: User) => {
 		return user.uid;

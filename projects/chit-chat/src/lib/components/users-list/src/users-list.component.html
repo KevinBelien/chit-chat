@@ -1,17 +1,23 @@
 <div class="ch-list-container">
-	<ion-searchbar
-		mode="ios"
-		[debounce]="searchbarOptions.debounce"
-		[placeholder]="searchbarOptions.placeholder"
-		[showClearButton]="searchbarOptions.showClearButton"
-		(ionInput)="searchUsers($event)"
-	></ion-searchbar>
+	<div
+		class="ch-searchbar-container"
+		[@openCloseSearchBar]="isSearchbarVisible ? 'show' : 'hide'"
+	>
+		<ion-searchbar
+			mode="ios"
+			[debounce]="searchbarOptions.debounce"
+			[placeholder]="searchbarOptions.placeholder"
+			[showClearButton]="searchbarOptions.showClearButton"
+			(ionInput)="searchUsers($event)"
+		></ion-searchbar>
+	</div>
 	<ng-container *ngIf="users$ | async as users">
 		<cdk-virtual-scroll-viewport
 			class="ch-vscroll-viewport"
 			[itemSize]="itemSize"
 			[minBufferPx]="buffers.minBufferPx"
 			[maxBufferPx]="buffers.maxBufferPx"
+			(scrolledIndexChange)="onScroll($event)"
 		>
 			<ion-list class="ch-list ch-user-list" mode="ios">
 				<ion-item

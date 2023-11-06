@@ -1,14 +1,49 @@
-<ch-tabs
-	position="bottom"
-	[fullWidth]="true"
-	[(selectedIndex)]="selectedIndex"
->
-	<ch-tab icon="people-outline">
-		<ch-users-list></ch-users-list>
-	</ch-tab>
+<div class="ch-menu">
+	<ch-menu-header [title]="menuItems[selectedIndex] | titlecase">
+		<div slot-end>
+			<ion-buttons>
+				<ion-button mode="md" fill="clear" class="ch-menu-header-btn">
+					<ion-icon
+						name="filter-outline"
+						class="ch-menu-header-btn-icon"
+					></ion-icon>
+				</ion-button>
+			</ion-buttons>
+		</div>
+	</ch-menu-header>
 
-	<ch-tab icon="people-outline"> Tab 2 </ch-tab>
+	<div class="ch-menu-content">
+		<ch-tabs
+			position="bottom"
+			[fullWidth]="true"
+			[selectedIndex]="selectedIndex"
+			(onSelectionChanged)="onTabChanged($event)"
+		>
+			<ng-container *ngFor="let menuItem of menuItems">
+				<ng-container [ngSwitch]="menuItem">
+					<ch-tab *ngSwitchCase="'chats'" icon="chatbubbles-outline">
+					</ch-tab>
+					<ch-tab *ngSwitchCase="'users'" icon="person-outline">
+						<ch-users-list
+							[searchbarOptions]="{ hideOnScroll: true }"
+						></ch-users-list>
+					</ch-tab>
+					<ch-tab *ngSwitchCase="'groups'" icon="people-outline">
+						Groups
+					</ch-tab>
+					<ch-tab *ngSwitchCase="'calls'" icon="call-outline">
+						Calls
+					</ch-tab>
+					<ch-tab *ngSwitchCase="'settings'" icon="settings-outline">
+						Settings
+					</ch-tab>
+				</ng-container>
+			</ng-container>
+
+			<!-- <ch-tab icon="people-outline"> Tab 2 </ch-tab>
 	<ch-tab icon="people-outline"> Tab 3 </ch-tab>
 	<ch-tab icon="people-outline"> Tab 4 </ch-tab>
-	<ch-tab icon="people-outline"> Tab 5 </ch-tab>
-</ch-tabs>
+	<ch-tab icon="people-outline"> Tab 5 </ch-tab> -->
+		</ch-tabs>
+	</div>
+</div>

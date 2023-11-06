@@ -1,0 +1,9 @@
+.ch-menu-header-toolbar {
+	padding-inline: 12px;
+}
+
+::ng-deep .ch-header-avatar {
+	.ch-avatar-initials .ch-initials {
+		font-size: 0.9rem;
+	}
+}
