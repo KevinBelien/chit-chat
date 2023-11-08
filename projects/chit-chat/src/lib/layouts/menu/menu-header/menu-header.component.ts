@@ -12,6 +12,10 @@ import { Observable } from 'rxjs';
 	imports: [CommonModule, IonicModule, UserAvatarComponent],
 	templateUrl: './menu-header.component.html',
 	styleUrls: ['./menu-header.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class MenuHeaderComponent {
 	@Input()

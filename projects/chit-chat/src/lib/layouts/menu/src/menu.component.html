@@ -17,15 +17,18 @@
 			position="bottom"
 			[fullWidth]="true"
 			[selectedIndex]="selectedIndex"
+			[animationsEnabled]="animationsEnabled"
 			(onSelectionChanged)="onTabChanged($event)"
 		>
 			<ng-container *ngFor="let menuItem of menuItems">
 				<ng-container [ngSwitch]="menuItem">
 					<ch-tab *ngSwitchCase="'chats'" icon="chatbubbles-outline">
+						Chats
 					</ch-tab>
 					<ch-tab *ngSwitchCase="'users'" icon="person-outline">
 						<ch-users-list
 							[searchbarOptions]="{ hideOnScroll: true }"
+							(onUserClick)="onUserClick($event)"
 						></ch-users-list>
 					</ch-tab>
 					<ch-tab *ngSwitchCase="'groups'" icon="people-outline">

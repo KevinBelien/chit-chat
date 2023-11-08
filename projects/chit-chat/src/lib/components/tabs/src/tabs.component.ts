@@ -11,7 +11,7 @@ import {
 	SimpleChanges,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { TabComponent } from '../tab/tab.component';
+import { TabComponent } from './tab/tab.component';
 
 @Component({
 	selector: 'ch-tabs',
@@ -19,6 +19,10 @@ import { TabComponent } from '../tab/tab.component';
 	imports: [CommonModule, IonicModule],
 	templateUrl: './tabs.component.html',
 	styleUrls: ['./tabs.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class TabsComponent implements AfterContentInit, OnChanges {
 	@ContentChildren(TabComponent)
@@ -35,9 +39,12 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 	@Input()
 	selectedIndex: number = 0;
 
+	@Input()
+	animationsEnabled: boolean = false;
+
 	@Output()
 	onSelectionChanged = new EventEmitter<{
-		component: TabComponent | null;
+		component: TabComponent;
 		currentIndex: number;
 	}>();
 
@@ -46,6 +53,10 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 	// contentChildren are set
 	ngAfterContentInit() {
 		if (!this.tabs) return;
+		this.tabs.forEach(
+			(tab) => (tab.animationsEnabled = this.animationsEnabled)
+		);
+
 		// get all active tabs
 		let activeTabs = this.tabs.filter((tab) => tab.isActive);
 
@@ -63,6 +74,13 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 			) {
 				this.selectTabByIndex(changes['selectedIndex'].currentValue);
 			}
+		}
+		if (changes['animationsEnabled']) {
+			this.tabs?.forEach(
+				(tab) =>
+					(tab.animationsEnabled =
+						changes['animationsEnabled'].currentValue)
+			);
 		}
 	}
 

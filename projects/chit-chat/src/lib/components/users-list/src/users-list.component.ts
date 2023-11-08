@@ -48,18 +48,18 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 
 	templateUrl: './users-list.component.html',
 	styleUrls: ['./users-list.component.scss'],
+	animations: [
+		trigger('openCloseSearchBar', [
+			state('show', style({ height: '60px' })),
+			state('hide', style({ height: '0px' })),
+			transition('show => hide', animate('200ms ease-out')),
+			transition('hide => show', animate('200ms ease-in')),
+		]),
+	],
 	host: {
 		'collision-id': crypto.randomUUID(),
 		class: 'ch-element',
 	},
-	animations: [
-		trigger('openCloseSearchBar', [
-			state('show', style({ height: '60px' })),
-			state('hide', style({ height: '0' })),
-			transition('show => hide', animate('300ms ease-out')),
-			transition('hide => show', animate('300ms ease-in')),
-		]),
-	],
 })
 export class UsersListComponent implements OnInit, OnChanges {
 	@ViewChild(CdkVirtualScrollViewport)
@@ -129,8 +129,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 		const searchbarHeight = this.isSearchbarVisible ? 60 : 0;
 		return {
 			minBufferPx: window.innerHeight - searchbarHeight,
-			maxBufferPx:
-				window.innerHeight - searchbarHeight + this.itemSize * 5,
+			maxBufferPx: window.innerHeight + this.itemSize * 5,
 		};
 	};
 
@@ -143,6 +142,15 @@ export class UsersListComponent implements OnInit, OnChanges {
 		const scrolledUp: boolean =
 			!this.viewportTopItemIndex ||
 			topItemIndex < this.viewportTopItemIndex;
+
+		const bottomScrollOffset =
+			this.viewport?.measureScrollOffset('bottom');
+
+		//DO NOT HIDE/SHOW SEARCHBAR WHEN ALREADY SCROLLED TO LAST ITEM
+		if (!!bottomScrollOffset && bottomScrollOffset < 65) {
+			this.viewportTopItemIndex = topItemIndex;
+			return;
+		}
 
 		if (scrolledUp && this.searchbarOptions.hideOnScroll) {
 			this.isSearchbarVisible = true;

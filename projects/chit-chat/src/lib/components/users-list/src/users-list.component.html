@@ -14,6 +14,7 @@
 	<ng-container *ngIf="users$ | async as users">
 		<cdk-virtual-scroll-viewport
 			class="ch-vscroll-viewport"
+			[style.height]="'100%'"
 			[itemSize]="itemSize"
 			[minBufferPx]="buffers.minBufferPx"
 			[maxBufferPx]="buffers.maxBufferPx"

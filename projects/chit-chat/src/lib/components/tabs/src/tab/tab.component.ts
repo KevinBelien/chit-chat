@@ -21,6 +21,10 @@ import { Component, Input } from '@angular/core';
 			transition('false <=> true', animate(75)),
 		]),
 	],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class TabComponent {
 	@Input() isActive = false;
@@ -28,4 +32,6 @@ export class TabComponent {
 	@Input() title: string | null = null;
 
 	@Input() icon: string | null = null;
+
+	@Input() animationsEnabled: boolean = false;
 }

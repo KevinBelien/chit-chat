@@ -1,11 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import {
+	Component,
+	EventEmitter,
+	Input,
+	Output,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import {
 	TabComponent,
 	TabsComponent,
 } from 'chit-chat/src/lib/components/tabs';
 import { UsersListComponent } from 'chit-chat/src/lib/components/users-list';
+import { User } from 'chit-chat/src/lib/users';
 import { MenuHeaderComponent } from '../menu-header/menu-header.component';
 import { MenuItem, menuItems } from './../types/menu-item.type';
 
@@ -22,20 +28,34 @@ import { MenuItem, menuItems } from './../types/menu-item.type';
 	],
 	templateUrl: './menu.component.html',
 	styleUrls: ['./menu.component.scss'],
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
 export class MenuComponent {
 	@Input()
 	menuItems: MenuItem[] = menuItems;
 
 	@Input()
+	animationsEnabled: boolean = false;
+
+	@Input()
 	selectedIndex: number = 0;
 
-	constructor() {}
+	@Output()
+	onUserClicked = new EventEmitter<User>();
+
+	constructor() {} //
 
 	onTabChanged = (e: {
 		component: TabComponent;
 		currentIndex: number;
 	}) => {
 		this.selectedIndex = e.currentIndex;
+	};
+
+	onUserClick = (user: User) => {
+		this.onUserClicked.emit(user);
 	};
 }

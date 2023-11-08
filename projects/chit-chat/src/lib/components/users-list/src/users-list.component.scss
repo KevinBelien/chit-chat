@@ -2,10 +2,15 @@
 	height: 100%;
 	width: 100%;
 }
-
-cdk-virtual-scroll-viewport.ch-vscroll-viewport {
-	height: 100%;
+.ch-list-container cdk-virtual-scroll-viewport.ch-vscroll-viewport {
+	// height: 100%;
 	width: 100%;
+	background-color: var(
+		--ion-item-background,
+		var(--ion-background-color, #fff)
+	);
+
+	overflow-x: hidden;
 }
 
 .ch-list-container {
