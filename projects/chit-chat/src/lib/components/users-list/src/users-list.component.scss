@@ -23,7 +23,19 @@
 ::ng-deep .ch-user-list {
 	height: 100%;
 	.ch-list-item {
-		--min-height: 65px;
+		// &.ion-activated {
+		// 	.ch-badge {
+		// 		background: rgb(var(--ion-text-color, #000));
+
+		// 		.ch-badge-icon {
+		// 			background: rgba(var(--ion-text-color, #000), 0.12);
+
+		// 			box-shadow: 0 0 0 0.5px
+		// 				rgba(var(--ion-text-color, #000) 0.12);
+		// 		}
+		// 	}
+		// }
+		// --min-height: 55px;
 
 		.ch-initials {
 			font-weight: 500;
@@ -33,4 +45,39 @@
 
 .list___no-data {
 	user-select: none;
+}
+
+::ng-deep .ch-list-container:not(.ch-scroll-mobile) {
+	::-webkit-scrollbar {
+		visibility: hidden;
+		width: 6px;
+	}
+
+	::-webkit-scrollbar-track {
+		visibility: hidden;
+
+		border-radius: 2px;
+		background-color: rgba(222, 222, 222, 0.75);
+	}
+
+	::-webkit-scrollbar-thumb {
+		visibility: hidden;
+
+		border-radius: 2px;
+		background-color: rgba(0, 0, 0, 0.5);
+	}
+
+	&:hover {
+		::-webkit-scrollbar {
+			visibility: visible;
+		}
+
+		::-webkit-scrollbar-track {
+			visibility: visible;
+		}
+
+		::-webkit-scrollbar-thumb {
+			visibility: visible;
+		}
+	}
 }

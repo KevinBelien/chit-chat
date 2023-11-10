@@ -8,7 +8,6 @@ import {
 	OnChanges,
 	Output,
 	SimpleChanges,
-	ViewEncapsulation,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { StatusBadgeComponent } from 'chit-chat/src/lib/components/status-badge';
@@ -21,7 +20,6 @@ import { UserStatus } from 'chit-chat/src/lib/users';
 	templateUrl: './user-avatar.component.html',
 	styleUrls: ['./user-avatar.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	encapsulation: ViewEncapsulation.None,
 	host: {
 		'collision-id': crypto.randomUUID(),
 		class: 'ch-element',
@@ -29,7 +27,7 @@ import { UserStatus } from 'chit-chat/src/lib/users';
 })
 export class UserAvatarComponent implements OnChanges {
 	@Input()
-	dimensions: number = 50;
+	dimensions: number = 40;
 
 	@Input()
 	hoverEnabled: boolean = false;

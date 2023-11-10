@@ -26,7 +26,10 @@ import { AuthUser, DtoUser } from 'chit-chat';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
 import { User, UserService } from 'chit-chat/src/lib/users';
-import { MapResultCollection } from 'chit-chat/src/lib/utils';
+import {
+	MapResultCollection,
+	ScreenService,
+} from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
 	Observable,
@@ -45,15 +48,14 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 		ScrollingModule,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-
 	templateUrl: './users-list.component.html',
 	styleUrls: ['./users-list.component.scss'],
 	animations: [
 		trigger('openCloseSearchBar', [
 			state('show', style({ height: '60px' })),
 			state('hide', style({ height: '0px' })),
-			transition('show => hide', animate('200ms ease-out')),
-			transition('hide => show', animate('200ms ease-in')),
+			transition('show => hide', animate('150ms ease-out')),
+			transition('hide => show', animate('150ms ease-in')),
 		]),
 	],
 	host: {
@@ -75,7 +77,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 	private searchValue: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');
 
-	itemSize: number = 65;
+	itemSize: number = 55;
 	buffers: { minBufferPx: number; maxBufferPx: number };
 
 	isSearchbarVisible: boolean = true;
@@ -85,10 +87,14 @@ export class UsersListComponent implements OnInit, OnChanges {
 
 	viewportTopItemIndex?: number;
 
+	isMobile: boolean = false;
+
 	constructor(
 		private userService: UserService,
-		private authService: AuthService
+		private authService: AuthService,
+		private screenService: ScreenService
 	) {
+		this.isMobile = this.screenService.isMobile();
 		this.buffers = this.calcBuffer();
 		this.searchbarOptions = { debounce: 350 };
 		this.currentUser$ = this.authService.user.asObservable();
@@ -129,7 +135,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 		const searchbarHeight = this.isSearchbarVisible ? 60 : 0;
 		return {
 			minBufferPx: window.innerHeight - searchbarHeight,
-			maxBufferPx: window.innerHeight + this.itemSize * 5,
+			maxBufferPx: window.innerHeight + this.itemSize,
 		};
 	};
 
@@ -147,7 +153,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 			this.viewport?.measureScrollOffset('bottom');
 
 		//DO NOT HIDE/SHOW SEARCHBAR WHEN ALREADY SCROLLED TO LAST ITEM
-		if (!!bottomScrollOffset && bottomScrollOffset < 65) {
+		if (!!bottomScrollOffset && bottomScrollOffset < this.itemSize) {
 			this.viewportTopItemIndex = topItemIndex;
 			return;
 		}

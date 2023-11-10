@@ -5,7 +5,6 @@ import {
 	Input,
 	OnChanges,
 	SimpleChanges,
-	ViewEncapsulation,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { UserStatus } from 'chit-chat/src/lib/users';
@@ -16,7 +15,6 @@ import { BadgeStyle } from './interfaces/badge-style.interface';
 	standalone: true,
 	imports: [CommonModule, IonicModule],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	encapsulation: ViewEncapsulation.None,
 	templateUrl: './status-badge.component.html',
 	styleUrls: ['./status-badge.component.scss'],
 	host: {

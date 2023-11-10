@@ -32,7 +32,6 @@ export class ChitChatComponent
 	constructor(private screenService: ScreenService) {
 		this.isSmallScreen = this.screenService.sizes['sm'];
 		this.screenService.breakPointChanged.subscribe(() => {
-			console.log('breakpoint changed', this.screenService.sizes);
 			this.isSmallScreen = this.screenService.sizes['sm'];
 		});
 	}

@@ -1,5 +1,14 @@
 .ch-badge-container {
 	position: relative;
+
+	::ng-deep .ch-badge .ch-badge-icon {
+		background: var(
+			--ion-item-background,
+			var(--ion-background-color, #fff)
+		);
+		box-shadow: 0 0 0 0.5px
+			var(--ion-item-background, var(--ion-background-color, #fff));
+	}
 }
 
 .ch-avatar-initials {
@@ -12,6 +21,6 @@
 	line-height: 1;
 
 	.ch-initials {
-		font-size: 1rem;
+		font-size: 14px;
 	}
 }

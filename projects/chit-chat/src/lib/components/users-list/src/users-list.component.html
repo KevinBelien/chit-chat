@@ -1,7 +1,12 @@
-<div class="ch-list-container">
+<div
+	class="ch-list-container"
+	[ngClass]="{ 'ch-scroll-mobile': isMobile }"
+>
 	<div
 		class="ch-searchbar-container"
-		[@openCloseSearchBar]="isSearchbarVisible ? 'show' : 'hide'"
+		[@openCloseSearchBar]="
+			isSearchbarVisible || !isMobile ? 'show' : 'hide'
+		"
 	>
 		<ion-searchbar
 			mode="ios"
@@ -23,6 +28,7 @@
 			<ion-list class="ch-list ch-user-list" mode="ios">
 				<ion-item
 					*ngIf="users.length === 0"
+					[style.--min-height]="itemSize + 'px'"
 					class="ch-list___no-data-container"
 					mode="ios"
 				>
@@ -32,8 +38,9 @@
 					*cdkVirtualFor="let user of users; trackBy: trackUser"
 					mode="ios"
 					button
-					[detail]="false"
 					class="ch-list-item"
+					[style.--min-height]="itemSize + 'px'"
+					[detail]="false"
 					(click)="handleUserClick(user)"
 				>
 					<ch-user-avatar
