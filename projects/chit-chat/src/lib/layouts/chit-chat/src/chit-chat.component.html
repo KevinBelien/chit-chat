@@ -6,10 +6,18 @@
 >
 	<ion-menu contentId="ch-chat" type="push" [swipeGesture]="false">
 		<ion-content> -->
-<ch-menu
-	[animationsEnabled]="isSmallScreen"
-	(onUserClicked)="closeMenu()"
-></ch-menu>
+
+<ch-split-pane [sidePaneVisible]="sidePaneVisible">
+	<ng-container side-content>
+		<ch-menu
+			[animationsEnabled]="isSmallScreen"
+			(onUserClicked)="onUserClicked($event)"
+		></ch-menu>
+	</ng-container>
+
+	<div main-content>Hello</div>
+</ch-split-pane>
+
 <!-- </ion-content>
 	</ion-menu>
 

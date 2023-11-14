@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { IonMenu, IonicModule, ViewDidEnter } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { IonicModule } from '@ionic/angular';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
 import { MenuComponent } from 'chit-chat/src/lib/layouts/menu';
+import { User } from 'chit-chat/src/lib/users';
 import { ScreenService } from 'chit-chat/src/lib/utils';
 
 @Component({
@@ -21,34 +22,13 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		class: 'ch-element',
 	},
 })
-export class ChitChatComponent
-	implements ViewDidEnter, AfterViewInit
-{
-	@ViewChild(IonMenu, { static: false })
-	menuComponent?: IonMenu;
+export class ChitChatComponent {
+	sidePaneVisible: boolean = true;
 
-	isSmallScreen: boolean = true;
+	constructor(private screenService: ScreenService) {}
 
-	constructor(private screenService: ScreenService) {
-		this.isSmallScreen = this.screenService.sizes['sm'];
-		this.screenService.breakPointChanged.subscribe(() => {
-			this.isSmallScreen = this.screenService.sizes['sm'];
-		});
-	}
-
-	ionViewDidEnter(): void {
-		console.log('view will enter');
-		// this.menuComponent?.open();
-	}
-
-	closeMenu = async () => {
-		console.log('gets to close menu', this.menuComponent);
-		const isClosed = await this.menuComponent?.close();
-		console.log(isClosed);
+	onUserClicked = (user: User) => {
+		console.log('user clicked', user);
+		this.sidePaneVisible = false;
 	};
-
-	ngAfterViewInit(): void {
-		console.log('after view init');
-		this.menuComponent?.open();
-	}
 }

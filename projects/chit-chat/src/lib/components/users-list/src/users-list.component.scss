@@ -20,9 +20,23 @@
 	width: 100%;
 }
 
+::ng-deep .ch-searchbar-container {
+	ion-searchbar .searchbar-input-container {
+		height: 30px;
+
+		.searchbar-input {
+			font-size: 14px;
+		}
+		.searchbar-search-icon {
+			width: 20px;
+		}
+	}
+}
+
 ::ng-deep .ch-user-list {
 	height: 100%;
 	.ch-list-item {
+		font-size: 14px;
 		// &.ion-activated {
 		// 	.ch-badge {
 		// 		background: rgb(var(--ion-text-color, #000));
