@@ -25,7 +25,15 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 export class ChitChatComponent {
 	sidePaneVisible: boolean = true;
 
-	constructor(private screenService: ScreenService) {}
+	isSmallScreen: boolean = false;
+
+	constructor(private screenService: ScreenService) {
+		this.isSmallScreen = this.screenService.sizes['sm'];
+
+		this.screenService.breakPointChanged.subscribe(() => {
+			this.isSmallScreen = this.screenService.sizes['sm'];
+		});
+	}
 
 	onUserClicked = (user: User) => {
 		console.log('user clicked', user);

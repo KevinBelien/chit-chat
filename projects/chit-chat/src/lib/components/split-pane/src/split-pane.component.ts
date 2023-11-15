@@ -25,7 +25,7 @@ export class SplitPaneComponent implements OnChanges {
 	when: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'sm';
 
 	@Input()
-	sidePaneWidth: number = 300;
+	sidePaneWidth: number = 350;
 
 	@Input()
 	sidePaneVisible: boolean = true;
