@@ -1,0 +1,95 @@
+.ch-tab-panel {
+	display: flex;
+	height: 100%;
+	width: 100%;
+
+	&.tabs-full-width {
+		::ng-deep .ch-tab {
+			flex-grow: 1;
+		}
+	}
+
+	.ch-tabs-container {
+		background: var(--ion-tab-bar-background);
+	}
+
+	&.tabs-normal {
+		flex-direction: column;
+
+		.ch-tabs-container {
+			border-bottom: 1px solid var(--ion-tab-bar-border-color);
+
+			.ch-tab.ch-active:before {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				height: 2px;
+				left: 0;
+				right: 0;
+				background-color: var(--ion-color-primary);
+			}
+		}
+	}
+
+	&.tabs-reversed {
+		flex-direction: column-reverse;
+
+		.ch-tabs-container {
+			border-top: 1px solid var(--ion-tab-bar-border-color);
+
+			.ch-tab.ch-active:before {
+				content: '';
+				position: absolute;
+				top: 0;
+				height: 2px;
+				left: 0;
+				right: 0;
+				background-color: var(--ion-color-primary);
+			}
+		}
+	}
+}
+
+.ch-tabs-container {
+	height: 3.8em;
+	display: flex;
+}
+
+.ch-tab {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	padding: 0 16px;
+	user-select: none;
+	min-width: 56px;
+
+	.ch-tab-icon {
+		font-size: 29px;
+	}
+
+	&.tab-icon-with-text {
+		font-size: 12px;
+	}
+
+	&.tab-icon-only {
+		.ch-tab-icon {
+			font-size: 21px;
+		}
+	}
+
+	&:hover {
+		cursor: pointer;
+		color: var(--ion-color-primary);
+	}
+
+	&:focus {
+		color: var(--ion-color-primary);
+	}
+
+	&.ch-active {
+		color: var(--ion-color-primary);
+	}
+}

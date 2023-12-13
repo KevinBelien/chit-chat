@@ -1,0 +1,15 @@
+<div [hidden]="!isActive" class="ch-tab-pane">
+	<div
+		class="ch-tab-annimations-container"
+		*ngIf="animationsEnabled; else noAnimation"
+		[@slideInOut]="isActive"
+	>
+		<ng-container *ngTemplateOutlet="content"></ng-container>
+	</div>
+
+	<ng-template #noAnimation>
+		<ng-container *ngTemplateOutlet="content"></ng-container>
+	</ng-template>
+</div>
+
+<ng-template #content><ng-content></ng-content></ng-template>
