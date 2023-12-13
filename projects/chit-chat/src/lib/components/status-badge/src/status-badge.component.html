@@ -1,10 +1,9 @@
-<div class="ch-badge">
-	<ng-container *ngIf="!!badgeStyle.icon">
+<div class="ch-badge" [class]="badgeConfig.class">
+	<ng-container *ngIf="!!badgeConfig.icon">
 		<ion-icon
-			[name]="badgeStyle.icon"
+			[name]="badgeConfig.icon"
 			class="ch-badge-icon"
 			[style]="{
-				color: badgeStyle.backgroundColor,
 				fontSize: size + 'px',
 			}"
 		></ion-icon>

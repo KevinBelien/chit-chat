@@ -1,1 +1,1 @@
-export * from './query-builder.helper';
+export * from './color.helper';

@@ -79,7 +79,7 @@ export class User implements DtoUser {
 	};
 
 	public static isValid = (
-		uid: string,
+		uid: string | null,
 		data: Record<string, any>
 	): boolean => {
 		if (

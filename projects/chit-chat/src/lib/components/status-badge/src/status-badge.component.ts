@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { UserStatus } from 'chit-chat/src/lib/users';
-import { BadgeStyle } from './interfaces/badge-style.interface';
+import { BadgeConfig } from './interfaces';
 
 @Component({
 	selector: 'ch-status-badge',
@@ -29,8 +29,8 @@ export class StatusBadgeComponent implements OnChanges {
 	@Input()
 	size: number = 20;
 
-	badgeStyle: BadgeStyle = {
-		backgroundColor: 'transparent',
+	badgeConfig: BadgeConfig = {
+		class: '',
 		icon: 'ellipse',
 	};
 
@@ -38,36 +38,36 @@ export class StatusBadgeComponent implements OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['status']) {
-			this.badgeStyle = this.calcBadgeStyle(
+			this.badgeConfig = this.getBadgeConfig(
 				changes['status'].currentValue
 			);
 		}
 	}
 
-	private calcBadgeStyle = (status: UserStatus): BadgeStyle => {
+	private getBadgeConfig = (status: UserStatus): BadgeConfig => {
 		switch (status) {
 			case 'available':
 				return {
-					backgroundColor: '#23a55a',
+					class: 'badge-available',
 					icon: 'ellipse',
 				};
 			case 'do-not-disturb':
 				return {
-					backgroundColor: '#fb3640',
+					class: 'badge-do-not-disturb',
 					icon: 'remove-circle',
 				};
 			case 'away':
-				return { backgroundColor: '#dea704', icon: 'time' };
+				return { class: 'badge-away', icon: 'time' };
 			case 'offline':
-				return { backgroundColor: '#80848e', icon: 'close-circle' };
+				return { class: 'badge-offline', icon: 'close-circle' };
 			case 'show-offline':
 				return {
-					backgroundColor: '#80848e',
+					class: 'badge-show-offline',
 					icon: 'close-circle',
 				};
 
 			default:
-				return { backgroundColor: 'transparent', icon: 'ellipse' };
+				return { class: '', icon: 'ellipse' };
 		}
 	};
 }
