@@ -5,6 +5,7 @@
 	<ion-avatar
 		[style.height.px]="dimensions"
 		[style.width.px]="dimensions"
+		(click)="handleClick($event)"
 	>
 		<ng-container *ngIf="!!src; else noProfilePic">
 			<img [alt]="alt" [src]="src" />
@@ -37,5 +38,8 @@
 		</ng-template>
 	</ion-avatar>
 
-	<ch-status-badge [status]="onlineStatus"></ch-status-badge>
+	<ch-status-badge
+		[status]="onlineStatus"
+		[size]="dimensions / 2.8"
+	></ch-status-badge>
 </div>

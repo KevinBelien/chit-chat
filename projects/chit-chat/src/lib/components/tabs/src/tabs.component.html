@@ -1,0 +1,29 @@
+<div
+	class="ch-tab-panel"
+	[ngClass]="{
+		'tabs-reversed': position === 'bottom',
+		'tabs-normal': position === 'top',
+		'tabs-full-width': fullWidth,
+	}"
+>
+	<div class="ch-tabs-container">
+		<div
+			*ngFor="let tab of tabs; let index = index"
+			class="ch-tab"
+			[ngClass]="{
+				'ch-active': tab.isActive,
+				'tab-icon-only': !!tab.icon && !tab.title,
+				'tab-icon-with-text': !!tab.icon && !!tab.title
+			}"
+			(click)="selectTab(tab, index)"
+		>
+			<ng-container *ngIf="!!tab.icon">
+				<ion-icon [name]="tab.icon" class="ch-tab-icon"></ion-icon>
+			</ng-container>
+			<ng-container *ngIf="!!tab.title">
+				{{ tab.title }}
+			</ng-container>
+		</div>
+	</div>
+	<ng-content></ng-content>
+</div>

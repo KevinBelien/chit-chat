@@ -1,0 +1,18 @@
+.ch-menu {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+}
+
+.ch-menu-content {
+	flex-grow: 1;
+}
+
+.sc-ion-buttons-md-s ion-button.ch-menu-header-btn {
+	font-size: 14px;
+	--padding-start: 8px;
+	--padding-end: 8px;
+	--padding-top: 8px;
+	--padding-bottom: 8px;
+}

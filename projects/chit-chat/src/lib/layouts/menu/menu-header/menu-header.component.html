@@ -1,0 +1,22 @@
+<ng-container *ngIf="user$ | async as user">
+	<ion-header>
+		<ion-toolbar class="ch-menu-header-toolbar">
+			<ch-user-avatar
+				slot="start"
+				class="ch-header-avatar"
+				[src]="user.userInfo.avatar"
+				[displayName]="user.userInfo.name"
+				[onlineStatus]="user.userInfo.onlineStatus"
+				[userColor]="user.userInfo.color"
+				[dimensions]="35"
+			></ch-user-avatar>
+			<ion-title mode="md" class="ch-menu-title">{{
+				title
+			}}</ion-title>
+
+			<div slot="end">
+				<ng-content slot-end></ng-content>
+			</div>
+		</ion-toolbar>
+	</ion-header>
+</ng-container>

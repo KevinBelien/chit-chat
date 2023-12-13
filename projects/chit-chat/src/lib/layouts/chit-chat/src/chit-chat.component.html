@@ -1,1 +1,29 @@
-<p>chit-chat works!</p>
+<!-- <ion-split-pane
+	contentId="ch-chat"
+	when="md"
+	[style.--side-min-width]="isSmallScreen ? '100%' : '350px'"
+	class="ch-split-pane"
+>
+	<ion-menu contentId="ch-chat" type="push" [swipeGesture]="false">
+		<ion-content> -->
+
+<ch-split-pane [sidePaneVisible]="sidePaneVisible">
+	<ng-container side-content>
+		<ch-menu
+			[animationsEnabled]="true"
+			(onUserClicked)="onUserClicked($event)"
+		></ch-menu>
+	</ng-container>
+
+	<div main-content>Hello</div>
+</ch-split-pane>
+
+<!-- </ion-content>
+	</ion-menu>
+
+	<div id="ch-chat" class="ch-chat-container">hello</div>
+</ion-split-pane> -->
+
+<!-- <ch-split-pane></ch-split-pane> -->
+
+<!--  -->

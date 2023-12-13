@@ -1,8 +1,13 @@
 .ch-badge-container {
-	display: inline-block;
 	position: relative;
 
-	&:hover {
+	::ng-deep .ch-badge .ch-badge-icon {
+		background: var(
+			--ion-item-background,
+			var(--ion-background-color, #fff)
+		);
+		box-shadow: 0 0 0 0.5px
+			var(--ion-item-background, var(--ion-background-color, #fff));
 	}
 }
 
@@ -15,9 +20,8 @@
 	align-items: center;
 	line-height: 1;
 
+	font-size: 14px;
+
 	.ch-initials {
-		letter-spacing: 0.3px;
-		font-size: 1rem;
-		font-weight: 500;
 	}
 }

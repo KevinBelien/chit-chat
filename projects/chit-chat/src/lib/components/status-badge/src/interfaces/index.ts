@@ -1,1 +1,1 @@
-export * from './badge-style.interface';
+export * from './badge-config.interface';
