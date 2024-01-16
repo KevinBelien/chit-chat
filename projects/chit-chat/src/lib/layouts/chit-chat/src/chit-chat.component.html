@@ -10,12 +10,15 @@
 <ch-split-pane [sidePaneVisible]="sidePaneVisible">
 	<ng-container side-content>
 		<ch-menu
+			[menuItems]="menuItems"
 			[animationsEnabled]="true"
 			(onUserClicked)="onUserClicked($event)"
 		></ch-menu>
 	</ng-container>
 
-	<div main-content>Hello</div>
+	<ng-container main-content>
+		<ch-chat></ch-chat>
+	</ng-container>
 </ch-split-pane>
 
 <!-- </ion-content>

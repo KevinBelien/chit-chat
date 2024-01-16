@@ -8,11 +8,13 @@ import { MessageContent } from '../types';
 export class Message implements DtoMessage {
 	id: string;
 	isGroupMessage: boolean;
+	groupId?: string;
 	senderId: string;
 	recipientId: string;
 	message: MessageContent;
 	isSeen: boolean;
-	seenAtMs?: number | null;
+	sendAt: string;
+	seenAt?: string | null;
 	isEdited: boolean;
 	isDeleted: boolean;
 
@@ -25,7 +27,9 @@ export class Message implements DtoMessage {
 		isEdited: boolean,
 		isDeleted: boolean,
 		isSeen: boolean,
-		seenAtMs?: number | null
+		sendAt: string,
+		seenAt?: string | null,
+		groupId?: string
 	) {
 		this.id = id;
 		this.isGroupMessage = isGroupMessage;
@@ -35,13 +39,15 @@ export class Message implements DtoMessage {
 		this.isEdited = isEdited;
 		this.isDeleted = isDeleted;
 		this.isSeen = isSeen;
-		this.seenAtMs = seenAtMs;
+		this.sendAt = sendAt;
+		this.seenAt = seenAt;
+		this.groupId = groupId;
 	}
 
 	public static fromDto = (
 		id: string,
 		obj: DtoMessage
-	): MapResult<Message> => {
+	): MapResult<DtoMessage, Message> => {
 		if (!obj.senderId || !obj.recipientId)
 			return {
 				data: null,
@@ -60,14 +66,16 @@ export class Message implements DtoMessage {
 				obj.isEdited,
 				obj.isDeleted,
 				obj.isSeen,
-				obj.seenAtMs
+				obj.sendAt,
+				obj.seenAt,
+				obj.groupId
 			),
 		};
 	};
 
 	public static fromDtoCollection = (
 		collection: (DtoMessage & { id: string })[]
-	): MapResultCollection<Message> => {
+	): MapResultCollection<DtoMessage, Message> => {
 		const mapResult = collection.map((message) =>
 			Message.fromDto(message.id, message)
 		);

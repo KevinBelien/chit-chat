@@ -4,7 +4,6 @@ import { AngularFirestore } from '@angular/fire/compat/firestore';
 import {
 	FireStoreCollection,
 	MapResult,
-	MapResultCollection,
 } from 'chit-chat/src/lib/utils';
 
 import {
@@ -14,7 +13,15 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import { isEqual } from 'lodash-es';
-import { Observable, distinctUntilChanged, map } from 'rxjs';
+import {
+	Observable,
+	catchError,
+	distinctUntilChanged,
+	map,
+	retry,
+	startWith,
+	throwError,
+} from 'rxjs';
 import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
 import { User, UserRole } from '../models';
 import { UserStatus } from '../types';
@@ -38,7 +45,7 @@ export class UserService {
 
 	getUsers = (
 		activatedUsersOnly: boolean = false
-	): Observable<MapResultCollection<DtoUser>> => {
+	): Observable<User[]> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
 				!!activatedUsersOnly
@@ -48,9 +55,16 @@ export class UserService {
 			.valueChanges()
 			.pipe(
 				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
-				map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
-					User.fromCollection(result)
-				)
+				map<DtoUser[], User[]>(
+					(result) => User.fromCollection(result).data
+				),
+				catchError((error: any) => {
+					console.error(error);
+					return throwError(
+						() => new Error('Error occurred while fetching users.')
+					).pipe(startWith([] as User[]));
+				}),
+				retry(3)
 			);
 	};
 
@@ -116,7 +130,7 @@ export class UserService {
 
 	getUserRoleWithPermissions = (
 		roleId: string
-	): Observable<MapResult<UserRole>> => {
+	): Observable<MapResult<DtoUserRole, UserRole>> => {
 		const query = this.afs
 			.collection<DtoUserRole>(FireStoreCollection.ROLES)
 			.doc(roleId)

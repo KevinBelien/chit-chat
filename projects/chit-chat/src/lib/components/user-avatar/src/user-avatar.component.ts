@@ -74,7 +74,7 @@ export class UserAvatarComponent implements OnChanges {
 			this.initialTextColor = ColorHelper.isColorLight(
 				changes['userColor'].currentValue
 			)
-				? '#31363b'
+				? '#21252a'
 				: '#fff';
 
 			this.cd.detectChanges();

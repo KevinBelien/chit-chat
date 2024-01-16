@@ -53,7 +53,6 @@ export class AuthService {
 		private auth: Auth,
 		private userService: UserService // @Inject(LibConfigService) private config: LibConfig
 	) {
-		// console.log(config);
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
@@ -83,12 +82,14 @@ export class AuthService {
 					return of({ data: null, error: new Error(error) });
 				})
 			)
-			.subscribe(async (user: MapResult<AuthUser | null>) => {
-				this.user.next(user.data);
-				if (!!user.error) {
-					throw user.error;
+			.subscribe(
+				async (user: MapResult<DtoUser, AuthUser | null>) => {
+					setTimeout(() => this.user.next(user.data), 1000);
+					if (!!user.error) {
+						throw user.error;
+					}
 				}
-			});
+			);
 	}
 
 	getCurrentUser = (): AuthUser | null => {
@@ -101,7 +102,7 @@ export class AuthService {
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser
-	): Observable<MapResult<AuthUser | null>> => {
+	): Observable<MapResult<DtoUser, AuthUser | null>> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref: any) =>
 				ref
@@ -126,7 +127,7 @@ export class AuthService {
 						return { data: null, error: authUser.userRole.error };
 					}
 
-					const mappedUser: MapResult<User> = User.fromDto(
+					const mappedUser: MapResult<DtoUser, User> = User.fromDto(
 						authUser.user
 					);
 

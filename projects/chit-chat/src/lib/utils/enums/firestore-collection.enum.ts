@@ -3,6 +3,5 @@ export enum FireStoreCollection {
 	ROLES = 'roles',
 	ROLES_PERMISSIONS = 'permissions',
 	GROUPS = 'groups',
-	CHAT = 'chat',
-	CHAT_MESSAGES = 'messages',
+	MESSAGES = 'messages',
 }

@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { ChatComponent } from 'chit-chat/src/lib/components/chat';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
-import { MenuComponent } from 'chit-chat/src/lib/layouts/menu';
+import {
+	MenuComponent,
+	MenuItem,
+} from 'chit-chat/src/lib/layouts/menu';
 import { User } from 'chit-chat/src/lib/users';
 import { ScreenService } from 'chit-chat/src/lib/utils';
 
@@ -13,6 +17,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		CommonModule,
 		IonicModule,
 		MenuComponent,
+		ChatComponent,
 		SplitPaneComponent,
 	],
 	templateUrl: './chit-chat.component.html',
@@ -23,6 +28,14 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	},
 })
 export class ChitChatComponent {
+	@Input()
+	menuItems: MenuItem[] = [
+		'chats',
+		'users',
+		'groups',
+		'calls',
+		'settings',
+	];
 	sidePaneVisible: boolean = true;
 
 	isSmallScreen: boolean = false;
@@ -36,7 +49,6 @@ export class ChitChatComponent {
 	}
 
 	onUserClicked = (user: User) => {
-		console.log('user clicked', user);
 		this.sidePaneVisible = false;
 	};
 }

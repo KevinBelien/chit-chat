@@ -1,4 +1,7 @@
-<div class="ch-split-pane">
+<div
+	class="ch-split-pane"
+	[ngClass]="{ 'ch-split-pane-splitted': isSplitted }"
+>
 	<div class="split-pane-wrapper">
 		<div
 			class="split-pane-side"

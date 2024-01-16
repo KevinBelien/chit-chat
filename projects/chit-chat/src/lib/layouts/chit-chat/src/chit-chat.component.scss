@@ -5,3 +5,12 @@
 .ch-chat-container {
 	width: 100%;
 }
+
+::ng-deep .ch-split-pane-splitted {
+	.ch-list {
+		padding-inline: 6px;
+		.ch-list-item {
+			--border-radius: 6px;
+		}
+	}
+}

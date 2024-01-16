@@ -1,0 +1,41 @@
+<!-- <div class="">
+	<ion-infinite-scroll
+		(ionInfinite)="onIonInfinite($event)"
+		position="top"
+	>
+		<ion-infinite-scroll-content></ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+
+	<ion-list class="ch-list ch-message-list" mode="md">
+		<ion-item
+			*ngFor="let messageInfo of messages$; trackBy: trackMessage"
+		>
+			<ion-label>{{ messageInfo.message.text }}</ion-label>
+		</ion-item>
+	</ion-list>
+	<!-- <div class="ch-list ch-message-list">
+		<div
+			class="ch-message"
+			*ngFor="let messageInfo of messages$; trackBy: trackMessage"
+		>
+			{{ messageInfo.message.text }}
+		</div>
+	</div>
+</div> -->
+<div class="ch-message-board" #scrollingContainer>
+	<div class="ch-list-container ch-chat-container">
+		<cdk-virtual-scroll-viewport
+			class="ch-vscroll-viewport"
+			itemSize="auto"
+			(scroll)="onScroll($event)"
+		>
+			<div
+				*cdkVirtualFor="let item of messages$; trackBy: trackMessage"
+				class="chat-bubble"
+			>
+				<div>{{ item.message.text }}</div>
+				<div>{{ item.sendAt | date }}</div>
+			</div>
+		</cdk-virtual-scroll-viewport>
+	</div>
+</div>

@@ -29,6 +29,9 @@
 						<ch-users-list
 							[searchbarOptions]="{ hideOnScroll: true }"
 							(onUserClick)="onUserClick($event)"
+							[selectedUserId]="
+								!!selectedUser ? selectedUser.uid : null
+							"
 						></ch-users-list>
 					</ch-tab>
 					<ch-tab *ngSwitchCase="'groups'" icon="people-outline">
