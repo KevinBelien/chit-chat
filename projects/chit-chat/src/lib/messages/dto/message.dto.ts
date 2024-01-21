@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore';
 import { MessageContent } from '../types/message-content.type';
 
 export interface DtoMessage {
@@ -7,8 +8,8 @@ export interface DtoMessage {
 	recipientId: string;
 	message: MessageContent;
 	isSeen: boolean;
-	seenAt?: string | null;
-	sendAt: string;
+	seenAt?: Timestamp | null;
+	sendAt: Timestamp;
 	isEdited: boolean;
 	isDeleted: boolean;
 }

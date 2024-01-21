@@ -40,6 +40,9 @@ export class ChitChatComponent {
 
 	isSmallScreen: boolean = false;
 
+	chatContext: { isGroup: boolean; participantId: string } | null =
+		null;
+
 	constructor(private screenService: ScreenService) {
 		this.isSmallScreen = this.screenService.sizes['sm'];
 
@@ -49,6 +52,7 @@ export class ChitChatComponent {
 	}
 
 	onUserClicked = (user: User) => {
+		this.chatContext = { isGroup: false, participantId: user.uid };
 		this.sidePaneVisible = false;
 	};
 }

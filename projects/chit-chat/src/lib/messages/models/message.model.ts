@@ -2,10 +2,11 @@ import {
 	MapResult,
 	MapResultCollection,
 } from 'chit-chat/src/lib/utils';
+import { Timestamp } from 'firebase/firestore';
 import { DtoMessage } from '../dto/message.dto';
 import { MessageContent } from '../types';
 
-export class Message implements DtoMessage {
+export class Message {
 	id: string;
 	isGroupMessage: boolean;
 	groupId?: string;
@@ -13,8 +14,8 @@ export class Message implements DtoMessage {
 	recipientId: string;
 	message: MessageContent;
 	isSeen: boolean;
-	sendAt: string;
-	seenAt?: string | null;
+	sendAt: Date;
+	seenAt?: Date | null;
 	isEdited: boolean;
 	isDeleted: boolean;
 
@@ -27,8 +28,8 @@ export class Message implements DtoMessage {
 		isEdited: boolean,
 		isDeleted: boolean,
 		isSeen: boolean,
-		sendAt: string,
-		seenAt?: string | null,
+		sendAt: Date,
+		seenAt?: Date | null,
 		groupId?: string
 	) {
 		this.id = id;
@@ -48,7 +49,12 @@ export class Message implements DtoMessage {
 		id: string,
 		obj: DtoMessage
 	): MapResult<DtoMessage, Message> => {
-		if (!obj.senderId || !obj.recipientId)
+		if (
+			!obj.senderId ||
+			!obj.recipientId ||
+			!(obj.sendAt instanceof Timestamp) ||
+			(!!obj.seenAt && !(obj.seenAt instanceof Timestamp))
+		)
 			return {
 				data: null,
 				error: new Error(
@@ -66,8 +72,8 @@ export class Message implements DtoMessage {
 				obj.isEdited,
 				obj.isDeleted,
 				obj.isSeen,
-				obj.sendAt,
-				obj.seenAt,
+				obj.sendAt.toDate(),
+				!!obj.seenAt ? obj.seenAt.toDate() : null,
 				obj.groupId
 			),
 		};
@@ -76,18 +82,22 @@ export class Message implements DtoMessage {
 	public static fromDtoCollection = (
 		collection: (DtoMessage & { id: string })[]
 	): MapResultCollection<DtoMessage, Message> => {
-		const mapResult = collection.map((message) =>
-			Message.fromDto(message.id, message)
+		const result = collection.reduce(
+			(acc: MapResultCollection<DtoMessage, Message>, message) => {
+				const mappedMessage = Message.fromDto(message.id, message);
+				if (mappedMessage.error) {
+					acc.errors.push(mappedMessage);
+				} else {
+					acc.data.push(mappedMessage.data!);
+				}
+				return acc;
+			},
+			{ data: [], errors: [] } as MapResultCollection<
+				DtoMessage,
+				Message
+			>
 		);
 
-		const messages = mapResult
-			.map((result) => result.data)
-			.filter((message): message is Message => Boolean(message));
-
-		const errors = mapResult.filter((result) =>
-			Boolean(result.error)
-		);
-
-		return { data: messages, errors: errors };
+		return result;
 	};
 }
