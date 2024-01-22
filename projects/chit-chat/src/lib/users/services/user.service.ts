@@ -20,6 +20,7 @@ import {
 	map,
 	retry,
 	startWith,
+	tap,
 	throwError,
 } from 'rxjs';
 import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
@@ -58,6 +59,7 @@ export class UserService {
 				map<DtoUser[], User[]>(
 					(result) => User.fromCollection(result).data
 				),
+				tap((users) => console.log(users)),
 				catchError((error: any) => {
 					console.error(error);
 					return throwError(

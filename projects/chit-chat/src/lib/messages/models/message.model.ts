@@ -2,7 +2,6 @@ import {
 	MapResult,
 	MapResultCollection,
 } from 'chit-chat/src/lib/utils';
-import { Timestamp } from 'firebase/firestore';
 import { DtoMessage } from '../dto/message.dto';
 import { MessageContent } from '../types';
 
@@ -49,12 +48,7 @@ export class Message {
 		id: string,
 		obj: DtoMessage
 	): MapResult<DtoMessage, Message> => {
-		if (
-			!obj.senderId ||
-			!obj.recipientId ||
-			!(obj.sendAt instanceof Timestamp) ||
-			(!!obj.seenAt && !(obj.seenAt instanceof Timestamp))
-		)
+		if (!obj.senderId || !obj.recipientId || !obj.sendAt)
 			return {
 				data: null,
 				error: new Error(
@@ -72,8 +66,8 @@ export class Message {
 				obj.isEdited,
 				obj.isDeleted,
 				obj.isSeen,
-				obj.sendAt.toDate(),
-				!!obj.seenAt ? obj.seenAt.toDate() : null,
+				new Date(obj.sendAt),
+				!!obj.seenAt ? new Date(obj.seenAt) : null,
 				obj.groupId
 			),
 		};
@@ -99,5 +93,21 @@ export class Message {
 		);
 
 		return result;
+	};
+
+	convertToDto = (): DtoMessage => {
+		return {
+			isGroupMessage: this.isGroupMessage,
+			senderId: this.senderId,
+			recipientId: this.recipientId,
+			participants: [this.senderId, this.recipientId],
+			message: this.message,
+			isEdited: this.isEdited,
+			isDeleted: this.isDeleted,
+			isSeen: this.isSeen,
+			sendAt: this.sendAt.getTime(),
+			seenAt: !!this.seenAt ? this.seenAt.getTime() : null,
+			groupId: this.groupId,
+		};
 	};
 }

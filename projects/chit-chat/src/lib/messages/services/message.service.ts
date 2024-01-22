@@ -11,13 +11,13 @@ import {
 	setDoc,
 } from 'firebase/firestore';
 import { isEqual } from 'lodash-es';
-import { Observable, of } from 'rxjs';
 import {
+	Observable,
 	catchError,
 	distinctUntilChanged,
 	map,
-	switchMap,
-} from 'rxjs/operators';
+	of,
+} from 'rxjs';
 import { DtoMessage } from '../dto';
 import { Message } from './../models/message.model';
 
@@ -26,8 +26,14 @@ import { Message } from './../models/message.model';
 })
 export class MessageService {
 	constructor(private afs: AngularFirestore) {
-		// mockdata.forEach(async (element) => {
-		// 	console.log('gets to message create', element);
+		// const mockData = messages.map((element: any) => {
+		// 	return Object.assign({}, element, {
+		// 		sendAt: element.sendAt,
+		// 		seenAt: element.seenAt,
+		// 	});
+		// });
+		// mockData.forEach((message) => {
+		// 	this.sendMessage(message);
 		// });
 	}
 
@@ -49,75 +55,49 @@ export class MessageService {
 	};
 
 	getMessages = (
-		lastSeen: Message | null,
+		context: { users: Array<string>; isGroup: boolean },
+		lastSeenMessage: Message | null,
 		batchSize: number
 	): Observable<Message[]> => {
-		return of(lastSeen).pipe(
-			switchMap((lastSeenMessage) => {
-				const query = this.afs.collection<DtoMessage>(
-					FireStoreCollection.MESSAGES,
-					(ref) => {
-						let modifiedRef = ref.orderBy('sendAt', 'desc');
-						if (lastSeenMessage) {
-							// If lastSeen is not null, fetch the next batchSize messages after lastSeenMessage
-							modifiedRef = modifiedRef.startAfter(
-								lastSeenMessage.sendAt
-							);
-						}
-						return modifiedRef.limit(batchSize);
-					}
-				);
-				return query.snapshotChanges();
-			}),
-			distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+		return this.afs
+			.collection<DtoMessage>(FireStoreCollection.MESSAGES, (ref) => {
+				let modifiedRef = ref.orderBy('sendAt', 'desc');
 
-			map<Array<DocumentChangeAction<DtoMessage>>, Message[]>(
-				(result) => {
-					const dtos = result.map((document) => ({
-						id: document.payload.doc.id,
-						...document.payload.doc.data(),
-					}));
-					return Message.fromDtoCollection(dtos).data;
+				if (!!lastSeenMessage) {
+					modifiedRef = modifiedRef.startAfter(
+						lastSeenMessage.convertToDto().sendAt
+					);
 				}
-			),
-			// tap((result) => console.log('fetch', result)),
 
-			catchError((error: any) => {
-				console.error(error);
-				return of([] as Message[]); // Return an empty array in case of an error
+				modifiedRef = modifiedRef.where(
+					'isGroupMessage',
+					'==',
+					context.isGroup
+				);
+				modifiedRef = modifiedRef.where('participants', 'in', [
+					context.users,
+				]);
+
+				return modifiedRef.limit(batchSize);
 			})
-		);
-	};
+			.snapshotChanges()
+			.pipe(
+				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
 
-	// getMessages = (
-	// 	lastSeen: Message | null,
-	// 	batchSize: number
-	// ): Observable<Message[]> => {
-	// 	return this.afs
-	// 		.collection<DtoMessage>(FireStoreCollection.MESSAGES, (ref) =>
-	// 			ref
-	// 				.orderBy('sendAt')
-	// 				.startAfter(!!lastSeen ? lastSeen.sendAt : null)
-	// 				.limit(batchSize)
-	// 		)
-	// 		.snapshotChanges()
-	// 		.pipe(
-	// 			distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
-	// 			map<Array<DocumentChangeAction<DtoMessage>>, Message[]>(
-	// 				(result) => {
-	// 					const dtos = result.map((document) => ({
-	// 						id: document.payload.doc.id,
-	// 						...document.payload.doc.data(),
-	// 					}));
-	// 					return Message.fromDtoCollection(dtos).data;
-	// 				}
-	// 			),
-	// 			catchError((error: any) => {
-	// 				console.error(error);
-	// 				return throwError(
-	// 					() => new Error('Error occurred while fetching messages.')
-	// 				).pipe(startWith([] as Message[]));
-	// 			})
-	// 		);
-	// };
+				map<Array<DocumentChangeAction<DtoMessage>>, Message[]>(
+					(result) => {
+						console.log('messages', lastSeenMessage, result);
+						const dtos = result.map((document) => ({
+							id: document.payload.doc.id,
+							...document.payload.doc.data(),
+						}));
+						return Message.fromDtoCollection(dtos).data;
+					}
+				),
+				catchError((error: any) => {
+					console.error(error);
+					return of([] as Message[]); // Return an empty array in case of an error
+				})
+			);
+	};
 }

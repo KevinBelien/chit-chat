@@ -16,6 +16,7 @@ import {
 	EventEmitter,
 	Input,
 	OnChanges,
+	OnDestroy,
 	OnInit,
 	Output,
 	SimpleChanges,
@@ -30,11 +31,13 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
 	Observable,
+	Subject,
 	combineLatest,
 	map,
 	of,
 	startWith,
 	switchMap,
+	takeUntil,
 } from 'rxjs';
 import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 
@@ -63,7 +66,9 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 		class: 'ch-element',
 	},
 })
-export class UsersListComponent implements OnInit, OnChanges {
+export class UsersListComponent
+	implements OnInit, OnChanges, OnDestroy
+{
 	@ViewChild(CdkVirtualScrollViewport)
 	viewport?: CdkVirtualScrollViewport;
 
@@ -84,6 +89,8 @@ export class UsersListComponent implements OnInit, OnChanges {
 
 	isMobile: boolean = false;
 
+	private destroy$: Subject<void> = new Subject<void>();
+
 	private searchValue: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');
 
@@ -100,6 +107,7 @@ export class UsersListComponent implements OnInit, OnChanges {
 		this.currentUser$ = this.authService.user;
 
 		this.users$ = this.currentUser$.pipe(
+			takeUntil(this.destroy$),
 			switchMap((currentUser: AuthUser | null) => {
 				const allUsers$: Observable<User[]> = currentUser
 					? (this.userService.getUsers() as Observable<User[]>)
@@ -128,6 +136,11 @@ export class UsersListComponent implements OnInit, OnChanges {
 				!('visible' in this.searchbarOptions) ||
 				!!this.searchbarOptions.visible;
 		}
+	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
 	}
 
 	// groupUsers = (users: Array<User>, groupExpr: keyof User) => {

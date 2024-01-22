@@ -13,7 +13,9 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { AuthService } from 'chit-chat/src/lib/auth';
 import { Message, MessageService } from 'chit-chat/src/lib/messages';
+
 import {
 	BehaviorSubject,
 	Observable,
@@ -27,6 +29,8 @@ import {
 	tap,
 	throttleTime,
 } from 'rxjs';
+
+import { AuthUser } from 'chit-chat/src/lib/users';
 
 @Component({
 	selector: 'ch-chat',
@@ -62,14 +66,22 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	private destroy$: Subject<void> = new Subject<void>();
 
 	lastMessageFetched: boolean = false;
-	firstfetch: boolean = true;
+	firstFetch: boolean = true;
+
+	currentUser$: Observable<AuthUser | null>;
 
 	isLoading: boolean = false;
 
-	constructor(private messageService: MessageService) {}
+	constructor(
+		private messageService: MessageService,
+		private authService: AuthService
+	) {
+		this.currentUser$ = this.authService.user;
+		this.currentUser$.pipe(tap(() => this.resetMessageStream()));
+	}
 
 	ngOnInit(): void {
-		this.setMessagesStream();
+		this.initializeMessagesStream();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -91,26 +103,34 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		this.destroy$.next();
 		this.lastMessage.next(null);
 		this.lastMessageFetched = false;
-		this.firstfetch = true;
+		this.firstFetch = true;
 		this.context.next(this.chatContext);
-		this.setMessagesStream();
+		this.initializeMessagesStream();
 	}
 
-	setMessagesStream = (): void => {
+	initializeMessagesStream = (): void => {
 		this.messages$ = combineLatest([
+			this.currentUser$,
 			this.lastMessage,
 			this.context,
 		]).pipe(
 			takeUntil(this.destroy$),
 			throttleTime(500),
-			mergeMap(([lastMessage, chatContext]) => {
-				if (!chatContext) {
+			mergeMap(([currentUser, lastMessage, chatContext]) => {
+				if (!chatContext || !currentUser) {
 					return of([] as Message[]) as Observable<Message[]>;
 				}
 
 				this.isLoading = true;
 
 				return this.messageService.getMessages(
+					{
+						users: [
+							currentUser.userInfo.uid,
+							chatContext.participantId,
+						],
+						isGroup: chatContext.isGroup,
+					},
 					lastMessage,
 					20
 				) as Observable<Message[]>;
@@ -137,8 +157,8 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 				);
 			}),
 			tap((result) => {
-				if (this.firstfetch) setTimeout(() => this.scrollToBottom());
-				if (result.length > 0) this.firstfetch = false;
+				if (this.firstFetch) setTimeout(() => this.scrollToBottom());
+				if (result.length > 0) this.firstFetch = false;
 
 				this.isLoading = false;
 			})
