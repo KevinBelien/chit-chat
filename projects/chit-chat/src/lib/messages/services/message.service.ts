@@ -74,8 +74,10 @@ export class MessageService {
 					'==',
 					context.isGroup
 				);
+
 				modifiedRef = modifiedRef.where('participants', 'in', [
 					context.users,
+					[...context.users].reverse(),
 				]);
 
 				return modifiedRef.limit(batchSize);
@@ -94,6 +96,7 @@ export class MessageService {
 						return Message.fromDtoCollection(dtos).data;
 					}
 				),
+
 				catchError((error: any) => {
 					console.error(error);
 					return of([] as Message[]); // Return an empty array in case of an error

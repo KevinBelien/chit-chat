@@ -51,6 +51,9 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	chatContext: { isGroup: boolean; participantId: string } | null =
 		null;
 
+	@Input()
+	batchSize: number = 20;
+
 	messages$?: Observable<Message[]>;
 	lastMessage: BehaviorSubject<Message | null> =
 		new BehaviorSubject<Message | null>(null);
@@ -132,7 +135,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 						isGroup: chatContext.isGroup,
 					},
 					lastMessage,
-					20
+					this.batchSize
 				) as Observable<Message[]>;
 			}),
 			tap((messages: Message[]) => {
