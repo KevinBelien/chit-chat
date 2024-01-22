@@ -91,7 +91,7 @@ export class UsersListComponent
 
 	private destroy$: Subject<void> = new Subject<void>();
 
-	private searchValue: BehaviorSubject<string> =
+	private searchValue$: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');
 
 	@Output() onUserClick = new EventEmitter<User>();
@@ -104,7 +104,7 @@ export class UsersListComponent
 		this.isMobile = this.screenService.isMobile();
 		this.buffers = this.calcBuffer();
 		this.searchbarOptions = { debounce: 350 };
-		this.currentUser$ = this.authService.user;
+		this.currentUser$ = this.authService.user$;
 
 		this.users$ = this.currentUser$.pipe(
 			takeUntil(this.destroy$),
@@ -115,7 +115,7 @@ export class UsersListComponent
 
 				return combineLatest([
 					allUsers$.pipe(startWith([])),
-					this.searchValue,
+					this.searchValue$,
 					this.currentUser$,
 				]).pipe(
 					map(([users, filterValue, currentUser]) => {
@@ -184,7 +184,7 @@ export class UsersListComponent
 	onScroll = (topItemIndex: number) => {
 		if (this.viewportTopItemIndex === topItemIndex) return;
 
-		const searchValue = this.searchValue.getValue();
+		const searchValue = this.searchValue$.getValue();
 		const scrolledUp: boolean =
 			!this.viewportTopItemIndex ||
 			topItemIndex < this.viewportTopItemIndex;
@@ -219,6 +219,6 @@ export class UsersListComponent
 	};
 
 	searchUsers = (e: Event) => {
-		this.searchValue.next((e.target as HTMLInputElement).value);
+		this.searchValue$.next((e.target as HTMLInputElement).value);
 	};
 }

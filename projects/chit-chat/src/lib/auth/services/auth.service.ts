@@ -45,7 +45,7 @@ import {
 export class AuthService {
 	readonly isLoggedInIntoFirebase$ = authState(this.auth);
 
-	user: BehaviorSubject<AuthUser | null> =
+	user$: BehaviorSubject<AuthUser | null> =
 		new BehaviorSubject<AuthUser | null>(null);
 
 	constructor(
@@ -57,7 +57,7 @@ export class AuthService {
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
 					//Set online status of user depending if user logged in/off
-					const previousUser = this.user.getValue();
+					const previousUser = this.user$.getValue();
 
 					if (!!user)
 						from(
@@ -84,7 +84,7 @@ export class AuthService {
 			)
 			.subscribe(
 				async (user: MapResult<DtoUser, AuthUser | null>) => {
-					setTimeout(() => this.user.next(user.data), 1000);
+					setTimeout(() => this.user$.next(user.data), 1000);
 					if (!!user.error) {
 						throw user.error;
 					}
@@ -93,7 +93,7 @@ export class AuthService {
 	}
 
 	getCurrentUser = (): AuthUser | null => {
-		return this.user.getValue();
+		return this.user$.getValue();
 	};
 
 	getCurrentFireBaseUser = (): FirebaseUser | null => {

@@ -56,7 +56,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	chatContext: { isGroup: boolean; participantId: string } | null =
 		null;
 
-	context: BehaviorSubject<{
+	chatContext$: BehaviorSubject<{
 		isGroup: boolean;
 		participantId: string;
 	} | null> = new BehaviorSubject<{
@@ -69,7 +69,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	currentUser$: Observable<AuthUser | null>;
 	messages$?: Observable<Message[]>;
 
-	lastMessage: BehaviorSubject<Message | null> =
+	lastMessage$: BehaviorSubject<Message | null> =
 		new BehaviorSubject<Message | null>(null);
 	currentLastMessage: Message | null = null;
 	lastMessageFetched: boolean = false;
@@ -85,7 +85,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		private authService: AuthService,
 		private scrollDispatcher: ScrollDispatcher
 	) {
-		this.currentUser$ = this.authService.user;
+		this.currentUser$ = this.authService.user$;
 		this.currentUser$
 			.pipe(takeUntil(this.destroy$))
 			.subscribe((currentUser) => this.resetMessageStream());
@@ -127,18 +127,18 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	private resetMessageStream(): void {
 		this.destroyMessages$.next();
-		this.lastMessage.next(null);
+		this.lastMessage$.next(null);
 		this.lastMessageFetched = false;
 		this.firstFetch = true;
-		this.context.next(this.chatContext);
+		this.chatContext$.next(this.chatContext);
 		this.initializeMessagesStream();
 	}
 
 	initializeMessagesStream = (): void => {
 		this.messages$ = combineLatest([
 			this.currentUser$,
-			this.lastMessage,
-			this.context,
+			this.lastMessage$,
+			this.chatContext$,
 		]).pipe(
 			takeUntil(this.destroyMessages$),
 			throttleTime(500),
@@ -205,7 +205,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			!this.isLoading &&
 			!this.lastMessageFetched
 		) {
-			this.lastMessage.next(this.currentLastMessage);
+			this.lastMessage$.next(this.currentLastMessage);
 		}
 	};
 
