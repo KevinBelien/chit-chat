@@ -1,5 +1,6 @@
 import {
 	CdkVirtualScrollViewport,
+	ScrollDispatcher,
 	ScrollingModule,
 } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
@@ -21,6 +22,7 @@ import {
 	Observable,
 	Subject,
 	combineLatest,
+	filter,
 	map,
 	mergeMap,
 	of,
@@ -44,19 +46,15 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 	},
 })
 export class ChatComponent implements OnInit, OnChanges, OnDestroy {
-	@ViewChild(CdkVirtualScrollViewport)
+	@ViewChild(CdkVirtualScrollViewport, { static: false })
 	viewport?: CdkVirtualScrollViewport;
-
-	@Input()
-	chatContext: { isGroup: boolean; participantId: string } | null =
-		null;
 
 	@Input()
 	batchSize: number = 20;
 
-	messages$?: Observable<Message[]>;
-	lastMessage: BehaviorSubject<Message | null> =
-		new BehaviorSubject<Message | null>(null);
+	@Input()
+	chatContext: { isGroup: boolean; participantId: string } | null =
+		null;
 
 	context: BehaviorSubject<{
 		isGroup: boolean;
@@ -66,24 +64,47 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		participantId: string;
 	} | null>(null);
 
-	private destroy$: Subject<void> = new Subject<void>();
+	viewportId: string = `chat-list-viewport-${crypto.randomUUID()}`;
 
+	currentUser$: Observable<AuthUser | null>;
+	messages$?: Observable<Message[]>;
+
+	lastMessage: BehaviorSubject<Message | null> =
+		new BehaviorSubject<Message | null>(null);
+	currentLastMessage: Message | null = null;
 	lastMessageFetched: boolean = false;
 	firstFetch: boolean = true;
 
-	currentUser$: Observable<AuthUser | null>;
-
 	isLoading: boolean = false;
+
+	private destroyMessages$: Subject<void> = new Subject<void>();
+	private destroy$: Subject<void> = new Subject<void>();
 
 	constructor(
 		private messageService: MessageService,
-		private authService: AuthService
+		private authService: AuthService,
+		private scrollDispatcher: ScrollDispatcher
 	) {
 		this.currentUser$ = this.authService.user;
-		this.currentUser$.pipe(tap(() => this.resetMessageStream()));
+		this.currentUser$
+			.pipe(takeUntil(this.destroy$))
+			.subscribe((currentUser) => this.resetMessageStream());
 	}
 
 	ngOnInit(): void {
+		this.scrollDispatcher
+			.scrolled()
+			.pipe(
+				takeUntil(this.destroy$),
+				filter(
+					(event) =>
+						event instanceof CdkVirtualScrollViewport &&
+						event.elementRef.nativeElement.id === this.viewportId
+				)
+			)
+			.subscribe(async (event) => {
+				this.onScroll();
+			});
 		this.initializeMessagesStream();
 	}
 
@@ -98,12 +119,14 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.destroyMessages$.next();
+		this.destroyMessages$.complete();
 		this.destroy$.next();
 		this.destroy$.complete();
 	}
 
 	private resetMessageStream(): void {
-		this.destroy$.next();
+		this.destroyMessages$.next();
 		this.lastMessage.next(null);
 		this.lastMessageFetched = false;
 		this.firstFetch = true;
@@ -117,7 +140,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			this.lastMessage,
 			this.context,
 		]).pipe(
-			takeUntil(this.destroy$),
+			takeUntil(this.destroyMessages$),
 			throttleTime(500),
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
@@ -162,6 +185,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			tap((result) => {
 				if (this.firstFetch) setTimeout(() => this.scrollToBottom());
 				if (result.length > 0) this.firstFetch = false;
+				this.currentLastMessage = result[0];
 
 				this.isLoading = false;
 			})
@@ -172,7 +196,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		return message.id;
 	};
 
-	onScroll = (e: any, lastMessage: Message | null) => {
+	onScroll = () => {
 		const distanceFromTop = this.viewport?.measureScrollOffset('top');
 
 		if (
@@ -181,7 +205,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			!this.isLoading &&
 			!this.lastMessageFetched
 		) {
-			this.lastMessage.next(lastMessage);
+			this.lastMessage.next(this.currentLastMessage);
 		}
 	};
 

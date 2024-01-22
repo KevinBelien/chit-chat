@@ -88,7 +88,6 @@ export class MessageService {
 
 				map<Array<DocumentChangeAction<DtoMessage>>, Message[]>(
 					(result) => {
-						console.log('messages', lastSeenMessage, result);
 						const dtos = result.map((document) => ({
 							id: document.payload.doc.id,
 							...document.payload.doc.data(),
