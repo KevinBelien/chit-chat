@@ -127,9 +127,11 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	private resetMessageStream(): void {
 		this.destroyMessages$.next();
-		this.lastMessage$.next(null);
-		this.lastMessageFetched = false;
 		this.firstFetch = true;
+		this.currentLastMessage = null;
+		this.lastMessageFetched = false;
+
+		this.lastMessage$.next(null);
 		this.chatContext$.next(this.chatContext);
 		this.initializeMessagesStream();
 	}
