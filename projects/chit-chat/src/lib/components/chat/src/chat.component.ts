@@ -5,6 +5,8 @@ import {
 } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	Input,
 	OnChanges,
@@ -29,7 +31,6 @@ import {
 	scan,
 	takeUntil,
 	tap,
-	throttleTime,
 } from 'rxjs';
 
 import { AuthUser } from 'chit-chat/src/lib/users';
@@ -37,6 +38,7 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 @Component({
 	selector: 'ch-chat',
 	standalone: true,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [CommonModule, IonicModule, ScrollingModule],
 	templateUrl: './chat.component.html',
 	styleUrls: ['./chat.component.scss'],
@@ -48,6 +50,12 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	@ViewChild(CdkVirtualScrollViewport, { static: false })
 	viewport?: CdkVirtualScrollViewport;
+
+	@Input()
+	scrollTreshold: number = 3000;
+
+	@Input()
+	initialBatchSize: number = 40;
 
 	@Input()
 	batchSize: number = 20;
@@ -77,13 +85,16 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	isLoading: boolean = false;
 
+	lastScrollTop: number | null = null;
+
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
 
 	constructor(
 		private messageService: MessageService,
 		private authService: AuthService,
-		private scrollDispatcher: ScrollDispatcher
+		private scrollDispatcher: ScrollDispatcher,
+		private cd: ChangeDetectorRef
 	) {
 		this.currentUser$ = this.authService.user$;
 		this.currentUser$
@@ -102,7 +113,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 						event.elementRef.nativeElement.id === this.viewportId
 				)
 			)
-			.subscribe(async (event) => {
+			.subscribe(async (event: any) => {
 				this.onScroll();
 			});
 		this.initializeMessagesStream();
@@ -143,7 +154,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			this.chatContext$,
 		]).pipe(
 			takeUntil(this.destroyMessages$),
-			throttleTime(500),
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
 					return of([] as Message[]) as Observable<Message[]>;
@@ -153,14 +163,12 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 				return this.messageService.getMessages(
 					{
-						users: [
-							currentUser.userInfo.uid,
-							chatContext.participantId,
-						],
+						userId: currentUser.userInfo.uid,
+						participantId: chatContext.participantId,
 						isGroup: chatContext.isGroup,
 					},
 					lastMessage,
-					this.batchSize
+					!!this.firstFetch ? this.initialBatchSize : this.batchSize
 				) as Observable<Message[]>;
 			}),
 			tap((messages: Message[]) => {
@@ -184,12 +192,13 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 						a.sendAt.getTime() - b.sendAt.getTime()
 				);
 			}),
-			tap((result) => {
-				if (this.firstFetch) setTimeout(() => this.scrollToBottom());
-				if (result.length > 0) this.firstFetch = false;
+			tap((result: Message[]) => {
+				this.isLoading = false;
+
 				this.currentLastMessage = result[0];
 
-				this.isLoading = false;
+				if (this.firstFetch) setTimeout(() => this.scrollToBottom());
+				if (result.length > 0) this.firstFetch = false;
 			})
 		);
 	};
@@ -200,16 +209,45 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	onScroll = () => {
 		const distanceFromTop = this.viewport?.measureScrollOffset('top');
+		if (!distanceFromTop) return;
+
+		// Calculate the speed of scrolling based on the change in scroll offset
+		const scrollSpeed = (this.lastScrollTop || 0) - distanceFromTop;
+
+		// Update the last scroll offset for the next calculation
+		this.lastScrollTop = distanceFromTop;
+
+		// Calculate the threshold based on the visible item count and scroll speed
+		const dynamicThreshold =
+			this.calculateDynamicThreshold(scrollSpeed);
 
 		if (
-			!!distanceFromTop &&
-			distanceFromTop < 1500 &&
+			scrollSpeed > 0 &&
+			distanceFromTop < dynamicThreshold &&
 			!this.isLoading &&
 			!this.lastMessageFetched
 		) {
 			this.lastMessage$.next(this.currentLastMessage);
 		}
 	};
+
+	calculateDynamicThreshold(scrollSpeed: number): number {
+		// console.log(scrollSpeed);
+		const baseThreshold = this.scrollTreshold;
+		const speedMultiplier = 4;
+		// Weight for the weighted average
+		const weight = 0.8; // Adjust based on testing
+
+		// Calculate the dynamic threshold based on scroll speed
+		const dynamicThreshold =
+			baseThreshold + scrollSpeed * speedMultiplier;
+
+		// Use a weighted average to smooth out the changes
+		const smoothedThreshold =
+			(1 - weight) * baseThreshold + weight * dynamicThreshold;
+
+		return Math.max(smoothedThreshold, 0);
+	}
 
 	scrollToBottom() {
 		if (!!this.viewport) {

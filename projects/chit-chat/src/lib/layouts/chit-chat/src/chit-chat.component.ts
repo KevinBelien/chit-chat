@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	Input,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { ChatComponent } from 'chit-chat/src/lib/components/chat';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
@@ -13,6 +17,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 @Component({
 	selector: 'ch-chit-chat',
 	standalone: true,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
 		CommonModule,
 		IonicModule,
@@ -52,7 +57,12 @@ export class ChitChatComponent {
 	}
 
 	onUserClicked = (user: User) => {
-		this.chatContext = { isGroup: false, participantId: user.uid };
+		if (
+			!this.chatContext ||
+			this.chatContext.isGroup ||
+			this.chatContext.participantId !== user.uid
+		)
+			this.chatContext = { isGroup: false, participantId: user.uid };
 		this.sidePaneVisible = false;
 	};
 }

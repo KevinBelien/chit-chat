@@ -55,7 +55,11 @@ export class MessageService {
 	};
 
 	getMessages = (
-		context: { users: Array<string>; isGroup: boolean },
+		messageContext: {
+			userId: string;
+			participantId: string;
+			isGroup: boolean;
+		},
 		lastSeenMessage: Message | null,
 		batchSize: number
 	): Observable<Message[]> => {
@@ -72,12 +76,16 @@ export class MessageService {
 				modifiedRef = modifiedRef.where(
 					'isGroupMessage',
 					'==',
-					context.isGroup
+					messageContext.isGroup
 				);
+				const participants = [
+					messageContext.userId,
+					messageContext.participantId,
+				];
 
 				modifiedRef = modifiedRef.where('participants', 'in', [
-					context.users,
-					[...context.users].reverse(),
+					participants,
+					[...participants].reverse(),
 				]);
 
 				return modifiedRef.limit(batchSize);
