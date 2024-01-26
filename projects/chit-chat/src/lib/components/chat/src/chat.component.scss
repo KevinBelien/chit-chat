@@ -3,7 +3,7 @@
 	width: 100%;
 }
 
-.ch-chat-container cdk-virtual-scroll-viewport.ch-vscroll-viewport {
+.ch-chat-container .ch-vscroll-viewport {
 	background-color: var(
 		--ch-message-board-background,
 		--ion-background-color,
