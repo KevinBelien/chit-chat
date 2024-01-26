@@ -7,7 +7,6 @@ import {
 	signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { isEqual } from 'lodash-es';
 
 import {
 	FireStoreCollection,
@@ -111,7 +110,7 @@ export class AuthService {
 			)
 			.valueChanges(user.uid)
 			.pipe(
-				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				distinctUntilChanged(),
 				switchMap((users) => {
 					const userRole$ =
 						this.userService.getUserRoleWithPermissions(

@@ -10,7 +10,6 @@ import {
 	getFirestore,
 	setDoc,
 } from 'firebase/firestore';
-import { isEqual } from 'lodash-es';
 import {
 	Observable,
 	catchError,
@@ -92,8 +91,7 @@ export class MessageService {
 			})
 			.snapshotChanges()
 			.pipe(
-				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
-
+				distinctUntilChanged(),
 				map<Array<DocumentChangeAction<DtoMessage>>, Message[]>(
 					(result) => {
 						const dtos = result.map((document) => ({

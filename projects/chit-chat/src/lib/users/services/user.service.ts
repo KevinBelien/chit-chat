@@ -12,7 +12,6 @@ import {
 	getFirestore,
 	setDoc,
 } from 'firebase/firestore';
-import { isEqual } from 'lodash-es';
 import {
 	Observable,
 	catchError,
@@ -20,7 +19,6 @@ import {
 	map,
 	retry,
 	startWith,
-	tap,
 	throwError,
 } from 'rxjs';
 import { DtoPermission, DtoUser, DtoUserRole } from '../dto';
@@ -55,11 +53,10 @@ export class UserService {
 			)
 			.valueChanges()
 			.pipe(
-				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				distinctUntilChanged(),
 				map<DtoUser[], User[]>(
 					(result) => User.fromCollection(result).data
 				),
-				tap((users) => console.log(users)),
 				catchError((error: any) => {
 					console.error(error);
 					return throwError(
@@ -90,7 +87,7 @@ export class UserService {
 			)
 			.snapshotChanges()
 			.pipe(
-				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				distinctUntilChanged(),
 				map((result) => {
 					return result.reduce((acc, cur) => {
 						const id = cur.payload.doc.id;

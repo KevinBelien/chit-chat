@@ -24,7 +24,6 @@ import {
 	Observable,
 	Subject,
 	combineLatest,
-	filter,
 	map,
 	mergeMap,
 	of,
@@ -79,13 +78,13 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	lastMessage$: BehaviorSubject<Message | null> =
 		new BehaviorSubject<Message | null>(null);
-	currentLastMessage: Message | null = null;
 	lastMessageFetched: boolean = false;
 	firstFetch: boolean = true;
 
 	isLoading: boolean = false;
 
 	lastScrollTop: number | null = null;
+	lastViewportSize: number | null = null;
 
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
@@ -103,19 +102,19 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.scrollDispatcher
-			.scrolled()
-			.pipe(
-				takeUntil(this.destroy$),
-				filter(
-					(event) =>
-						event instanceof CdkVirtualScrollViewport &&
-						event.elementRef.nativeElement.id === this.viewportId
-				)
-			)
-			.subscribe(async (event: any) => {
-				this.onScroll();
-			});
+		// this.scrollDispatcher
+		// 	.scrolled()
+		// 	.pipe(
+		// 		takeUntil(this.destroy$),
+		// 		filter(
+		// 			(event) =>
+		// 				event instanceof CdkVirtualScrollViewport &&
+		// 				event.elementRef.nativeElement.id === this.viewportId
+		// 		)
+		// 	)
+		// 	.subscribe(async (event: any) => {
+		// 		this.onScroll();
+		// 	});
 		this.initializeMessagesStream();
 	}
 
@@ -139,7 +138,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	private resetMessageStream(): void {
 		this.destroyMessages$.next();
 		this.firstFetch = true;
-		this.currentLastMessage = null;
 		this.lastMessageFetched = false;
 
 		this.lastMessage$.next(null);
@@ -187,18 +185,20 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			}, {}),
 			map((scanResult) => Object.values(scanResult) as Message[]),
 			map((messages: any) => {
-				return messages.sort(
-					(a: Message, b: Message) =>
-						a.sendAt.getTime() - b.sendAt.getTime()
-				);
+				return [
+					...messages.sort(
+						(a: Message, b: Message) =>
+							a.sendAt.getTime() - b.sendAt.getTime()
+					),
+				];
 			}),
 			tap((result: Message[]) => {
 				this.isLoading = false;
 
-				this.currentLastMessage = result[0];
-
 				if (this.firstFetch) setTimeout(() => this.scrollToBottom());
 				if (result.length > 0) this.firstFetch = false;
+
+				setTimeout(() => this.cd.markForCheck());
 			})
 		);
 	};
@@ -207,15 +207,22 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		return message.id;
 	};
 
-	onScroll = () => {
+	onScroll = (lastMessage: Message) => {
 		const distanceFromTop = this.viewport?.measureScrollOffset('top');
-		if (!distanceFromTop) return;
+		const viewportSize = this.viewport?.getDataLength();
+		console.log(this.viewport?.getDataLength());
+		if (!distanceFromTop || !viewportSize) return;
+
+		const distanceScrolled =
+			(viewportSize - (this.lastViewportSize || 0)) * 200 +
+			distanceFromTop;
 
 		// Calculate the speed of scrolling based on the change in scroll offset
-		const scrollSpeed = (this.lastScrollTop || 0) - distanceFromTop;
+		const scrollSpeed = (this.lastScrollTop || 0) - distanceScrolled;
 
 		// Update the last scroll offset for the next calculation
 		this.lastScrollTop = distanceFromTop;
+		this.lastViewportSize = viewportSize;
 
 		// Calculate the threshold based on the visible item count and scroll speed
 		const dynamicThreshold =
@@ -223,20 +230,20 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 		if (
 			scrollSpeed > 0 &&
-			distanceFromTop < dynamicThreshold &&
+			distanceScrolled < dynamicThreshold &&
 			!this.isLoading &&
 			!this.lastMessageFetched
 		) {
-			this.lastMessage$.next(this.currentLastMessage);
+			this.lastMessage$.next(lastMessage);
 		}
 	};
 
 	calculateDynamicThreshold(scrollSpeed: number): number {
 		// console.log(scrollSpeed);
 		const baseThreshold = this.scrollTreshold;
-		const speedMultiplier = 4;
+		const speedMultiplier = 5;
 		// Weight for the weighted average
-		const weight = 0.8; // Adjust based on testing
+		const weight = 0.1; // Adjust based on testing
 
 		// Calculate the dynamic threshold based on scroll speed
 		const dynamicThreshold =
