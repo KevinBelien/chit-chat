@@ -23,6 +23,8 @@
 	height: 100%; /* Match the height of the message-board container */
 }
 .chat-bubble {
+	max-height: 500px;
+	overflow-y: hidden;
 	padding: 2em;
 	width: 200px;
 }

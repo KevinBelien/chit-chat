@@ -2,10 +2,20 @@
 	<div class="ch-list-container ch-chat-container">
 		<ng-container *ngIf="messages$ | async as messages">
 			<rx-virtual-scroll-viewport
+				*ngIf="messages.length > 0"
 				autosize
 				[id]="viewportId"
 				class="ch-vscroll-viewport"
-				(scrolledIndexChange)="onScroll($event, messages[0])"
+				[runwayItems]="30"
+				[runwayItemsOpposite]="20"
+				(scrolledIndexChange)="
+					handleScrollIndexChange(
+						$event,
+						messages[0],
+						messages.length
+					)
+				"
+				(viewRange)="handleViewRangeChanged($event)"
 			>
 				<div
 					*rxVirtualFor="

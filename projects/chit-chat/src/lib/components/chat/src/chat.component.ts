@@ -58,7 +58,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 	viewport?: RxVirtualScrollViewportComponent;
 
 	@Input()
-	scrollTreshold: number = 4000;
+	scrollTreshold: number = 3000;
 
 	@Input()
 	initialBatchSize: number = 40;
@@ -93,6 +93,9 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 
 	isLoading: boolean = false;
 
+	renderedMessages = new Set<Message>();
+	viewRange: { start: number; end: number } | null = null;
+
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
 
@@ -107,11 +110,10 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			.subscribe((currentUser) => this.resetMessageStream());
 
 		this.itemsRendered.subscribe((messages) => {
-			// setTimeout(() => {
-			// 	if (this.firstFetch && messages.length > 0) {
-			// 		this.viewport?.scrollToIndex(this.initialBatchSize);
-			// 	}
-			// }, 100);
+			this.renderedMessages = new Set([
+				...this.renderedMessages,
+				...messages,
+			]);
 		});
 	}
 
@@ -195,13 +197,17 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
-				console.log('messages', messages);
 
+				//TODO: scroll to bottom not consistent
 				if (this.firstFetch && messages.length > 0)
 					setTimeout(() => {
-						this.viewport?.scrollToIndex(this.initialBatchSize);
-						setTimeout(() => (this.firstFetch = false), 300);
-					}, 200);
+						try {
+							this.viewport?.scrollToIndex(messages.length - 1);
+							setTimeout(() => {
+								this.firstFetch = false;
+							}, 300);
+						} catch (e: any) {}
+					});
 			})
 		);
 	};
@@ -210,64 +216,26 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 		return message.id;
 	};
 
-	onScroll = (lastMessageIndex: number, lastMessage: Message) => {
-		if (this.firstFetch) return;
+	handleViewRangeChanged = (listRange: {
+		start: number;
+		end: number;
+	}) => {
+		this.viewRange = { ...listRange };
+	};
 
-		const distanceFromTop = this.viewport?.getScrollTop();
-
-		// console.log(distanceFromTop);
-		if (!distanceFromTop) return;
-		console.log(distanceFromTop);
+	handleScrollIndexChange = (
+		lastMessageIndex: number,
+		lastMessage: Message,
+		messagesLength: number
+	) => {
+		if (this.firstFetch || this.isLoading || this.lastMessageFetched)
+			return;
 
 		if (
-			distanceFromTop < this.scrollTreshold &&
-			!this.isLoading &&
-			!this.lastMessageFetched
+			messagesLength <= this.renderedMessages.size ||
+			lastMessageIndex < 5
 		) {
 			this.lastMessage$.next(lastMessage);
 		}
-		// const distanceScrolled =
-		// 	(viewportSize - (this.lastViewportSize || 0)) * 200 +
-		// 	distanceFromTop;
-		// // Calculate the speed of scrolling based on the change in scroll offset
-		// const scrollSpeed = (this.lastScrollTop || 0) - distanceScrolled;
-		// // Update the last scroll offset for the next calculation
-		// this.lastScrollTop = distanceFromTop;
-		// this.lastViewportSize = viewportSize;
-		// // Calculate the threshold based on the visible item count and scroll speed
-		// const dynamicThreshold =
-		// 	this.calculateDynamicThreshold(scrollSpeed);
-		// if (
-		// 	scrollSpeed > 0 &&
-		// 	distanceScrolled < dynamicThreshold &&
-		// 	!this.isLoading &&
-		// 	!this.lastMessageFetched
-		// ) {
-		// 	this.lastMessage$.next(lastMessage);
-		// }
 	};
-
-	calculateDynamicThreshold(scrollSpeed: number): number {
-		// console.log(scrollSpeed);
-		const baseThreshold = this.scrollTreshold;
-		const speedMultiplier = 5;
-		// Weight for the weighted average
-		const weight = 0.1; // Adjust based on testing
-
-		// Calculate the dynamic threshold based on scroll speed
-		const dynamicThreshold =
-			baseThreshold + scrollSpeed * speedMultiplier;
-
-		// Use a weighted average to smooth out the changes
-		const smoothedThreshold =
-			(1 - weight) * baseThreshold + weight * dynamicThreshold;
-
-		return Math.max(smoothedThreshold, 0);
-	}
-
-	// scrollToBottom() {
-	// 	if (!!this.viewport) {
-	// 		this.viewport.scrollTo(40);
-	// 	}
-	// }
 }
