@@ -62,11 +62,15 @@
 }
 
 .ch-list-container:not(.ch-scroll-mobile)
+	.ch-vscroll-viewport::-webkit-scrollbar,
+.ch-list-container:not(.ch-scroll-mobile)
 	.ch-vscroll-viewport
 	.rx-virtual-scroll__runway::-webkit-scrollbar {
 	width: 0.3rem;
 }
 
+.ch-list-container:not(.ch-scroll-mobile)
+	.ch-vscroll-viewport::-webkit-scrollbar-track,
 .ch-list-container:not(.ch-scroll-mobile)
 	.ch-vscroll-viewport
 	.rx-virtual-scroll__runway::-webkit-scrollbar-track {
@@ -75,12 +79,16 @@
 }
 
 .ch-list-container:not(.ch-scroll-mobile)
+	.ch-vscroll-viewport::-webkit-scrollbar-thumb,
+.ch-list-container:not(.ch-scroll-mobile)
 	.ch-vscroll-viewport
 	.rx-virtual-scroll__runway::-webkit-scrollbar-thumb {
 	background-color: var(--ch-color-scroll, rgba(204, 204, 215, 0.8));
 	border-radius: 6px;
 }
 
+.ch-list-container:not(.ch-scroll-mobile)
+	.ch-vscroll-viewport::-webkit-scrollbar-thumb:hover,
 .ch-list-container:not(.ch-scroll-mobile)
 	.ch-vscroll-viewport
 	.rx-virtual-scroll__runway::-webkit-scrollbar-thumb:hover {
