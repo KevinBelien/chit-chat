@@ -25,6 +25,7 @@ import {
 	scan,
 	takeUntil,
 	tap,
+	throttleTime,
 } from 'rxjs';
 
 import {
@@ -155,6 +156,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			this.chatContext$,
 		]).pipe(
 			takeUntil(this.destroyMessages$),
+			throttleTime(100),
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
 					return of([] as Message[]) as Observable<Message[]>;
@@ -197,6 +199,7 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
+				console.log('fetched', messages.length);
 
 				//TODO: scroll to bottom not consistent
 				if (this.firstFetch && messages.length > 0)
