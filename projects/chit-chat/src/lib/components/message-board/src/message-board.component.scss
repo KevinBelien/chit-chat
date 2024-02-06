@@ -1,0 +1,21 @@
+:host {
+	height: 100%;
+	width: 100%;
+}
+
+::ng-deep .ch-message-board {
+	height: 100%; /* Set height for the message board container */
+	overflow-y: auto;
+	background-color: var(
+		--ch-message-board-background,
+		--ion-background-color,
+		#fff
+	);
+}
+
+.chat-bubble {
+	max-height: 500px;
+	overflow-y: hidden;
+	padding: 2em;
+	width: 200px;
+}

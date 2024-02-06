@@ -37,7 +37,7 @@ import {
 import { AuthUser } from 'chit-chat/src/lib/users';
 
 @Component({
-	selector: 'ch-chat',
+	selector: 'ch-message-board',
 	standalone: true,
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
@@ -47,14 +47,16 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 		RxVirtualScrollViewportComponent,
 		AutoSizeVirtualScrollStrategy,
 	],
-	templateUrl: './chat.component.html',
-	styleUrls: ['./chat.component.scss'],
+	templateUrl: './message-board.component.html',
+	styleUrls: ['./message-board.component.scss'],
 	host: {
 		'collision-id': crypto.randomUUID(),
 		class: 'ch-element',
 	},
 })
-export class ChatComponent implements OnInit, OnChanges, OnDestroy {
+export class MessageBoardComponent
+	implements OnInit, OnChanges, OnDestroy
+{
 	@ViewChild(RxVirtualScrollViewportComponent, { static: false })
 	viewport?: RxVirtualScrollViewportComponent;
 
@@ -199,7 +201,6 @@ export class ChatComponent implements OnInit, OnChanges, OnDestroy {
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
-				console.log('fetched', messages.length);
 
 				//TODO: scroll to bottom not consistent
 				if (this.firstFetch && messages.length > 0)

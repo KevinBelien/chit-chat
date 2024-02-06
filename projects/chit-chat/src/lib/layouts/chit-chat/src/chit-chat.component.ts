@@ -5,8 +5,8 @@ import {
 	Input,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { ChatComponent } from 'chit-chat/src/lib/components/chat';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
+import { ChatComponent } from 'chit-chat/src/lib/layouts/chat';
 import {
 	MenuComponent,
 	MenuItem,
