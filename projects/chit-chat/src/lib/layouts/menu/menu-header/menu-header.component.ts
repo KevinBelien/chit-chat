@@ -24,6 +24,6 @@ export class MenuHeaderComponent {
 	user$: Observable<AuthUser | null>;
 
 	constructor(private authService: AuthService) {
-		this.user$ = this.authService.user.asObservable();
+		this.user$ = this.authService.user$.asObservable();
 	}
 }

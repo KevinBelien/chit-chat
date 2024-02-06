@@ -1,6 +1,8 @@
 <div
-	class="ch-list-container"
-	[ngClass]="{ 'ch-scroll-mobile': isMobile }"
+	class="ch-list-container ch-user-list-container"
+	[ngClass]="{
+		'ch-scroll-mobile': isMobile,
+	}"
 >
 	<div
 		class="ch-searchbar-container"
@@ -18,27 +20,35 @@
 	</div>
 	<ng-container *ngIf="users$ | async as users">
 		<cdk-virtual-scroll-viewport
-			class="ch-vscroll-viewport"
+			class="ion-content-scroll-host ch-vscroll-viewport ch-user-list-viewport"
 			[style.height]="'100%'"
 			[itemSize]="itemSize"
 			[minBufferPx]="buffers.minBufferPx"
 			[maxBufferPx]="buffers.maxBufferPx"
 			(scrolledIndexChange)="onScroll($event)"
 		>
-			<ion-list class="ch-list ch-user-list" mode="ios">
+			<ion-list
+				class="ch-list ch-user-list"
+				mode="ios"
+				[ngClass]="{ 'ch-list-mobile': isMobile }"
+			>
 				<ion-item
 					*ngIf="users.length === 0"
 					[style.--min-height]="itemSize + 'px'"
-					class="ch-list___no-data-container ch-list-item"
+					class="ch-list-item"
 					mode="ios"
 				>
-					<div class="ion-text-center list___no-data">No users</div>
+					<div class="ion-text-center ch-list-nodata">No users</div>
 				</ion-item>
+
 				<ion-item
 					*cdkVirtualFor="let user of users; trackBy: trackUser"
 					mode="ios"
 					button
 					class="ch-list-item"
+					[ngClass]="{
+						'ch-list-item-selected': user.uid === selectedUserId
+					}"
 					[style.--min-height]="itemSize + 'px'"
 					[detail]="false"
 					(click)="handleUserClick(user)"

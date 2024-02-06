@@ -5,14 +5,16 @@ import {
 import { DtoMessage } from '../dto/message.dto';
 import { MessageContent } from '../types';
 
-export class Message implements DtoMessage {
+export class Message {
 	id: string;
 	isGroupMessage: boolean;
+	groupId?: string;
 	senderId: string;
 	recipientId: string;
 	message: MessageContent;
 	isSeen: boolean;
-	seenAtMs?: number | null;
+	sendAt: Date;
+	seenAt?: Date | null;
 	isEdited: boolean;
 	isDeleted: boolean;
 
@@ -25,7 +27,9 @@ export class Message implements DtoMessage {
 		isEdited: boolean,
 		isDeleted: boolean,
 		isSeen: boolean,
-		seenAtMs?: number | null
+		sendAt: Date,
+		seenAt?: Date | null,
+		groupId?: string
 	) {
 		this.id = id;
 		this.isGroupMessage = isGroupMessage;
@@ -35,14 +39,16 @@ export class Message implements DtoMessage {
 		this.isEdited = isEdited;
 		this.isDeleted = isDeleted;
 		this.isSeen = isSeen;
-		this.seenAtMs = seenAtMs;
+		this.sendAt = sendAt;
+		this.seenAt = seenAt;
+		this.groupId = groupId;
 	}
 
 	public static fromDto = (
 		id: string,
 		obj: DtoMessage
-	): MapResult<Message> => {
-		if (!obj.senderId || !obj.recipientId)
+	): MapResult<DtoMessage, Message> => {
+		if (!obj.senderId || !obj.recipientId || !obj.sendAt)
 			return {
 				data: null,
 				error: new Error(
@@ -60,26 +66,48 @@ export class Message implements DtoMessage {
 				obj.isEdited,
 				obj.isDeleted,
 				obj.isSeen,
-				obj.seenAtMs
+				new Date(obj.sendAt),
+				!!obj.seenAt ? new Date(obj.seenAt) : null,
+				obj.groupId
 			),
 		};
 	};
 
 	public static fromDtoCollection = (
 		collection: (DtoMessage & { id: string })[]
-	): MapResultCollection<Message> => {
-		const mapResult = collection.map((message) =>
-			Message.fromDto(message.id, message)
+	): MapResultCollection<DtoMessage, Message> => {
+		const result = collection.reduce(
+			(acc: MapResultCollection<DtoMessage, Message>, message) => {
+				const mappedMessage = Message.fromDto(message.id, message);
+				if (mappedMessage.error) {
+					acc.errors.push(mappedMessage);
+				} else {
+					acc.data.push(mappedMessage.data!);
+				}
+				return acc;
+			},
+			{ data: [], errors: [] } as MapResultCollection<
+				DtoMessage,
+				Message
+			>
 		);
 
-		const messages = mapResult
-			.map((result) => result.data)
-			.filter((message): message is Message => Boolean(message));
+		return result;
+	};
 
-		const errors = mapResult.filter((result) =>
-			Boolean(result.error)
-		);
-
-		return { data: messages, errors: errors };
+	convertToDto = (): DtoMessage => {
+		return {
+			isGroupMessage: this.isGroupMessage,
+			senderId: this.senderId,
+			recipientId: this.recipientId,
+			participants: [this.senderId, this.recipientId],
+			message: this.message,
+			isEdited: this.isEdited,
+			isDeleted: this.isDeleted,
+			isSeen: this.isSeen,
+			sendAt: this.sendAt.getTime(),
+			seenAt: !!this.seenAt ? this.seenAt.getTime() : null,
+			groupId: this.groupId,
+		};
 	};
 }

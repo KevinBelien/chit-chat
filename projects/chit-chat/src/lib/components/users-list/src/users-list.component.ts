@@ -16,25 +16,28 @@ import {
 	EventEmitter,
 	Input,
 	OnChanges,
+	OnDestroy,
 	OnInit,
 	Output,
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
-import { AuthUser, DtoUser } from 'chit-chat';
+import { DtoUser } from 'chit-chat';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
-import { User, UserService } from 'chit-chat/src/lib/users';
-import {
-	MapResultCollection,
-	ScreenService,
-} from 'chit-chat/src/lib/utils';
+import { AuthUser, User, UserService } from 'chit-chat/src/lib/users';
+import { ScreenService } from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
 	Observable,
+	Subject,
 	combineLatest,
 	map,
+	of,
+	startWith,
+	switchMap,
+	takeUntil,
 } from 'rxjs';
 import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 
@@ -52,7 +55,7 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 	styleUrls: ['./users-list.component.scss'],
 	animations: [
 		trigger('openCloseSearchBar', [
-			state('show', style({ height: '60px' })),
+			state('show', style({ height: '50px' })),
 			state('hide', style({ height: '0px' })),
 			transition('show => hide', animate('150ms ease-out')),
 			transition('hide => show', animate('150ms ease-in')),
@@ -63,31 +66,35 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 		class: 'ch-element',
 	},
 })
-export class UsersListComponent implements OnInit, OnChanges {
+export class UsersListComponent
+	implements OnInit, OnChanges, OnDestroy
+{
 	@ViewChild(CdkVirtualScrollViewport)
 	viewport?: CdkVirtualScrollViewport;
 
-	@Input()
-	searchbarOptions: SearchbarOptions;
+	@Input() searchbarOptions: SearchbarOptions;
+
+	@Input() selectedUserId: string | null = null;
 
 	users$?: Observable<User[]>;
 
 	currentUser$: Observable<AuthUser | null>;
-
-	private searchValue: BehaviorSubject<string> =
-		new BehaviorSubject<string>('');
 
 	itemSize: number = 55;
 	buffers: { minBufferPx: number; maxBufferPx: number };
 
 	isSearchbarVisible: boolean = true;
 
-	@Output()
-	onUserClick = new EventEmitter<User>();
-
 	viewportTopItemIndex?: number;
 
 	isMobile: boolean = false;
+
+	private destroy$: Subject<void> = new Subject<void>();
+
+	private searchValue$: BehaviorSubject<string> =
+		new BehaviorSubject<string>('');
+
+	@Output() onUserClick = new EventEmitter<User>();
 
 	constructor(
 		private userService: UserService,
@@ -97,30 +104,31 @@ export class UsersListComponent implements OnInit, OnChanges {
 		this.isMobile = this.screenService.isMobile();
 		this.buffers = this.calcBuffer();
 		this.searchbarOptions = { debounce: 350 };
-		this.currentUser$ = this.authService.user.asObservable();
+		this.currentUser$ = this.authService.user$;
 
-		const allUsers$: Observable<MapResultCollection<DtoUser>> =
-			this.userService.getUsers();
+		this.users$ = this.currentUser$.pipe(
+			takeUntil(this.destroy$),
+			switchMap((currentUser: AuthUser | null) => {
+				const allUsers$: Observable<User[]> = currentUser
+					? (this.userService.getUsers() as Observable<User[]>)
+					: of([]);
 
-		this.users$ = combineLatest([
-			allUsers$,
-			this.searchValue,
-			this.currentUser$,
-		]).pipe(
-			map(([users, filterValue, currentUser]) => {
-				return users.data.filter(
-					(user: DtoUser) =>
-						(!currentUser || user.uid !== currentUser.userInfo.uid) &&
-						(!filterValue ||
-							filterValue.trim().length === 0 ||
-							user.name
-								.trim()
-								.toLowerCase()
-								.indexOf(filterValue.trim().toLowerCase()) > -1)
+				return combineLatest([
+					allUsers$.pipe(startWith([])),
+					this.searchValue$,
+					this.currentUser$,
+				]).pipe(
+					map(([users, filterValue, currentUser]) => {
+						return users.filter((user: DtoUser) =>
+							this.filterUser(user, currentUser, filterValue)
+						);
+					})
 				);
 			})
 		);
 	}
+
+	ngOnInit(): void {}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['searchbarOptions']) {
@@ -129,6 +137,21 @@ export class UsersListComponent implements OnInit, OnChanges {
 				!!this.searchbarOptions.visible;
 		}
 	}
+
+	ngOnDestroy(): void {
+		this.destroy$.next();
+		this.destroy$.complete();
+	}
+
+	// groupUsers = (users: Array<User>, groupExpr: keyof User) => {
+	// 	return users.reduce((acc: any, cur: any) => {
+	// 		const firstLetter = cur[groupExpr][0].toLowerCase();
+	// 		return {
+	// 			...acc,
+	// 			[firstLetter]: [...(acc[firstLetter] || []), cur],
+	// 		};
+	// 	}, {});
+	// };
 
 	//CALCULATE BUFFER SIZE REGARDING SCREEN HEIGHT AND LIST ITEM SIZE
 	calcBuffer = () => {
@@ -139,12 +162,29 @@ export class UsersListComponent implements OnInit, OnChanges {
 		};
 	};
 
-	ngOnInit(): void {}
+	filterUser(
+		user: DtoUser,
+		currentUser: AuthUser | null,
+		filterValue: string
+	): boolean {
+		const matchesSearch =
+			!filterValue ||
+			filterValue.trim().length === 0 ||
+			user.name
+				.trim()
+				.toLowerCase()
+				.includes(filterValue.trim().toLowerCase());
+
+		const notCurrentUser =
+			!currentUser || user.uid !== currentUser.userInfo.uid;
+
+		return matchesSearch && notCurrentUser;
+	}
 
 	onScroll = (topItemIndex: number) => {
 		if (this.viewportTopItemIndex === topItemIndex) return;
 
-		const searchValue = this.searchValue.getValue();
+		const searchValue = this.searchValue$.getValue();
 		const scrolledUp: boolean =
 			!this.viewportTopItemIndex ||
 			topItemIndex < this.viewportTopItemIndex;
@@ -179,6 +219,6 @@ export class UsersListComponent implements OnInit, OnChanges {
 	};
 
 	searchUsers = (e: Event) => {
-		this.searchValue.next((e.target as HTMLInputElement).value);
+		this.searchValue$.next((e.target as HTMLInputElement).value);
 	};
 }
