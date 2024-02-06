@@ -22,6 +22,6 @@ export class ConversationListComponent {
 	user$: Observable<AuthUser | null>;
 
 	constructor(private auth: AuthService) {
-		this.user$ = this.auth.user.asObservable();
+		this.user$ = this.auth.user$.asObservable();
 	}
 }

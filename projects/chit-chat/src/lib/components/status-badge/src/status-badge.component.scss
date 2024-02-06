@@ -1,7 +1,7 @@
 .ch-badge {
 	position: absolute;
-	border-radius: 50%;
-	background-color: var(--ion-background-color, #fff);
+	// border-radius: 50%;
+	// background-color: var(--ion-background-color, #fff);
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -10,31 +10,36 @@
 	bottom: calc(-0.5px * 2);
 
 	&.badge-available .ch-badge-icon {
-		color: #23a55a;
+		color: var(--ch-color-online, #23a55a);
 	}
 	&.badge-do-not-disturb .ch-badge-icon {
-		color: #fb3640;
+		color: var(--ch-color-do-not-disturb, #fb3640);
 	}
 	&.badge-away .ch-badge-icon {
-		color: #dea704;
+		color: var(--ch-color-away, #dea704);
 	}
 	&.badge-offline,
 	&.badge-show-offline {
 		.ch-badge-icon {
-			color: #80848e;
+			color: var(--ch-color-offline, #80848e);
 		}
 	}
 }
-.ch-badge-icon-container {
-	position: relative;
-	height: 100%;
-	width: 100%;
-}
+// .ch-badge-icon-container {
+// 	position: relative;
+// 	height: 100%;
+// 	width: 100%;
+// }
 
 .ch-badge-icon {
 	border-radius: 50%;
-	background: var(--ion-background-color, #fff);
-	box-shadow: 0 0 0 0.5px var(--ion-background-color, #fff);
+	background: var(
+		--ch-background-color,
+		--ion-background-color,
+		#fff
+	);
+	box-shadow: 0 0 0 0.5px
+		var(--ch-background-color, --ion-background-color, #fff);
 }
 
 .ch-icon-md {

@@ -1,0 +1,34 @@
+<div class="ch-message-board">
+	<div class="ch-list-container ch-chat-container">
+		<ng-container *ngIf="messages$ | async as messages">
+			<rx-virtual-scroll-viewport
+				*ngIf="messages.length > 0"
+				autosize
+				[id]="viewportId"
+				class="ch-vscroll-viewport"
+				[runwayItems]="30"
+				[runwayItemsOpposite]="10"
+				(scrolledIndexChange)="
+					handleScrollIndexChange(
+						$event,
+						messages[0],
+						messages.length
+					)
+				"
+				(viewRange)="handleViewRangeChanged($event)"
+			>
+				<div
+					*rxVirtualFor="
+						let item of messages$;
+						renderCallback: itemsRendered;
+						trackBy: trackMessage
+					"
+					class="chat-bubble"
+				>
+					<div>{{ item.message.text }}</div>
+					<div>{{ item.sendAt | date }}</div>
+				</div>
+			</rx-virtual-scroll-viewport>
+		</ng-container>
+	</div>
+</div>

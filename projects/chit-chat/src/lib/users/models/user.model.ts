@@ -35,7 +35,9 @@ export class User implements DtoUser {
 		this.isActivated = isActivated;
 	}
 
-	public static fromDto = (dto: DtoUser): MapResult<User> => {
+	public static fromDto = (
+		dto: DtoUser
+	): MapResult<DtoUser, User> => {
 		if (!User.isValid(dto.uid, dto))
 			return {
 				data: null,
@@ -64,7 +66,7 @@ export class User implements DtoUser {
 
 	public static fromCollection = (
 		collection: DtoUser[]
-	): MapResultCollection<DtoUser> => {
+	): MapResultCollection<DtoUser, User> => {
 		const mapResult = collection.map((user) => User.fromDto(user));
 
 		const users = mapResult

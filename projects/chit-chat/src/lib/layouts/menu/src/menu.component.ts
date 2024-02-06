@@ -35,7 +35,7 @@ import { MenuItem, menuItems } from './../types/menu-item.type';
 })
 export class MenuComponent {
 	@Input()
-	menuItems: MenuItem[] = menuItems;
+	menuItems: MenuItem[] = [...menuItems];
 
 	@Input()
 	animationsEnabled: boolean = false;
@@ -45,6 +45,8 @@ export class MenuComponent {
 
 	@Output()
 	onUserClicked = new EventEmitter<User>();
+
+	selectedUser: User | null = null;
 
 	constructor() {} //
 
@@ -56,6 +58,7 @@ export class MenuComponent {
 	};
 
 	onUserClick = (user: User) => {
+		this.selectedUser = user;
 		this.onUserClicked.emit(user);
 	};
 }

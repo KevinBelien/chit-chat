@@ -10,14 +10,15 @@
 	}
 
 	.ch-tabs-container {
-		background: var(--ion-tab-bar-background);
+		background: var(--ch-tab-bar-background, #f5f6f9);
 	}
 
 	&.tabs-normal {
 		flex-direction: column;
 
 		.ch-tabs-container {
-			border-bottom: 1px solid var(--ion-tab-bar-border-color);
+			border-bottom: 1px solid
+				var(--ch-tab-bar-border-color, --ion-border-color, #e0e0e0);
 
 			.ch-tab.ch-active:before {
 				content: '';
@@ -26,7 +27,11 @@
 				height: 2px;
 				left: 0;
 				right: 0;
-				background-color: var(--ion-color-primary);
+				background-color: var(
+					--ch-color-primary,
+					--ion-color-primary,
+					#3880ff
+				);
 			}
 		}
 	}
@@ -35,7 +40,8 @@
 		flex-direction: column-reverse;
 
 		.ch-tabs-container {
-			border-top: 1px solid var(--ion-tab-bar-border-color);
+			border-top: 1px solid
+				var(--ch-tab-bar-border-color, --ion-border-color, #e0e0e0);
 
 			.ch-tab.ch-active:before {
 				content: '';
@@ -44,7 +50,11 @@
 				height: 2px;
 				left: 0;
 				right: 0;
-				background-color: var(--ion-color-primary);
+				background-color: var(
+					--ch-color-primary,
+					--ion-color-primary,
+					#3880ff
+				);
 			}
 		}
 	}
@@ -82,14 +92,14 @@
 
 	&:hover {
 		cursor: pointer;
-		color: var(--ion-color-primary);
+		color: var(--ch-color-primary, --ion-color-primary, #3880ff);
 	}
 
 	&:focus {
-		color: var(--ion-color-primary);
+		color: var(--ch-color-primary, --ion-color-primary, #3880ff);
 	}
 
 	&.ch-active {
-		color: var(--ion-color-primary);
+		color: var(--ch-color-primary, --ion-color-primary, #3880ff);
 	}
 }

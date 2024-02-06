@@ -7,7 +7,6 @@ import {
 	signInWithEmailAndPassword,
 } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { isEqual } from 'lodash-es';
 
 import {
 	FireStoreCollection,
@@ -45,7 +44,7 @@ import {
 export class AuthService {
 	readonly isLoggedInIntoFirebase$ = authState(this.auth);
 
-	user: BehaviorSubject<AuthUser | null> =
+	user$: BehaviorSubject<AuthUser | null> =
 		new BehaviorSubject<AuthUser | null>(null);
 
 	constructor(
@@ -53,12 +52,11 @@ export class AuthService {
 		private auth: Auth,
 		private userService: UserService // @Inject(LibConfigService) private config: LibConfig
 	) {
-		// console.log(config);
 		this.isLoggedInIntoFirebase$
 			.pipe(
 				switchMap((user: FirebaseUser | null) => {
 					//Set online status of user depending if user logged in/off
-					const previousUser = this.user.getValue();
+					const previousUser = this.user$.getValue();
 
 					if (!!user)
 						from(
@@ -83,16 +81,18 @@ export class AuthService {
 					return of({ data: null, error: new Error(error) });
 				})
 			)
-			.subscribe(async (user: MapResult<AuthUser | null>) => {
-				this.user.next(user.data);
-				if (!!user.error) {
-					throw user.error;
+			.subscribe(
+				async (user: MapResult<DtoUser, AuthUser | null>) => {
+					setTimeout(() => this.user$.next(user.data), 1000);
+					if (!!user.error) {
+						throw user.error;
+					}
 				}
-			});
+			);
 	}
 
 	getCurrentUser = (): AuthUser | null => {
-		return this.user.getValue();
+		return this.user$.getValue();
 	};
 
 	getCurrentFireBaseUser = (): FirebaseUser | null => {
@@ -101,7 +101,7 @@ export class AuthService {
 
 	getUserByFireBaseUser = (
 		user: FirebaseUser
-	): Observable<MapResult<AuthUser | null>> => {
+	): Observable<MapResult<DtoUser, AuthUser | null>> => {
 		return this.afs
 			.collection<DtoUser>(FireStoreCollection.USERS, (ref: any) =>
 				ref
@@ -110,7 +110,7 @@ export class AuthService {
 			)
 			.valueChanges(user.uid)
 			.pipe(
-				distinctUntilChanged((prev, curr) => isEqual(prev, curr)),
+				distinctUntilChanged(),
 				switchMap((users) => {
 					const userRole$ =
 						this.userService.getUserRoleWithPermissions(
@@ -126,7 +126,7 @@ export class AuthService {
 						return { data: null, error: authUser.userRole.error };
 					}
 
-					const mappedUser: MapResult<User> = User.fromDto(
+					const mappedUser: MapResult<DtoUser, User> = User.fromDto(
 						authUser.user
 					);
 

@@ -1,18 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	Input,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
-import { MenuComponent } from 'chit-chat/src/lib/layouts/menu';
+import { ChatComponent } from 'chit-chat/src/lib/layouts/chat';
+import {
+	MenuComponent,
+	MenuItem,
+} from 'chit-chat/src/lib/layouts/menu';
 import { User } from 'chit-chat/src/lib/users';
 import { ScreenService } from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-chit-chat',
 	standalone: true,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
 		CommonModule,
 		IonicModule,
 		MenuComponent,
+		ChatComponent,
 		SplitPaneComponent,
 	],
 	templateUrl: './chit-chat.component.html',
@@ -23,9 +33,20 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	},
 })
 export class ChitChatComponent {
+	@Input()
+	menuItems: MenuItem[] = [
+		'chats',
+		'users',
+		'groups',
+		'calls',
+		'settings',
+	];
 	sidePaneVisible: boolean = true;
 
 	isSmallScreen: boolean = false;
+
+	chatContext: { isGroup: boolean; participantId: string } | null =
+		null;
 
 	constructor(private screenService: ScreenService) {
 		this.isSmallScreen = this.screenService.sizes['sm'];
@@ -36,7 +57,12 @@ export class ChitChatComponent {
 	}
 
 	onUserClicked = (user: User) => {
-		console.log('user clicked', user);
+		if (
+			!this.chatContext ||
+			this.chatContext.isGroup ||
+			this.chatContext.participantId !== user.uid
+		)
+			this.chatContext = { isGroup: false, participantId: user.uid };
 		this.sidePaneVisible = false;
 	};
 }
