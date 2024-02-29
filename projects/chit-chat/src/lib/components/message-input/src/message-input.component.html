@@ -1,0 +1,29 @@
+<div class="ch-message-input">
+	<!-- <textarea
+		#textarea
+		class="ch-message-input ch-input"
+		[style.height]="getTextAreaHeight(textarea)"
+		autocapitalize="off"
+		spellcheck="true"
+		name="message-input"
+		aria-multiline="true"
+		autocomplete="off"
+		[placeholder]="placeholder"
+	></textarea> -->
+
+	<div
+		#messageInput
+		chKeysPressed
+		[keyCombinations]="[['enter']]"
+		class="ch-message-input ch-input ch-textarea"
+		contenteditable="true"
+		[style.maxHeight.px]="maxHeight"
+		[attr.placeholder]="placeholder"
+		(input)="handleInput($event)"
+		(keydown)="handleKeyDown($event)"
+		(paste)="handlePaste($event)"
+		(keyCombinationPressed)="handleKeyCombinationPressed($event)"
+	></div>
+
+	<button class="ch-align-end">Test</button>
+</div>

@@ -107,7 +107,6 @@ export class UsersListComponent
 		this.currentUser$ = this.authService.user$;
 
 		this.users$ = this.currentUser$.pipe(
-			takeUntil(this.destroy$),
 			switchMap((currentUser: AuthUser | null) => {
 				const allUsers$: Observable<User[]> = currentUser
 					? (this.userService.getUsers() as Observable<User[]>)
@@ -116,15 +115,17 @@ export class UsersListComponent
 				return combineLatest([
 					allUsers$.pipe(startWith([])),
 					this.searchValue$,
-					this.currentUser$,
+					this.currentUser$.pipe(startWith(null)),
 				]).pipe(
+					takeUntil(this.destroy$),
 					map(([users, filterValue, currentUser]) => {
 						return users.filter((user: DtoUser) =>
 							this.filterUser(user, currentUser, filterValue)
 						);
 					})
 				);
-			})
+			}),
+			takeUntil(this.destroy$)
 		);
 	}
 

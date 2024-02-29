@@ -157,7 +157,6 @@ export class MessageBoardComponent
 			this.lastMessage$,
 			this.chatContext$,
 		]).pipe(
-			takeUntil(this.destroyMessages$),
 			throttleTime(100),
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
@@ -176,6 +175,7 @@ export class MessageBoardComponent
 					!!this.firstFetch ? this.initialBatchSize : this.batchSize
 				) as Observable<Message[]>;
 			}),
+			takeUntil(this.destroyMessages$),
 			tap((messages: Message[]) => {
 				this.lastMessageFetched = messages.length === 0;
 			}),
