@@ -7,12 +7,18 @@ import {
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { MessageBoardComponent } from 'chit-chat/src/lib/components/message-board';
+import { MessageInputComponent } from 'chit-chat/src/lib/components/message-input';
 
 @Component({
 	selector: 'ch-chat',
 	standalone: true,
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [CommonModule, IonicModule, MessageBoardComponent],
+	imports: [
+		CommonModule,
+		IonicModule,
+		MessageBoardComponent,
+		MessageInputComponent,
+	],
 	templateUrl: './chat.component.html',
 	styleUrls: ['./chat.component.scss'],
 	host: {
