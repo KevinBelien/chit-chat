@@ -6,8 +6,8 @@
 				autosize
 				[id]="viewportId"
 				class="ch-vscroll-viewport"
-				[runwayItems]="30"
-				[runwayItemsOpposite]="10"
+				[runwayItems]="batchSize"
+				[runwayItemsOpposite]="3"
 				(scrolledIndexChange)="
 					handleScrollIndexChange(
 						$event,
@@ -15,7 +15,6 @@
 						messages.length
 					)
 				"
-				(viewRange)="handleViewRangeChanged($event)"
 			>
 				<div
 					*rxVirtualFor="

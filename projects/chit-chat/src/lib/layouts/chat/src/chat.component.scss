@@ -8,6 +8,11 @@
 	width: 100%;
 	display: flex;
 	flex-direction: column;
+	background-color: var(
+		--ch-message-board-background,
+		--ion-background-color,
+		#fff
+	);
 }
 
 .ch-message-board-container {

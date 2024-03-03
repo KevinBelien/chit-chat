@@ -3,15 +3,25 @@ import {
 	AfterViewInit,
 	Component,
 	ElementRef,
+	EventEmitter,
 	Input,
+	Output,
 	ViewChild,
 } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
+import { PickerComponent } from '@ctrl/ngx-emoji-mart';
+import { IonicModule } from '@ionic/angular';
 import { KeysPressedDirective } from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-message-input',
 	standalone: true,
-	imports: [CommonModule, KeysPressedDirective],
+	imports: [
+		CommonModule,
+		KeysPressedDirective,
+		IonicModule,
+		PickerComponent,
+	],
 	templateUrl: './message-input.component.html',
 	styleUrls: ['./message-input.component.scss'],
 })
@@ -26,6 +36,11 @@ export class MessageInputComponent implements AfterViewInit {
 
 	@Input()
 	maxHeight: number = 150;
+
+	@Output()
+	onSend = new EventEmitter<string>();
+
+	isNative: boolean = Capacitor.isNativePlatform();
 
 	constructor() {}
 
@@ -103,7 +118,7 @@ export class MessageInputComponent implements AfterViewInit {
 
 		if (!specialKeysPressed && pressedKeys.includes('enter')) {
 			//TODO: submit here as well
-			this.clear();
+			this.send();
 			// console.log(this.messageInput?.nativeElement.textContent);
 		} else if (specialKeysPressed && pressedKeys.includes('enter')) {
 			const selection: Selection | null = window.getSelection();
@@ -142,6 +157,39 @@ export class MessageInputComponent implements AfterViewInit {
 			range.insertNode(document.createTextNode('\n'));
 
 			selection.collapseToEnd();
+		}
+	};
+
+	handleEmojiBtnClick = (e: Event) => {
+		e.stopPropagation();
+	};
+	handleSubmitBtnClick = (e: Event) => {
+		e.stopPropagation();
+
+		this.send();
+	};
+
+	send = () => {
+		if (!this.messageInput) return;
+
+		this.onSend.emit(this.messageInput.nativeElement.textContent);
+		this.clear();
+	};
+
+	handleEmojiSelect = (e: Record<string, any>) => {
+		if (!this.messageInput) return;
+
+		const startPos = this.messageInput.nativeElement.selectionStart;
+		const endPos = this.messageInput.nativeElement.selectionEnd;
+		const text = this.messageInput.nativeElement.textContent;
+		if (!!endPos && endPos > 0) {
+			this.messageInput.nativeElement.textContent =
+				text.substring(0, startPos) +
+				e['emoji'].native +
+				text.substring(endPos, text.length);
+		} else {
+			this.messageInput.nativeElement.textContent +=
+				e['emoji'].native;
 		}
 	};
 }

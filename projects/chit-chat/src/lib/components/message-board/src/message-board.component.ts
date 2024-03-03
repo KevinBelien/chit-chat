@@ -19,13 +19,14 @@ import {
 	Observable,
 	Subject,
 	combineLatest,
+	lastValueFrom,
 	map,
 	mergeMap,
 	of,
 	scan,
+	take,
 	takeUntil,
 	tap,
-	throttleTime,
 } from 'rxjs';
 
 import {
@@ -61,9 +62,6 @@ export class MessageBoardComponent
 	viewport?: RxVirtualScrollViewportComponent;
 
 	@Input()
-	scrollTreshold: number = 3000;
-
-	@Input()
 	initialBatchSize: number = 40;
 
 	@Input()
@@ -97,7 +95,6 @@ export class MessageBoardComponent
 	isLoading: boolean = false;
 
 	renderedMessages = new Set<Message>();
-	viewRange: { start: number; end: number } | null = null;
 
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
@@ -157,10 +154,9 @@ export class MessageBoardComponent
 			this.lastMessage$,
 			this.chatContext$,
 		]).pipe(
-			throttleTime(100),
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
-					return of([] as Message[]) as Observable<Message[]>;
+					return of([] as Message[]);
 				}
 
 				this.isLoading = true;
@@ -220,25 +216,24 @@ export class MessageBoardComponent
 		return message.id;
 	};
 
-	handleViewRangeChanged = (listRange: {
-		start: number;
-		end: number;
-	}) => {
-		this.viewRange = { ...listRange };
-	};
-
-	handleScrollIndexChange = (
+	handleScrollIndexChange = async (
 		lastMessageIndex: number,
 		lastMessage: Message,
 		messagesLength: number
 	) => {
-		if (this.firstFetch || this.isLoading || this.lastMessageFetched)
+		if (
+			this.firstFetch ||
+			this.isLoading ||
+			this.lastMessageFetched ||
+			!this.viewport
+		)
 			return;
 
-		if (
-			messagesLength <= this.renderedMessages.size ||
-			lastMessageIndex < 5
-		) {
+		const range = await lastValueFrom(
+			this.viewport.viewRange.pipe(take(1))
+		);
+
+		if (range.start === 0) {
 			this.lastMessage$.next(lastMessage);
 		}
 	};
