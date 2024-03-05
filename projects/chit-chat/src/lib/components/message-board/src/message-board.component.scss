@@ -12,9 +12,46 @@
 	);
 }
 
-.chat-bubble {
+.ch-message-container {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	padding-inline: 2em;
+	row-gap: 1em;
+}
+
+.ch-message-bubble {
+	position: relative;
+	display: flex;
+	flex-direction: column;
 	max-height: 500px;
 	overflow-y: hidden;
-	padding: 2em;
-	width: 200px;
+	min-width: 80%;
+	max-width: 400px;
+	border-radius: 8px;
+	background-color: var(
+		--ch-message-bubble-background,
+		rgb(112, 112, 112)
+	);
+	padding: 0.6em 0.6em 1.2em 0.6em;
+	margin-block: 0.3em;
+}
+
+.ch-message-user {
+	align-self: flex-end;
+	background-color: var(
+		--ch-color-primary,
+		--ion-color-primary,
+		#fff
+	);
+}
+
+.ch-message-time {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	padding: 0.2em 0.5em;
+	font-size: 0.7rem;
+	color: var(--ch-message-bubble-footer-color, rgb(205, 205, 205));
+	user-select: none;
 }

@@ -1,33 +1,46 @@
 <div class="ch-message-board">
 	<div class="ch-list-container ch-chat-container">
 		<ng-container *ngIf="messages$ | async as messages">
-			<rx-virtual-scroll-viewport
-				*ngIf="messages.length > 0"
-				autosize
-				[id]="viewportId"
-				class="ch-vscroll-viewport"
-				[runwayItems]="batchSize"
-				[runwayItemsOpposite]="3"
-				(scrolledIndexChange)="
-					handleScrollIndexChange(
-						$event,
-						messages[0],
-						messages.length
-					)
-				"
-			>
-				<div
-					*rxVirtualFor="
-						let item of messages$;
-						renderCallback: itemsRendered;
-						trackBy: trackMessage
+			<ng-container *ngIf="currentUser$ | async as user">
+				<rx-virtual-scroll-viewport
+					*ngIf="messages.length > 0"
+					autosize
+					[id]="viewportId"
+					class="ch-vscroll-viewport"
+					[runwayItems]="batchSize"
+					[runwayItemsOpposite]="5"
+					(scrolledIndexChange)="
+						handleScrollIndexChange(
+							$event,
+							messages[0],
+							messages.length
+						)
 					"
-					class="chat-bubble"
 				>
-					<div>{{ item.message.text }}</div>
-					<div>{{ item.sendAt | date }}</div>
-				</div>
-			</rx-virtual-scroll-viewport>
+					<div
+						*rxVirtualFor="
+							let item of messages$;
+							renderCallback: itemsRendered;
+							trackBy: trackMessage
+						"
+						class="ch-message-container"
+					>
+						<div
+							class="ch-message-bubble"
+							[ngClass]="{
+								'ch-message-user': item.senderId === user.userInfo.uid
+							}"
+						>
+							<div class="ch-message-content">
+								{{ item.message.text }}
+							</div>
+							<div class="ch-message-time">
+								{{ item.sendAt | date : 'HH:MM' }}
+							</div>
+						</div>
+					</div>
+				</rx-virtual-scroll-viewport>
+			</ng-container>
 		</ng-container>
 	</div>
 </div>

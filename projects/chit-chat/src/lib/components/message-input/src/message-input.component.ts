@@ -11,7 +11,10 @@ import {
 import { Capacitor } from '@capacitor/core';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { IonicModule } from '@ionic/angular';
-import { KeysPressedDirective } from 'chit-chat/src/lib/utils';
+import {
+	KeysPressedDirective,
+	ScreenService,
+} from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-message-input',
@@ -42,7 +45,7 @@ export class MessageInputComponent implements AfterViewInit {
 
 	isNative: boolean = Capacitor.isNativePlatform();
 
-	constructor() {}
+	constructor(private screen: ScreenService) {}
 
 	ngAfterViewInit(): void {}
 
@@ -58,7 +61,6 @@ export class MessageInputComponent implements AfterViewInit {
 	};
 
 	handleKeyDown = (e: KeyboardEvent) => {
-		// console.log(e);
 		if (e.code === 'Enter') {
 			e.preventDefault();
 		}
@@ -116,11 +118,16 @@ export class MessageInputComponent implements AfterViewInit {
 			specialKeysRegExp.test(key)
 		);
 
-		if (!specialKeysPressed && pressedKeys.includes('enter')) {
-			//TODO: submit here as well
+		if (
+			!specialKeysPressed &&
+			pressedKeys.includes('enter') &&
+			!this.screen.isMobile()
+		) {
 			this.send();
-			// console.log(this.messageInput?.nativeElement.textContent);
-		} else if (specialKeysPressed && pressedKeys.includes('enter')) {
+		} else if (
+			(specialKeysPressed && pressedKeys.includes('enter')) ||
+			this.screen.isMobile()
+		) {
 			const selection: Selection | null = window.getSelection();
 			if (!selection) return;
 
@@ -170,7 +177,11 @@ export class MessageInputComponent implements AfterViewInit {
 	};
 
 	send = () => {
-		if (!this.messageInput) return;
+		if (
+			!this.messageInput ||
+			this.messageInput.nativeElement.textContent.length === 0
+		)
+			return;
 
 		this.onSend.emit(this.messageInput.nativeElement.textContent);
 		this.clear();
@@ -191,5 +202,6 @@ export class MessageInputComponent implements AfterViewInit {
 			this.messageInput.nativeElement.textContent +=
 				e['emoji'].native;
 		}
+		this.message = this.messageInput.nativeElement.textContent;
 	};
 }

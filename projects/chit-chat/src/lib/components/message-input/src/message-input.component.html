@@ -1,16 +1,4 @@
 <div class="ch-message-input">
-	<!-- <textarea
-		#textarea
-		class="ch-message-input ch-input"
-		[style.height]="getTextAreaHeight(textarea)"
-		autocapitalize="off"
-		spellcheck="true"
-		name="message-input"
-		aria-multiline="true"
-		autocomplete="off"
-		[placeholder]="placeholder"
-	></textarea> -->
-
 	<div
 		#messageInput
 		chKeysPressed
@@ -59,8 +47,12 @@
 			<emoji-mart
 				class="ch-emoji-picker"
 				[autoFocus]="true"
+				set="google"
 				[showPreview]="false"
+				[enableFrequentEmojiSort]="true"
 				[isNative]="isNative"
+				[exclude]="['flags']"
+				[totalFrequentLines]="2"
 				[enableSearch]="!isNative"
 				(emojiSelect)="handleEmojiSelect($event)"
 			></emoji-mart>
