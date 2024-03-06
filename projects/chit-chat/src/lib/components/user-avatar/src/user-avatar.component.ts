@@ -81,7 +81,7 @@ export class UserAvatarComponent implements OnChanges {
 		}
 	}
 
-	private calcInitials = (displayName: string): string | null => {
+	calcInitials = (displayName: string): string | null => {
 		const matches = displayName.match(/\b(\w)/g);
 		const initials =
 			!!matches && matches.length > 1
@@ -90,7 +90,7 @@ export class UserAvatarComponent implements OnChanges {
 		return !!initials ? initials.join('') : displayName;
 	};
 
-	handleClick = (e: Event) => {
+	protected handleClick = (e: Event) => {
 		this.onClick.emit(e);
 	};
 }

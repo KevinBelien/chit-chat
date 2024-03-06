@@ -37,11 +37,40 @@ export class MessageInputComponent implements AfterViewInit {
 	@Input()
 	message: string | null = '';
 
+	@Output()
+	messageChange = new EventEmitter<string | null>();
+
 	@Input()
 	maxHeight: number = 150;
 
 	@Output()
 	onSend = new EventEmitter<string>();
+
+	@Output()
+	onInput = new EventEmitter<{
+		event: Event;
+		value: string | null;
+		previousValue: string | null;
+	}>();
+
+	@Output()
+	onKeyDown = new EventEmitter<{
+		event: Event;
+	}>();
+
+	@Output()
+	onPaste = new EventEmitter<{
+		event: ClipboardEvent;
+	}>();
+
+	@Output()
+	onCleared = new EventEmitter<{ previousValue: string | null }>();
+
+	@Output()
+	onMultipleKeysPressed = new EventEmitter<{
+		pressedKeys: Array<string>;
+		triggeredKeyCombination: Array<string>;
+	}>();
 
 	isNative: boolean = Capacitor.isNativePlatform();
 
@@ -53,28 +82,32 @@ export class MessageInputComponent implements AfterViewInit {
 		this.messageInput?.nativeElement.focus();
 	};
 
-	handleInput = (e: Event) => {
+	protected handleInput = (e: Event) => {
+		const previousMessage = this.message;
 		this.message = (e.target as HTMLElement).textContent ?? '';
 		if (this.message.length === 0) {
 			this.clear();
+		} else {
+			this.messageChange.emit(this.message);
 		}
+
+		this.onInput.emit({
+			event: e,
+			value: this.message,
+			previousValue: previousMessage,
+		});
 	};
 
-	handleKeyDown = (e: KeyboardEvent) => {
+	protected handleKeyDown = (e: KeyboardEvent) => {
 		if (e.code === 'Enter') {
 			e.preventDefault();
 		}
+		this.onKeyDown.emit({ event: e });
 	};
 
-	getTextAreaHeight = (component: HTMLTextAreaElement) => {
-		if (parseInt(component.style.height) > this.maxHeight) {
-			return `${this.maxHeight}px`;
-		}
-		return 'auto';
-	};
-
-	handlePaste(e: ClipboardEvent) {
+	protected handlePaste(e: ClipboardEvent) {
 		e.preventDefault();
+		this.onPaste.emit({ event: e });
 
 		// Get pasted data via clipboard API
 		const clipboardData = e.clipboardData;
@@ -102,17 +135,24 @@ export class MessageInputComponent implements AfterViewInit {
 
 	clear = () => {
 		if (!this.messageInput) return;
+		const previousMessage = this.message;
 		this.messageInput.nativeElement.textContent = '';
 		this.message = '';
+		this.messageChange.emit(this.message);
+		this.onCleared.emit({ previousValue: this.message });
 	};
 
-	handleKeyCombinationPressed = ({
+	protected handleKeyCombinationPressed = ({
 		pressedKeys,
 		triggeredKeyCombination,
 	}: {
 		pressedKeys: Array<string>;
 		triggeredKeyCombination: Array<string>;
 	}) => {
+		this.onMultipleKeysPressed.emit({
+			pressedKeys,
+			triggeredKeyCombination,
+		});
 		const specialKeysRegExp = /^(control|alt|shift|meta)$/;
 		const specialKeysPressed = pressedKeys.some((key) =>
 			specialKeysRegExp.test(key)
@@ -167,10 +207,10 @@ export class MessageInputComponent implements AfterViewInit {
 		}
 	};
 
-	handleEmojiBtnClick = (e: Event) => {
+	protected handleEmojiBtnClick = (e: Event) => {
 		e.stopPropagation();
 	};
-	handleSubmitBtnClick = (e: Event) => {
+	protected handleSubmitBtnClick = (e: Event) => {
 		e.stopPropagation();
 
 		this.send();
@@ -187,7 +227,7 @@ export class MessageInputComponent implements AfterViewInit {
 		this.clear();
 	};
 
-	handleEmojiSelect = (e: Record<string, any>) => {
+	protected handleEmojiSelect = (e: Record<string, any>) => {
 		if (!this.messageInput) return;
 
 		const startPos = this.messageInput.nativeElement.selectionStart;
@@ -203,5 +243,6 @@ export class MessageInputComponent implements AfterViewInit {
 				e['emoji'].native;
 		}
 		this.message = this.messageInput.nativeElement.textContent;
+		this.messageChange.emit(this.message);
 	};
 }

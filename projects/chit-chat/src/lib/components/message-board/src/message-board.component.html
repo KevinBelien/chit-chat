@@ -3,6 +3,7 @@
 		<ng-container *ngIf="messages$ | async as messages">
 			<ng-container *ngIf="currentUser$ | async as user">
 				<rx-virtual-scroll-viewport
+					#viewport
 					*ngIf="messages.length > 0"
 					autosize
 					[id]="viewportId"
@@ -13,7 +14,8 @@
 						handleScrollIndexChange(
 							$event,
 							messages[0],
-							messages.length
+							messages,
+							viewport
 						)
 					"
 					[initialScrollIndex]="messages.length - 1"

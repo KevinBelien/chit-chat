@@ -1,12 +1,13 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
+	EventEmitter,
 	Input,
 	OnChanges,
 	OnDestroy,
 	OnInit,
+	Output,
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
@@ -111,13 +112,37 @@ export class MessageBoardComponent
 
 	scrolledIndexChangedCounter: number = 0;
 
+	@Output()
+	onScrollIndexChanged = new EventEmitter<{
+		messages: Message[];
+		lastMessageFetched: Message;
+		scrollIndex: number;
+		dataPreviouslyFetching: boolean;
+		viewport: RxVirtualScrollViewportComponent;
+	}>();
+
+	@Output()
+	onLoadingStarted = new EventEmitter<{
+		currentUser: AuthUser;
+		lastMessageFetched: Message | null;
+		chatContext: {
+			isGroup: boolean;
+			participantId: string;
+		} | null;
+	}>();
+
+	@Output()
+	onLoadingEnded = new EventEmitter<{
+		data: Message[];
+		lastMessageWasFetched: boolean;
+	}>();
+
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
 
 	constructor(
 		private messageService: MessageService,
 		private authService: AuthService,
-		private cd: ChangeDetectorRef,
 		private screenService: ScreenService
 	) {
 		this.currentUser$ = this.authService.user$;
@@ -169,7 +194,7 @@ export class MessageBoardComponent
 		}
 	};
 
-	private resetMessageStream(): void {
+	resetMessageStream(): void {
 		this.scrolledIndexChangedCounter = 0;
 		this.isLoading = true;
 		this.destroyMessages$.next();
@@ -188,9 +213,15 @@ export class MessageBoardComponent
 		]).pipe(
 			mergeMap(([currentUser, lastMessage, chatContext]) => {
 				if (!chatContext || !currentUser) {
+					this.isLoading = false;
+
 					return of([] as Message[]);
 				}
-
+				this.onLoadingStarted.emit({
+					currentUser,
+					lastMessageFetched: lastMessage,
+					chatContext,
+				});
 				this.isLoading = true;
 
 				return this.messageService.getMessages(
@@ -228,6 +259,10 @@ export class MessageBoardComponent
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
+				this.onLoadingEnded.emit({
+					data: messages,
+					lastMessageWasFetched: this.lastMessageFetched,
+				});
 			}),
 			takeUntil(this.destroyMessages$)
 		);
@@ -238,22 +273,29 @@ export class MessageBoardComponent
 	};
 
 	protected handleScrollIndexChange = async (
-		lastMessageIndex: number,
+		scrollIndex: number,
 		lastMessage: Message,
-		messagesLength: number
+		messages: Message[],
+		viewport: RxVirtualScrollViewportComponent
 	) => {
-		console.log(this.scrolledIndexChangedCounter);
+		this.onScrollIndexChanged.emit({
+			messages,
+			lastMessageFetched: lastMessage,
+			scrollIndex,
+			dataPreviouslyFetching: this.isLoading,
+			viewport,
+		});
+
 		this.scrolledIndexChangedCounter++;
 		if (
 			this.scrolledIndexChangedCounter < 3 ||
 			this.isLoading ||
-			this.lastMessageFetched ||
-			!this.viewport
+			this.lastMessageFetched
 		)
 			return;
 
 		const range = await lastValueFrom(
-			this.viewport.viewRange.pipe(take(1))
+			viewport.viewRange.pipe(take(1))
 		);
 
 		if (range.start === 0) {
@@ -262,7 +304,7 @@ export class MessageBoardComponent
 	};
 
 	protected isDifferentDay = (date1: Date, date2: Date) => {
-		return DateHelper.areDaysDifferent(date1, date2);
+		return DateHelper.isDifferentDay(date1, date2);
 	};
 
 	protected fetchMessageBubbleCssClass(

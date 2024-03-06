@@ -50,14 +50,14 @@ export class MenuComponent {
 
 	constructor() {} //
 
-	onTabChanged = (e: {
+	protected handleTabChanged = (e: {
 		component: TabComponent;
 		currentIndex: number;
 	}) => {
 		this.selectedIndex = e.currentIndex;
 	};
 
-	onUserClick = (user: User) => {
+	protected handleUserClick = (user: User) => {
 		this.selectedUser = user;
 		this.onUserClicked.emit(user);
 	};

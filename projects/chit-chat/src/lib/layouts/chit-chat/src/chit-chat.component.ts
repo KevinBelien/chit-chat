@@ -63,7 +63,7 @@ export class ChitChatComponent {
 		});
 	}
 
-	onUserClicked = (user: User) => {
+	protected handleUserClicked = (user: User) => {
 		if (
 			!this.chatContext ||
 			this.chatContext.isGroup ||
