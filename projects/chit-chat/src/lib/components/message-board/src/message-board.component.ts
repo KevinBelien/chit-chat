@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -13,6 +13,7 @@ import {
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { Message, MessageService } from 'chit-chat/src/lib/messages';
+import { ScreenService } from 'chit-chat/src/lib/utils';
 
 import {
 	BehaviorSubject,
@@ -37,6 +38,9 @@ import {
 
 import { AuthUser } from 'chit-chat/src/lib/users';
 
+import { MessageBubbleComponent } from 'chit-chat/src/lib/components/message-bubble';
+import { DateHelper, SmartDatePipe } from 'chit-chat/src/lib/utils';
+
 @Component({
 	selector: 'ch-message-board',
 	standalone: true,
@@ -47,7 +51,10 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 		RxVirtualFor,
 		RxVirtualScrollViewportComponent,
 		AutoSizeVirtualScrollStrategy,
+		SmartDatePipe,
+		MessageBubbleComponent,
 	],
+	providers: [DatePipe],
 	templateUrl: './message-board.component.html',
 	styleUrls: ['./message-board.component.scss'],
 	host: {
@@ -66,6 +73,12 @@ export class MessageBoardComponent
 
 	@Input()
 	batchSize: number = 20;
+
+	@Input()
+	maxWidth: number = 900;
+
+	@Input()
+	messageBubbleDimensions: { maxWidth: number | string };
 
 	@Input()
 	chatContext: { isGroup: boolean; participantId: string } | null =
@@ -96,13 +109,16 @@ export class MessageBoardComponent
 
 	renderedMessages = new Set<Message>();
 
+	scrolledIndexChangedCounter: number = 0;
+
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
 
 	constructor(
 		private messageService: MessageService,
 		private authService: AuthService,
-		private cd: ChangeDetectorRef
+		private cd: ChangeDetectorRef,
+		private screenService: ScreenService
 	) {
 		this.currentUser$ = this.authService.user$;
 		this.currentUser$
@@ -114,6 +130,13 @@ export class MessageBoardComponent
 				...this.renderedMessages,
 				...messages,
 			]);
+		});
+
+		this.messageBubbleDimensions =
+			this.calcDimensionsOfMessageBubble();
+		this.screenService.breakPointChanged.subscribe(() => {
+			this.messageBubbleDimensions =
+				this.calcDimensionsOfMessageBubble();
 		});
 	}
 
@@ -138,9 +161,18 @@ export class MessageBoardComponent
 		this.destroy$.complete();
 	}
 
+	private calcDimensionsOfMessageBubble = () => {
+		if (this.screenService.sizes['lg']) {
+			return { maxWidth: '75%' };
+		} else {
+			return { maxWidth: '87%' };
+		}
+	};
+
 	private resetMessageStream(): void {
+		this.scrolledIndexChangedCounter = 0;
+		this.isLoading = true;
 		this.destroyMessages$.next();
-		this.firstFetch = true;
 		this.lastMessageFetched = false;
 
 		this.lastMessage$.next(null);
@@ -171,7 +203,6 @@ export class MessageBoardComponent
 					!!this.firstFetch ? this.initialBatchSize : this.batchSize
 				) as Observable<Message[]>;
 			}),
-			takeUntil(this.destroyMessages$),
 			tap((messages: Message[]) => {
 				this.lastMessageFetched = messages.length === 0;
 			}),
@@ -197,32 +228,24 @@ export class MessageBoardComponent
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
-
-				//TODO: scroll to bottom not consistent
-				if (this.firstFetch && messages.length > 0)
-					setTimeout(() => {
-						try {
-							this.viewport?.scrollToIndex(messages.length - 1);
-							setTimeout(() => {
-								this.firstFetch = false;
-							}, 300);
-						} catch (e: any) {}
-					});
-			})
+			}),
+			takeUntil(this.destroyMessages$)
 		);
 	};
 
-	trackMessage = (index: number, message: Message) => {
+	protected trackMessage = (index: number, message: Message) => {
 		return message.id;
 	};
 
-	handleScrollIndexChange = async (
+	protected handleScrollIndexChange = async (
 		lastMessageIndex: number,
 		lastMessage: Message,
 		messagesLength: number
 	) => {
+		console.log(this.scrolledIndexChangedCounter);
+		this.scrolledIndexChangedCounter++;
 		if (
-			this.firstFetch ||
+			this.scrolledIndexChangedCounter < 3 ||
 			this.isLoading ||
 			this.lastMessageFetched ||
 			!this.viewport
@@ -237,4 +260,36 @@ export class MessageBoardComponent
 			this.lastMessage$.next(lastMessage);
 		}
 	};
+
+	protected isDifferentDay = (date1: Date, date2: Date) => {
+		return DateHelper.areDaysDifferent(date1, date2);
+	};
+
+	protected fetchMessageBubbleCssClass(
+		messages: Message[],
+		index: number,
+		currentUserId: string
+	): string {
+		const classes = [];
+
+		if (
+			index === 0 ||
+			messages[index - 1].senderId !== messages[index].senderId
+		) {
+			classes.push('ch-first-group-message');
+		}
+
+		if (
+			index === messages.length - 1 ||
+			messages[index + 1].senderId !== messages[index].senderId
+		) {
+			classes.push('ch-last-group-message');
+		}
+
+		if (messages[index].senderId === currentUserId) {
+			classes.push('ch-message-user');
+		}
+
+		return classes.join(' ');
+	}
 }

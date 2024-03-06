@@ -1,0 +1,15 @@
+<ng-container *ngIf="!!message">
+	<div
+		class="ch-message-bubble"
+		[ngClass]="cssClass"
+		[style.maxWidth]="maxWidth"
+	>
+		<div
+			class="ch-message-content"
+			[innerHtml]="message.message.text"
+		></div>
+		<div class="ch-message-time">
+			{{ message.sendAt | date : 'HH:MM' }}
+		</div>
+	</div>
+</ng-container>

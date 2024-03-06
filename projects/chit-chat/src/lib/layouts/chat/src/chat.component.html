@@ -1,8 +1,16 @@
 <div class="ch-chat-container">
 	<div class="ch-message-board-container">
-		<ch-message-board [chatContext]="chatContext"></ch-message-board>
+		<ch-message-board
+			[chatContext]="chatContext"
+			[maxWidth]="maxWidth"
+		></ch-message-board>
 	</div>
 	<div class="ch-message-input-container">
-		<ch-message-input></ch-message-input>
+		<div
+			class="ch-message-input-wrapper"
+			[style.maxWidth.px]="maxWidth"
+		>
+			<ch-message-input></ch-message-input>
+		</div>
 	</div>
 </div>

@@ -31,6 +31,9 @@ export class ChatComponent implements OnInit {
 	chatContext: { isGroup: boolean; participantId: string } | null =
 		null;
 
+	@Input()
+	maxWidth: number = 900;
+
 	constructor() {}
 
 	ngOnInit(): void {}

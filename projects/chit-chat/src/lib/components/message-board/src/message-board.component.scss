@@ -4,7 +4,7 @@
 }
 
 ::ng-deep .ch-message-board {
-	height: 100%; /* Set height for the message board container */
+	height: 100%;
 	background-color: var(
 		--ch-message-board-background,
 		--ion-background-color,
@@ -16,42 +16,59 @@
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-	padding-inline: 2em;
-	row-gap: 1em;
 }
 
-.ch-message-bubble {
-	position: relative;
+.message-bubble-wrapper {
+	align-self: flex-start;
+
+	&.ch-align-end {
+		align-self: flex-end;
+	}
+}
+
+.ch-message-date-indicator-container {
 	display: flex;
-	flex-direction: column;
-	max-height: 500px;
-	overflow-y: hidden;
-	min-width: 80%;
-	max-width: 400px;
-	border-radius: 8px;
-	background-color: var(
-		--ch-message-bubble-background,
-		rgb(112, 112, 112)
-	);
-	padding: 0.6em 0.6em 1.2em 0.6em;
-	margin-block: 0.3em;
+	width: 100%;
+	justify-content: center;
+	user-select: none;
+	margin-block: 0.7em 0.4em;
 }
 
-.ch-message-user {
-	align-self: flex-end;
+.ch-message-date-indicator {
 	background-color: var(
+		--ch-messages-date-indicator-background,
+		#a1a1a1
+	);
+	padding: 0.5em 0.8em;
+	border-radius: 9px;
+	font-size: 0.8rem;
+	letter-spacing: 0.3px;
+}
+
+.ch-message-board-outer-wrapper {
+	padding-inline: 0.8em;
+	width: 100%;
+	padding-top: 1em;
+}
+
+.ch-message-board-inner-wrapper {
+	position: relative;
+	margin: auto;
+}
+
+::ng-deep
+	.ch-message-bubble-element
+	.ch-message-bubble.ch-last-group-message {
+	margin-bottom: 0.8em;
+}
+
+::ng-deep
+	.ch-message-bubble-element
+	.ch-message-bubble.ch-message-user {
+	background-color: var(
+		--ch-message-bubble-self-background,
 		--ch-color-primary,
 		--ion-color-primary,
-		#fff
+		#0ea47a
 	);
-}
-
-.ch-message-time {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	padding: 0.2em 0.5em;
-	font-size: 0.7rem;
-	color: var(--ch-message-bubble-footer-color, rgb(205, 205, 205));
-	user-select: none;
 }

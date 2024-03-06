@@ -12,7 +12,10 @@ import {
 	MenuItem,
 } from 'chit-chat/src/lib/layouts/menu';
 import { User } from 'chit-chat/src/lib/users';
-import { ScreenService } from 'chit-chat/src/lib/utils';
+import {
+	ScreenService,
+	SmartDatePipe,
+} from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-chit-chat',
@@ -24,7 +27,9 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		MenuComponent,
 		ChatComponent,
 		SplitPaneComponent,
+		SmartDatePipe,
 	],
+
 	templateUrl: './chit-chat.component.html',
 	styleUrls: ['./chit-chat.component.scss'],
 	host: {
@@ -33,6 +38,8 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	},
 })
 export class ChitChatComponent {
+	currentDate = new Date();
+
 	@Input()
 	menuItems: MenuItem[] = [
 		'chats',
