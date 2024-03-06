@@ -79,7 +79,9 @@ export class MessageInputComponent implements OnChanges {
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['message']) {
-			this.setMessage(changes['message'].currentValue);
+			setTimeout(() =>
+				this.setMessage(changes['message'].currentValue)
+			);
 		}
 	}
 
