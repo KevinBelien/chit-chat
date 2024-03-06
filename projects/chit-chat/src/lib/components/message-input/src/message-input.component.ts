@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
-	AfterViewInit,
 	Component,
 	ElementRef,
 	EventEmitter,
 	Input,
+	OnChanges,
 	Output,
+	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
@@ -28,7 +29,7 @@ import {
 	templateUrl: './message-input.component.html',
 	styleUrls: ['./message-input.component.scss'],
 })
-export class MessageInputComponent implements AfterViewInit {
+export class MessageInputComponent implements OnChanges {
 	@ViewChild('messageInput') messageInput?: ElementRef;
 
 	@Input()
@@ -72,11 +73,15 @@ export class MessageInputComponent implements AfterViewInit {
 		triggeredKeyCombination: Array<string>;
 	}>();
 
-	isNative: boolean = Capacitor.isNativePlatform();
+	readonly isNative: boolean = Capacitor.isNativePlatform();
 
 	constructor(private screen: ScreenService) {}
 
-	ngAfterViewInit(): void {}
+	ngOnChanges(changes: SimpleChanges): void {
+		if (changes['message']) {
+			this.setMessage(changes['message'].currentValue);
+		}
+	}
 
 	focus = () => {
 		this.messageInput?.nativeElement.focus();
@@ -225,6 +230,11 @@ export class MessageInputComponent implements AfterViewInit {
 
 		this.onSend.emit(this.messageInput.nativeElement.textContent);
 		this.clear();
+	};
+
+	setMessage = (message: string) => {
+		if (!!this.messageInput)
+			this.messageInput.nativeElement.textContent = message;
 	};
 
 	protected handleEmojiSelect = (e: Record<string, any>) => {
