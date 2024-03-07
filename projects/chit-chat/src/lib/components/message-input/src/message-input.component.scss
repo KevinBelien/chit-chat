@@ -9,7 +9,7 @@
 		--ion-background-color,
 		#fff
 	);
-	border: 0.8px solid var(--ch-message-input-border);
+	border: 0.8px solid var(--ch-message-input-border, #d5d5d5);
 
 	.ch-align-end {
 		align-self: flex-end;
@@ -35,7 +35,7 @@
 
 .ch-input[placeholder]:empty::before {
 	content: attr(placeholder);
-	color: var(--ch-placeholder-color, #555);
+	color: var(--ch-placeholder-color, #777);
 }
 
 .ch-input-btn-container {
@@ -54,7 +54,11 @@
 			left: 0;
 			margin: auto;
 			border-left: 0.8px solid
-				var(--ch-message-input-button-color, --ion-text-color, #000);
+				var(
+					--ch-message-input-button-color,
+					--ion-text-color,
+					#515151
+				);
 			height: 21px;
 		}
 	}
@@ -64,7 +68,7 @@
 	--color: var(
 		--ch-message-input-button-color,
 		--ion-text-color,
-		#000
+		#515151
 	);
 
 	font-size: 11px;
@@ -72,17 +76,17 @@
 	--background-hover: var(
 		--ch-message-input-button-background-hover,
 		--ion-background-hover,
-		#4c8dff
+		#919191
 	);
 	--background-focused: var(
 		--ch-message-input-button-background-focused,
 		--ion-background-hover,
-		#4c8dff
+		#919191
 	);
 	--background-activated: var(
 		--ch-message-input-button-background-activated,
 		--ion-background-hover,
-		#4c8dff
+		#919191
 	);
 }
 

@@ -4,7 +4,7 @@
 	bottom: 0;
 	padding: 0.1em 0.5em;
 	font-size: 0.8rem;
-	color: var(--ch-message-bubble-footer-color, rgb(205, 205, 205));
+	color: var(--ch-message-bubble-footer-color, #4a4a4a);
 	user-select: none;
 }
 
@@ -17,7 +17,7 @@
 	border-radius: 8px;
 	background-color: var(
 		--ch-message-bubble-background,
-		rgb(112, 112, 112)
+		rgb(235, 235, 240)
 	);
 	padding: 0.6em 0.6em 1.5em 0.6em;
 	margin-block: 0.2em;
