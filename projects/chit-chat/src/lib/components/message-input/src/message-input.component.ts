@@ -68,7 +68,7 @@ export class MessageInputComponent implements OnChanges {
 	onCleared = new EventEmitter<{ previousValue: string | null }>();
 
 	@Output()
-	onMultipleKeysPressed = new EventEmitter<{
+	onMultipleKeysDown = new EventEmitter<{
 		pressedKeys: Array<string>;
 		triggeredKeyCombination: Array<string>;
 	}>();
@@ -156,7 +156,7 @@ export class MessageInputComponent implements OnChanges {
 		pressedKeys: Array<string>;
 		triggeredKeyCombination: Array<string>;
 	}) => {
-		this.onMultipleKeysPressed.emit({
+		this.onMultipleKeysDown.emit({
 			pressedKeys,
 			triggeredKeyCombination,
 		});
