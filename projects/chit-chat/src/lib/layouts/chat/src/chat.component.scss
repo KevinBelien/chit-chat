@@ -25,12 +25,12 @@
 		--ion-background-color,
 		#fff
 	);
-	padding: 1.5em 0.8em;
 	width: 100%;
 	display: flex;
 	justify-content: center;
 }
 
 .ch-message-input-wrapper {
+	min-width: 0;
 	flex-grow: 1;
 }
