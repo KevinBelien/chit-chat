@@ -88,6 +88,13 @@
 		--ion-background-hover,
 		#919191
 	);
+
+	--padding-start: 0.7em;
+	--padding-end: 0.7em;
+	&.ch-btn-submit {
+		--padding-start: 1.1em;
+		--padding-end: 1.1em;
+	}
 }
 
 .emoji-picker-popover {
