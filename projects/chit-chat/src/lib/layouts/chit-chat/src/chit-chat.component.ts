@@ -78,7 +78,13 @@ export class ChitChatComponent {
 		// }
 		const loggedinUser = this.authService.getCurrentUser();
 
-		if (!loggedinUser) return;
+		if (
+			(!!this.conversationContext &&
+				!this.conversationContext.isGroup &&
+				this.conversationContext.user.uid === user.uid) ||
+			!loggedinUser
+		)
+			return;
 
 		this.conversationContext = {
 			isGroup: false,

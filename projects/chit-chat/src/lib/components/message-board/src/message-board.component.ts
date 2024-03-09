@@ -162,12 +162,7 @@ export class MessageBoardComponent
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (
-			changes['conversationContext'] &&
-			changes['conversationContext'].currentValue !==
-				changes['conversationContext'].previousValue
-		) {
-			console.log('gets');
+		if (changes['conversationContext']) {
 			this.resetMessageStream();
 		}
 	}
