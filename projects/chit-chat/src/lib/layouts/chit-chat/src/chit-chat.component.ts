@@ -5,7 +5,9 @@ import {
 	Input,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { AuthService } from 'chit-chat/src/lib/auth';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
+import { ConversationContext } from 'chit-chat/src/lib/conversations';
 import { ChatComponent } from 'chit-chat/src/lib/layouts/chat';
 import {
 	MenuComponent,
@@ -52,10 +54,12 @@ export class ChitChatComponent {
 
 	isSmallScreen: boolean = false;
 
-	chatContext: { isGroup: boolean; participantId: string } | null =
-		null;
+	conversationContext: ConversationContext | null = null;
 
-	constructor(private screenService: ScreenService) {
+	constructor(
+		private screenService: ScreenService,
+		private authService: AuthService
+	) {
 		this.isSmallScreen = this.screenService.sizes['sm'];
 
 		this.screenService.breakPointChanged.subscribe(() => {
@@ -64,12 +68,23 @@ export class ChitChatComponent {
 	}
 
 	protected handleUserClicked = (user: User) => {
-		if (
-			!this.chatContext ||
-			this.chatContext.isGroup ||
-			this.chatContext.participantId !== user.uid
-		)
-			this.chatContext = { isGroup: false, participantId: user.uid };
+		// if (
+		// 	!this.conversationContext ||
+		// 	this.conversationContext.isGroup ||
+		// 	this.conversationContext.participantIds !== user.uid
+		// ) {
+		// 	this.conversationContext = null;
+		// 	this.conversationContext = { isGroup: false, participantId: user.uid };
+		// }
+		const loggedinUser = this.authService.getCurrentUser();
+
+		if (!loggedinUser) return;
+
+		this.conversationContext = {
+			isGroup: false,
+			user: user,
+			participantIds: [loggedinUser.userInfo.uid, user.uid],
+		};
 		this.sidePaneVisible = false;
 	};
 }

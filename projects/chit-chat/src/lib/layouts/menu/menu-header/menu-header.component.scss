@@ -1,14 +1,5 @@
-.ch-menu-header-toolbar {
-	padding-inline: 12px;
-	--min-height: 56px;
-}
-
-::ng-deep .ch-header-avatar {
+::ng-deep .ch-header-avatar.ch-menu-header-toolbar {
 	.ch-avatar-initials .ch-initials {
 		font-size: 12px;
 	}
-}
-
-.ch-menu-title {
-	font-size: 17px;
 }

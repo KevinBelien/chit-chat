@@ -40,6 +40,7 @@ import {
 import { AuthUser } from 'chit-chat/src/lib/users';
 
 import { MessageBubbleComponent } from 'chit-chat/src/lib/components/message-bubble';
+import { ConversationContext } from 'chit-chat/src/lib/conversations';
 import { DateHelper, SmartDatePipe } from 'chit-chat/src/lib/utils';
 
 @Component({
@@ -82,16 +83,10 @@ export class MessageBoardComponent
 	messageBubbleDimensions: { maxWidth: number | string };
 
 	@Input()
-	chatContext: { isGroup: boolean; participantId: string } | null =
-		null;
+	conversationContext: ConversationContext | null = null;
 
-	chatContext$: BehaviorSubject<{
-		isGroup: boolean;
-		participantId: string;
-	} | null> = new BehaviorSubject<{
-		isGroup: boolean;
-		participantId: string;
-	} | null>(null);
+	conversationContext$: BehaviorSubject<ConversationContext | null> =
+		new BehaviorSubject<ConversationContext | null>(null);
 
 	viewportId: string = `chat-list-viewport-${crypto.randomUUID()}`;
 
@@ -125,10 +120,7 @@ export class MessageBoardComponent
 	onLoadingStarted = new EventEmitter<{
 		currentUser: AuthUser;
 		lastMessageFetched: Message | null;
-		chatContext: {
-			isGroup: boolean;
-			participantId: string;
-		} | null;
+		conversationContext: ConversationContext | null;
 	}>();
 
 	@Output()
@@ -146,9 +138,9 @@ export class MessageBoardComponent
 		private screenService: ScreenService
 	) {
 		this.currentUser$ = this.authService.user$;
-		this.currentUser$
-			.pipe(takeUntil(this.destroy$))
-			.subscribe((currentUser) => this.resetMessageStream());
+		this.currentUser$.subscribe((currentUser) =>
+			this.resetMessageStream()
+		);
 
 		this.itemsRendered.subscribe((messages) => {
 			this.renderedMessages = new Set([
@@ -171,10 +163,11 @@ export class MessageBoardComponent
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (
-			changes['chatContext'] &&
-			changes['chatContext'].currentValue !==
-				changes['chatContext'].previousValue
+			changes['conversationContext'] &&
+			changes['conversationContext'].currentValue !==
+				changes['conversationContext'].previousValue
 		) {
+			console.log('gets');
 			this.resetMessageStream();
 		}
 	}
@@ -197,11 +190,12 @@ export class MessageBoardComponent
 	resetMessageStream(): void {
 		this.scrolledIndexChangedCounter = 0;
 		this.isLoading = true;
+		this.messages$ = of([]);
 		this.destroyMessages$.next();
 		this.lastMessageFetched = false;
 
 		this.lastMessage$.next(null);
-		this.chatContext$.next(this.chatContext);
+		this.conversationContext$.next(this.conversationContext);
 		this.initializeMessagesStream();
 	}
 
@@ -209,10 +203,10 @@ export class MessageBoardComponent
 		this.messages$ = combineLatest([
 			this.currentUser$,
 			this.lastMessage$,
-			this.chatContext$,
+			this.conversationContext$,
 		]).pipe(
-			mergeMap(([currentUser, lastMessage, chatContext]) => {
-				if (!chatContext || !currentUser) {
+			mergeMap(([currentUser, lastMessage, conversationContext]) => {
+				if (!conversationContext || !currentUser) {
 					this.isLoading = false;
 
 					return of([] as Message[]);
@@ -220,20 +214,19 @@ export class MessageBoardComponent
 				this.onLoadingStarted.emit({
 					currentUser,
 					lastMessageFetched: lastMessage,
-					chatContext,
+					conversationContext,
 				});
 				this.isLoading = true;
 
 				return this.messageService.getMessages(
-					{
-						userId: currentUser.userInfo.uid,
-						participantId: chatContext.participantId,
-						isGroup: chatContext.isGroup,
-					},
+					conversationContext,
+					currentUser.userInfo.uid,
 					lastMessage,
 					!!this.firstFetch ? this.initialBatchSize : this.batchSize
 				) as Observable<Message[]>;
 			}),
+			takeUntil(this.destroyMessages$),
+
 			tap((messages: Message[]) => {
 				this.lastMessageFetched = messages.length === 0;
 			}),
@@ -263,8 +256,7 @@ export class MessageBoardComponent
 					data: messages,
 					lastMessageWasFetched: this.lastMessageFetched,
 				});
-			}),
-			takeUntil(this.destroyMessages$)
+			})
 		);
 	};
 

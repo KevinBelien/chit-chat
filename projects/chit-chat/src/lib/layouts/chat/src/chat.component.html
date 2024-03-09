@@ -1,7 +1,10 @@
 <div class="ch-chat-container">
+	<ch-chat-header
+		[conversationContext]="conversationContext"
+	></ch-chat-header>
 	<div class="ch-message-board-container">
 		<ch-message-board
-			[chatContext]="chatContext"
+			[conversationContext]="conversationContext"
 			[maxWidth]="maxWidth"
 		></ch-message-board>
 	</div>

@@ -1,0 +1,44 @@
+<ion-header mode="ios">
+	<ion-toolbar class="ch-header-toolbar ch-chat-header-toolbar">
+		<ng-container *ngIf="!!conversationContext">
+			<ch-user-avatar
+				slot="start"
+				class="ch-header-avatar"
+				[src]="
+					!conversationContext.isGroup
+						? conversationContext.user.avatar
+						: ''
+				"
+				[displayName]="
+					!conversationContext.isGroup
+						? conversationContext.user.name
+						: ''
+				"
+				[onlineStatus]="
+					!conversationContext.isGroup
+						? conversationContext.user.onlineStatus
+						: 'offline'
+				"
+				[userColor]="
+					!conversationContext.isGroup
+						? conversationContext.user.color
+						: 'gray'
+				"
+				[dimensions]="40"
+			></ch-user-avatar>
+		</ng-container>
+		<ion-title
+			mode="md"
+			class="ch-header-title ch-menu-header-title"
+			>{{
+				!!conversationContext && !conversationContext.isGroup
+					? conversationContext.user.name
+					: ''
+			}}</ion-title
+		>
+
+		<div slot="end">
+			<ng-content slot-end></ng-content>
+		</div>
+	</ion-toolbar>
+</ion-header>
