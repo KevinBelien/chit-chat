@@ -1,4 +1,7 @@
-<ch-split-pane [sidePaneVisible]="sidePaneVisible">
+<ch-split-pane
+	[sidePaneVisible]="sidePaneVisible"
+	(onSplittedChanged)="handleSplittedChanged($event)"
+>
 	<ng-container side-content>
 		<ch-menu
 			[menuItems]="menuItems"
@@ -8,6 +11,10 @@
 	</ng-container>
 
 	<ng-container main-content>
-		<ch-chat [conversationContext]="conversationContext"></ch-chat>
+		<ch-chat
+			[conversationContext]="conversationContext"
+			[backButtonEnabled]="!sidePaneVisible && !isSplitPaneSplitted"
+			(onBackButtonClicked)="handleBackButtonClicked()"
+		></ch-chat>
 	</ng-container>
 </ch-split-pane>

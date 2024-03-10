@@ -1,5 +1,21 @@
 <ion-header mode="ios">
 	<ion-toolbar class="ch-header-toolbar ch-chat-header-toolbar">
+		<ion-buttons
+			mode="md"
+			slot="start"
+			class="ch-chat-buttons-start-container"
+			*ngIf="backButtonEnabled"
+			><ion-button
+				fill="clear"
+				mode="md"
+				class="ch-header-btn"
+				(click)="handleBackButtonClicked()"
+				><ion-icon
+					class="ch-back-btn-icon"
+					name="arrow-back-outline"
+				></ion-icon>
+			</ion-button>
+		</ion-buttons>
 		<ng-container *ngIf="!!conversationContext">
 			<ch-user-avatar
 				slot="start"

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
 	Input,
@@ -12,7 +13,7 @@ import {
 } from 'chit-chat/src/lib/components/tabs';
 import { UsersListComponent } from 'chit-chat/src/lib/components/users-list';
 import { User } from 'chit-chat/src/lib/users';
-import { MenuHeaderComponent } from '../menu-header/menu-header.component';
+import { MenuHeaderComponent } from './menu-header/menu-header.component';
 import { MenuItem, menuItems } from './../types/menu-item.type';
 
 @Component({
@@ -26,6 +27,7 @@ import { MenuItem, menuItems } from './../types/menu-item.type';
 		MenuHeaderComponent,
 		UsersListComponent,
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './menu.component.html',
 	styleUrls: ['./menu.component.scss'],
 	host: {

@@ -1,6 +1,24 @@
 <div class="ch-chat-container">
 	<ch-chat-header
 		[conversationContext]="conversationContext"
+		[backButtonEnabled]="backButtonEnabled"
+		(onBackButtonClicked)="handleBackButtonClicked()"
+	>
+		<div slot-end>
+			<ion-buttons mode="md">
+				<ion-button mode="md" fill="clear" class="ch-header-btn">
+					<ion-icon
+						name="videocam-outline"
+						class="ch-header-btn-icon"
+					></ion-icon>
+				</ion-button>
+				<ion-button mode="md" fill="clear" class="ch-header-btn">
+					<ion-icon
+						name="call-outline"
+						class="ch-header-btn-icon"
+					></ion-icon>
+				</ion-button>
+			</ion-buttons></div
 	></ch-chat-header>
 	<div class="ch-message-board-container">
 		<ch-message-board

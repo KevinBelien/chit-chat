@@ -17,6 +17,7 @@ import { TabComponent } from './tab/tab.component';
 	selector: 'ch-tabs',
 	standalone: true,
 	imports: [CommonModule, IonicModule],
+	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './tabs.component.html',
 	styleUrls: ['./tabs.component.scss'],
 	host: {
@@ -52,6 +53,7 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 
 	// contentChildren are set
 	ngAfterContentInit() {
+		console.log('gets here');
 		if (!this.tabs) return;
 		this.tabs.forEach(
 			(tab) => (tab.animationsEnabled = this.animationsEnabled)

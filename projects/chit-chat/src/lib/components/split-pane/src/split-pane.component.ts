@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+	AfterViewInit,
 	Component,
 	EventEmitter,
 	Input,
@@ -13,6 +14,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	selector: 'ch-split-pane',
 	standalone: true,
 	imports: [CommonModule],
+	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './split-pane.component.html',
 	styleUrls: ['./split-pane.component.scss'],
 	host: {
@@ -20,7 +22,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		class: 'ch-element',
 	},
 })
-export class SplitPaneComponent implements OnChanges {
+export class SplitPaneComponent implements OnChanges, AfterViewInit {
 	@Input()
 	when: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'sm';
 
@@ -61,6 +63,11 @@ export class SplitPaneComponent implements OnChanges {
 			this.setSplitted(this.screenService.sizes[this.when]);
 		}
 	}
+
+	ngAfterViewInit(): void {
+		this.setSplitted(this.screenService.sizes[this.when]);
+	}
+
 	setSplitted = (value: boolean) => {
 		this.isSplitted = value;
 		this.onSplittedChanged.emit({

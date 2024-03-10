@@ -1,0 +1,16 @@
+.ch-chat-buttons-start-container {
+	margin-right: 0.5em;
+}
+
+.ch-menu-header-title {
+	font-size: 14px;
+}
+.ch-back-btn-icon[slot='icon-only'] {
+	font-size: 22px;
+}
+
+::ng-deep .ch-split-pane:not(.ch-split-pane-splitted) {
+	.ch-header-toolbar.ch-chat-header-toolbar {
+		padding-inline: 3px;
+	}
+}

@@ -2,14 +2,16 @@ import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	Component,
+	EventEmitter,
 	Input,
 	OnInit,
+	Output,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { MessageBoardComponent } from 'chit-chat/src/lib/components/message-board';
 import { MessageInputComponent } from 'chit-chat/src/lib/components/message-input';
 import { ConversationContext } from 'chit-chat/src/lib/conversations';
-import { ChatHeaderComponent } from '../chat-header/chat-header.component';
+import { ChatHeaderComponent } from './chat-header/chat-header.component';
 
 @Component({
 	selector: 'ch-chat',
@@ -36,7 +38,17 @@ export class ChatComponent implements OnInit {
 	@Input()
 	maxWidth: number = 900;
 
+	@Input()
+	backButtonEnabled: boolean = false;
+
+	@Output()
+	onBackButtonClicked = new EventEmitter<void>();
+
 	constructor() {}
 
 	ngOnInit(): void {}
+
+	protected handleBackButtonClicked = () => {
+		this.onBackButtonClicked.emit();
+	};
 }

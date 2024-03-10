@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
 	EventEmitter,
@@ -26,6 +27,7 @@ import {
 		IonicModule,
 		PickerComponent,
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './message-input.component.html',
 	styleUrls: ['./message-input.component.scss'],
 })

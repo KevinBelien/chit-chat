@@ -12,6 +12,7 @@ import { Component, Input } from '@angular/core';
 	selector: 'ch-tab',
 	standalone: true,
 	imports: [CommonModule],
+	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './tab.component.html',
 	styleUrls: ['./tab.component.scss'],
 	animations: [

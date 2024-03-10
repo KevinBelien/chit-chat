@@ -14,10 +14,7 @@ import {
 	MenuItem,
 } from 'chit-chat/src/lib/layouts/menu';
 import { User } from 'chit-chat/src/lib/users';
-import {
-	ScreenService,
-	SmartDatePipe,
-} from 'chit-chat/src/lib/utils';
+import { SmartDatePipe } from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-chit-chat',
@@ -52,30 +49,13 @@ export class ChitChatComponent {
 	];
 	sidePaneVisible: boolean = true;
 
-	isSmallScreen: boolean = false;
-
 	conversationContext: ConversationContext | null = null;
 
-	constructor(
-		private screenService: ScreenService,
-		private authService: AuthService
-	) {
-		this.isSmallScreen = this.screenService.sizes['sm'];
+	isSplitPaneSplitted: boolean = false;
 
-		this.screenService.breakPointChanged.subscribe(() => {
-			this.isSmallScreen = this.screenService.sizes['sm'];
-		});
-	}
+	constructor(private authService: AuthService) {}
 
 	protected handleUserClicked = (user: User) => {
-		// if (
-		// 	!this.conversationContext ||
-		// 	this.conversationContext.isGroup ||
-		// 	this.conversationContext.participantIds !== user.uid
-		// ) {
-		// 	this.conversationContext = null;
-		// 	this.conversationContext = { isGroup: false, participantId: user.uid };
-		// }
 		const loggedinUser = this.authService.getCurrentUser();
 
 		if (
@@ -92,5 +72,17 @@ export class ChitChatComponent {
 			participantIds: [loggedinUser.userInfo.uid, user.uid],
 		};
 		this.sidePaneVisible = false;
+	};
+
+	protected handleSplittedChanged = (e: {
+		breakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+		value: boolean;
+	}) => {
+		this.isSplitPaneSplitted = e.value;
+	};
+
+	protected handleBackButtonClicked = () => {
+		this.sidePaneVisible = true;
+		this.conversationContext = null;
 	};
 }

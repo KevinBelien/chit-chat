@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	Input,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthUser } from 'chit-chat';
 import { AuthService } from 'chit-chat/src/lib/auth';
@@ -10,6 +14,7 @@ import { Observable } from 'rxjs';
 	selector: 'ch-menu-header',
 	standalone: true,
 	imports: [CommonModule, IonicModule, UserAvatarComponent],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './menu-header.component.html',
 	styleUrls: ['./menu-header.component.scss'],
 	host: {
