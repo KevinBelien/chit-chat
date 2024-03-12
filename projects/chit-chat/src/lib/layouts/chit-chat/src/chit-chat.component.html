@@ -11,10 +11,12 @@
 	</ng-container>
 
 	<ng-container main-content>
-		<ch-chat
-			[conversationContext]="conversationContext"
-			[backButtonEnabled]="!sidePaneVisible && !isSplitPaneSplitted"
-			(onBackButtonClicked)="handleBackButtonClicked()"
-		></ch-chat>
+		<ng-container *ngIf="!sidePaneVisible">
+			<ch-chat
+				[conversationContext]="conversationContext"
+				[backButtonEnabled]="!sidePaneVisible && !isSplitPaneSplitted"
+				(onBackButtonClicked)="handleBackButtonClicked()"
+			></ch-chat>
+		</ng-container>
 	</ng-container>
 </ch-split-pane>
