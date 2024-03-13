@@ -1,31 +1,34 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
+	EventEmitter,
 	Input,
 	OnChanges,
 	OnDestroy,
 	OnInit,
+	Output,
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { Message, MessageService } from 'chit-chat/src/lib/messages';
+import { ScreenService } from 'chit-chat/src/lib/utils';
 
 import {
 	BehaviorSubject,
 	Observable,
 	Subject,
 	combineLatest,
+	lastValueFrom,
 	map,
 	mergeMap,
 	of,
 	scan,
+	take,
 	takeUntil,
 	tap,
-	throttleTime,
 } from 'rxjs';
 
 import {
@@ -35,6 +38,10 @@ import {
 } from '@rx-angular/template/experimental/virtual-scrolling';
 
 import { AuthUser } from 'chit-chat/src/lib/users';
+
+import { MessageBubbleComponent } from 'chit-chat/src/lib/components/message-bubble';
+import { ConversationContext } from 'chit-chat/src/lib/conversations';
+import { DateHelper, SmartDatePipe } from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-message-board',
@@ -46,7 +53,10 @@ import { AuthUser } from 'chit-chat/src/lib/users';
 		RxVirtualFor,
 		RxVirtualScrollViewportComponent,
 		AutoSizeVirtualScrollStrategy,
+		SmartDatePipe,
+		MessageBubbleComponent,
 	],
+	providers: [DatePipe],
 	templateUrl: './message-board.component.html',
 	styleUrls: ['./message-board.component.scss'],
 	host: {
@@ -61,25 +71,22 @@ export class MessageBoardComponent
 	viewport?: RxVirtualScrollViewportComponent;
 
 	@Input()
-	scrollTreshold: number = 3000;
-
-	@Input()
 	initialBatchSize: number = 40;
 
 	@Input()
 	batchSize: number = 20;
 
 	@Input()
-	chatContext: { isGroup: boolean; participantId: string } | null =
-		null;
+	maxWidth: number = 900;
 
-	chatContext$: BehaviorSubject<{
-		isGroup: boolean;
-		participantId: string;
-	} | null> = new BehaviorSubject<{
-		isGroup: boolean;
-		participantId: string;
-	} | null>(null);
+	@Input()
+	messageBubbleDimensions: { maxWidth: number | string };
+
+	@Input()
+	conversationContext: ConversationContext | null = null;
+
+	conversationContext$: BehaviorSubject<ConversationContext | null> =
+		new BehaviorSubject<ConversationContext | null>(null);
 
 	viewportId: string = `chat-list-viewport-${crypto.randomUUID()}`;
 
@@ -97,7 +104,30 @@ export class MessageBoardComponent
 	isLoading: boolean = false;
 
 	renderedMessages = new Set<Message>();
-	viewRange: { start: number; end: number } | null = null;
+
+	scrolledIndexChangedCounter: number = 0;
+
+	@Output()
+	onScrollIndexChanged = new EventEmitter<{
+		messages: Message[];
+		lastMessageFetched: Message;
+		scrollIndex: number;
+		dataPreviouslyFetching: boolean;
+		viewport: RxVirtualScrollViewportComponent;
+	}>();
+
+	@Output()
+	onLoadingStarted = new EventEmitter<{
+		currentUser: AuthUser;
+		lastMessageFetched: Message | null;
+		conversationContext: ConversationContext | null;
+	}>();
+
+	@Output()
+	onLoadingEnded = new EventEmitter<{
+		data: Message[];
+		lastMessageWasFetched: boolean;
+	}>();
 
 	private destroyMessages$: Subject<void> = new Subject<void>();
 	private destroy$: Subject<void> = new Subject<void>();
@@ -105,18 +135,25 @@ export class MessageBoardComponent
 	constructor(
 		private messageService: MessageService,
 		private authService: AuthService,
-		private cd: ChangeDetectorRef
+		private screenService: ScreenService
 	) {
 		this.currentUser$ = this.authService.user$;
-		this.currentUser$
-			.pipe(takeUntil(this.destroy$))
-			.subscribe((currentUser) => this.resetMessageStream());
+		this.currentUser$.subscribe((currentUser) =>
+			this.resetMessageStream()
+		);
 
 		this.itemsRendered.subscribe((messages) => {
 			this.renderedMessages = new Set([
 				...this.renderedMessages,
 				...messages,
 			]);
+		});
+
+		this.messageBubbleDimensions =
+			this.calcDimensionsOfMessageBubble();
+		this.screenService.breakPointChanged.subscribe(() => {
+			this.messageBubbleDimensions =
+				this.calcDimensionsOfMessageBubble();
 		});
 	}
 
@@ -125,11 +162,7 @@ export class MessageBoardComponent
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (
-			changes['chatContext'] &&
-			changes['chatContext'].currentValue !==
-				changes['chatContext'].previousValue
-		) {
+		if (changes['conversationContext']) {
 			this.resetMessageStream();
 		}
 	}
@@ -141,13 +174,23 @@ export class MessageBoardComponent
 		this.destroy$.complete();
 	}
 
-	private resetMessageStream(): void {
+	private calcDimensionsOfMessageBubble = () => {
+		if (this.screenService.sizes['lg']) {
+			return { maxWidth: '75%' };
+		} else {
+			return { maxWidth: '87%' };
+		}
+	};
+
+	resetMessageStream(): void {
+		this.scrolledIndexChangedCounter = 0;
+		this.isLoading = true;
+		this.messages$ = of([]);
 		this.destroyMessages$.next();
-		this.firstFetch = true;
 		this.lastMessageFetched = false;
 
 		this.lastMessage$.next(null);
-		this.chatContext$.next(this.chatContext);
+		this.conversationContext$.next(this.conversationContext);
 		this.initializeMessagesStream();
 	}
 
@@ -155,27 +198,30 @@ export class MessageBoardComponent
 		this.messages$ = combineLatest([
 			this.currentUser$,
 			this.lastMessage$,
-			this.chatContext$,
+			this.conversationContext$,
 		]).pipe(
-			throttleTime(100),
-			mergeMap(([currentUser, lastMessage, chatContext]) => {
-				if (!chatContext || !currentUser) {
-					return of([] as Message[]) as Observable<Message[]>;
-				}
+			mergeMap(([currentUser, lastMessage, conversationContext]) => {
+				if (!conversationContext || !currentUser) {
+					this.isLoading = false;
 
+					return of([] as Message[]);
+				}
+				this.onLoadingStarted.emit({
+					currentUser,
+					lastMessageFetched: lastMessage,
+					conversationContext,
+				});
 				this.isLoading = true;
 
 				return this.messageService.getMessages(
-					{
-						userId: currentUser.userInfo.uid,
-						participantId: chatContext.participantId,
-						isGroup: chatContext.isGroup,
-					},
+					conversationContext,
+					currentUser.userInfo.uid,
 					lastMessage,
 					!!this.firstFetch ? this.initialBatchSize : this.batchSize
 				) as Observable<Message[]>;
 			}),
 			takeUntil(this.destroyMessages$),
+
 			tap((messages: Message[]) => {
 				this.lastMessageFetched = messages.length === 0;
 			}),
@@ -201,45 +247,78 @@ export class MessageBoardComponent
 			}),
 			tap((messages: Message[]) => {
 				this.isLoading = false;
-
-				//TODO: scroll to bottom not consistent
-				if (this.firstFetch && messages.length > 0)
-					setTimeout(() => {
-						try {
-							this.viewport?.scrollToIndex(messages.length - 1);
-							setTimeout(() => {
-								this.firstFetch = false;
-							}, 300);
-						} catch (e: any) {}
-					});
+				this.onLoadingEnded.emit({
+					data: messages,
+					lastMessageWasFetched: this.lastMessageFetched,
+				});
 			})
 		);
 	};
 
-	trackMessage = (index: number, message: Message) => {
+	protected trackMessage = (index: number, message: Message) => {
 		return message.id;
 	};
 
-	handleViewRangeChanged = (listRange: {
-		start: number;
-		end: number;
-	}) => {
-		this.viewRange = { ...listRange };
-	};
-
-	handleScrollIndexChange = (
-		lastMessageIndex: number,
+	protected handleScrollIndexChange = async (
+		scrollIndex: number,
 		lastMessage: Message,
-		messagesLength: number
+		messages: Message[],
+		viewport: RxVirtualScrollViewportComponent
 	) => {
-		if (this.firstFetch || this.isLoading || this.lastMessageFetched)
+		this.onScrollIndexChanged.emit({
+			messages,
+			lastMessageFetched: lastMessage,
+			scrollIndex,
+			dataPreviouslyFetching: this.isLoading,
+			viewport,
+		});
+
+		this.scrolledIndexChangedCounter++;
+		if (
+			this.scrolledIndexChangedCounter < 3 ||
+			this.isLoading ||
+			this.lastMessageFetched
+		)
 			return;
 
-		if (
-			messagesLength <= this.renderedMessages.size ||
-			lastMessageIndex < 5
-		) {
+		const range = await lastValueFrom(
+			viewport.viewRange.pipe(take(1))
+		);
+
+		if (range.start === 0) {
 			this.lastMessage$.next(lastMessage);
 		}
 	};
+
+	protected isDifferentDay = (date1: Date, date2: Date) => {
+		return DateHelper.isDifferentDay(date1, date2);
+	};
+
+	protected fetchMessageBubbleCssClass(
+		messages: Message[],
+		index: number,
+		currentUserId: string
+	): string {
+		const classes = [];
+
+		if (
+			index === 0 ||
+			messages[index - 1].senderId !== messages[index].senderId
+		) {
+			classes.push('ch-first-group-message');
+		}
+
+		if (
+			index === messages.length - 1 ||
+			messages[index + 1].senderId !== messages[index].senderId
+		) {
+			classes.push('ch-last-group-message');
+		}
+
+		if (messages[index].senderId === currentUserId) {
+			classes.push('ch-message-user');
+		}
+
+		return classes.join(' ');
+	}
 }

@@ -155,7 +155,7 @@ export class UsersListComponent
 	// };
 
 	//CALCULATE BUFFER SIZE REGARDING SCREEN HEIGHT AND LIST ITEM SIZE
-	calcBuffer = () => {
+	private calcBuffer = () => {
 		const searchbarHeight = this.isSearchbarVisible ? 60 : 0;
 		return {
 			minBufferPx: window.innerHeight - searchbarHeight,
@@ -163,7 +163,7 @@ export class UsersListComponent
 		};
 	};
 
-	filterUser(
+	private filterUser(
 		user: DtoUser,
 		currentUser: AuthUser | null,
 		filterValue: string
@@ -182,7 +182,7 @@ export class UsersListComponent
 		return matchesSearch && notCurrentUser;
 	}
 
-	onScroll = (topItemIndex: number) => {
+	protected handleScroll = (topItemIndex: number) => {
 		if (this.viewportTopItemIndex === topItemIndex) return;
 
 		const searchValue = this.searchValue$.getValue();
@@ -211,11 +211,11 @@ export class UsersListComponent
 		this.viewportTopItemIndex = topItemIndex;
 	};
 
-	trackUser = (index: number, user: User) => {
+	protected trackUser = (index: number, user: User) => {
 		return user.uid;
 	};
 
-	handleUserClick = (user: User) => {
+	protected handleUserClick = (user: User) => {
 		this.onUserClick.emit(user);
 	};
 

@@ -2,10 +2,10 @@
 	<ch-menu-header [title]="menuItems[selectedIndex] | titlecase">
 		<div slot-end>
 			<ion-buttons mode="md">
-				<ion-button mode="md" fill="clear" class="ch-menu-header-btn">
+				<ion-button mode="md" fill="clear" class="ch-header-btn">
 					<ion-icon
 						name="filter-outline"
-						class="ch-menu-header-btn-icon"
+						class="ch-header-btn-icon"
 					></ion-icon>
 				</ion-button>
 			</ion-buttons>
@@ -18,7 +18,7 @@
 			[fullWidth]="true"
 			[selectedIndex]="selectedIndex"
 			[animationsEnabled]="animationsEnabled"
-			(onSelectionChanged)="onTabChanged($event)"
+			(onSelectionChanged)="handleTabChanged($event)"
 		>
 			<ng-container *ngFor="let menuItem of menuItems">
 				<ng-container [ngSwitch]="menuItem">
@@ -28,7 +28,7 @@
 					<ch-tab *ngSwitchCase="'users'" icon="person-outline">
 						<ch-users-list
 							[searchbarOptions]="{ hideOnScroll: true }"
-							(onUserClick)="onUserClick($event)"
+							(onUserClick)="handleUserClick($event)"
 							[selectedUserId]="
 								!!selectedUser ? selectedUser.uid : null
 							"

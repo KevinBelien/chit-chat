@@ -14,3 +14,15 @@
 		}
 	}
 }
+
+::ng-deep .ch-split-pane {
+	.split-pane-content .ch-message-input-container {
+		padding: 0.3em;
+	}
+
+	&.ch-split-pane-splitted .split-pane-content {
+		.ch-message-input-container {
+			padding: 1.5em 0.8em;
+		}
+	}
+}

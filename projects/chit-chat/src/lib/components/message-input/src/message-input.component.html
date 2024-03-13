@@ -1,16 +1,4 @@
 <div class="ch-message-input">
-	<!-- <textarea
-		#textarea
-		class="ch-message-input ch-input"
-		[style.height]="getTextAreaHeight(textarea)"
-		autocapitalize="off"
-		spellcheck="true"
-		name="message-input"
-		aria-multiline="true"
-		autocomplete="off"
-		[placeholder]="placeholder"
-	></textarea> -->
-
 	<div
 		#messageInput
 		chKeysPressed
@@ -25,5 +13,50 @@
 		(keyCombinationPressed)="handleKeyCombinationPressed($event)"
 	></div>
 
-	<button class="ch-align-end">Test</button>
+	<div class="ch-input-btn-container ch-align-end">
+		<ion-button
+			id="ch-emoji-picker-btn"
+			fill="clear"
+			size="small"
+			class="ch-input-btn"
+			(click)="handleEmojiBtnClick($event)"
+		>
+			<ion-icon slot="icon-only" name="happy-outline"></ion-icon>
+		</ion-button>
+
+		<div class="ch-btn-submit-container">
+			<ion-button
+				fill="clear"
+				class="ch-input-btn ch-btn-submit"
+				(click)="handleSubmitBtnClick($event)"
+			>
+				<ion-icon slot="icon-only" name="send"></ion-icon>
+			</ion-button>
+		</div>
+	</div>
 </div>
+<ion-popover
+	trigger="ch-emoji-picker-btn"
+	side="top"
+	mode="md"
+	alignment="end"
+	[keepContentsMounted]="true"
+	class="emoji-picker-popover"
+>
+	<ng-template>
+		<ion-content>
+			<emoji-mart
+				class="ch-emoji-picker"
+				[autoFocus]="true"
+				set="google"
+				[showPreview]="false"
+				[enableFrequentEmojiSort]="true"
+				[isNative]="isNative"
+				[exclude]="['flags']"
+				[totalFrequentLines]="2"
+				[enableSearch]="!isNative"
+				(emojiSelect)="handleEmojiSelect($event)"
+			></emoji-mart>
+		</ion-content>
+	</ng-template>
+</ion-popover>

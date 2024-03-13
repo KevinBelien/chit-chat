@@ -13,7 +13,6 @@ export class ObjectHelper {
 		arr1: Array<Record<string, any>>,
 		arr2: Array<Record<string, any>>
 	) => {
-		console.log(arr1, arr2);
 		return (
 			arr1.length === arr2.length &&
 			arr1.every((item, idx) =>

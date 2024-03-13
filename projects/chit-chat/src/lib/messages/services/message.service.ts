@@ -3,6 +3,7 @@ import {
 	AngularFirestore,
 	DocumentChangeAction,
 } from '@angular/fire/compat/firestore';
+import { ConversationContext } from 'chit-chat/src/lib/conversations';
 import { FireStoreCollection } from 'chit-chat/src/lib/utils';
 import {
 	collection,
@@ -54,11 +55,8 @@ export class MessageService {
 	};
 
 	getMessages = (
-		messageContext: {
-			userId: string;
-			participantId: string;
-			isGroup: boolean;
-		},
+		conversationContext: ConversationContext,
+		loggedinUserId: string,
 		lastSeenMessage: Message | null,
 		batchSize: number
 	): Observable<Message[]> => {
@@ -75,13 +73,15 @@ export class MessageService {
 				modifiedRef = modifiedRef.where(
 					'isGroupMessage',
 					'==',
-					messageContext.isGroup
+					conversationContext.isGroup
 				);
 				const participants = [
-					messageContext.userId,
-					messageContext.participantId,
+					...new Set(
+						[loggedinUserId].concat(
+							conversationContext.participantIds
+						)
+					),
 				];
-
 				modifiedRef = modifiedRef.where('participants', 'in', [
 					participants,
 					[...participants].reverse(),

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+	AfterViewInit,
 	Component,
 	EventEmitter,
 	Input,
@@ -13,6 +14,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	selector: 'ch-split-pane',
 	standalone: true,
 	imports: [CommonModule],
+	// changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './split-pane.component.html',
 	styleUrls: ['./split-pane.component.scss'],
 	host: {
@@ -20,7 +22,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		class: 'ch-element',
 	},
 })
-export class SplitPaneComponent implements OnChanges {
+export class SplitPaneComponent implements OnChanges, AfterViewInit {
 	@Input()
 	when: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'sm';
 
@@ -30,7 +32,7 @@ export class SplitPaneComponent implements OnChanges {
 	@Input()
 	sidePaneVisible: boolean = true;
 
-	isSplitted: boolean;
+	isSplitted!: boolean;
 
 	width: number;
 
@@ -39,20 +41,40 @@ export class SplitPaneComponent implements OnChanges {
 	@Output()
 	onSidePaneVisibilityChanged = new EventEmitter<boolean>();
 
+	@Output()
+	onSplittedChanged = new EventEmitter<{
+		breakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+		value: boolean;
+	}>();
+
 	constructor(private screenService: ScreenService) {
-		this.isSplitted = this.screenService.sizes[this.when];
+		this.setSplitted(this.screenService.sizes[this.when]);
+
 		this.width = this.calcWidth();
 		this.screenService.breakPointChanged.subscribe(() => {
-			this.isSplitted = this.screenService.sizes[this.when];
+			this.setSplitted(this.screenService.sizes[this.when]);
+
 			this.width = this.calcWidth();
 		});
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['when']) {
-			this.isSplitted = this.screenService.sizes[this.when];
+			this.setSplitted(this.screenService.sizes[this.when]);
 		}
 	}
+
+	ngAfterViewInit(): void {
+		this.setSplitted(this.screenService.sizes[this.when]);
+	}
+
+	setSplitted = (value: boolean) => {
+		this.isSplitted = value;
+		this.onSplittedChanged.emit({
+			breakPoint: this.when,
+			value: this.isSplitted,
+		});
+	};
 
 	private calcWidth = () => {
 		return this.isSplitted ? this.sidePaneWidth : window.innerWidth;

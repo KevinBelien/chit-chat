@@ -1,1 +1,1 @@
-export * from './src/message-board.component';
+export * from '../message-board/src/message-board.component';

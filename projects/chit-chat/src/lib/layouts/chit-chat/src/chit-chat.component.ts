@@ -5,14 +5,16 @@ import {
 	Input,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { AuthService } from 'chit-chat/src/lib/auth';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
+import { ConversationContext } from 'chit-chat/src/lib/conversations';
 import { ChatComponent } from 'chit-chat/src/lib/layouts/chat';
 import {
 	MenuComponent,
 	MenuItem,
 } from 'chit-chat/src/lib/layouts/menu';
 import { User } from 'chit-chat/src/lib/users';
-import { ScreenService } from 'chit-chat/src/lib/utils';
+import { SmartDatePipe } from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-chit-chat',
@@ -24,7 +26,9 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 		MenuComponent,
 		ChatComponent,
 		SplitPaneComponent,
+		SmartDatePipe,
 	],
+
 	templateUrl: './chit-chat.component.html',
 	styleUrls: ['./chit-chat.component.scss'],
 	host: {
@@ -33,6 +37,8 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	},
 })
 export class ChitChatComponent {
+	currentDate = new Date();
+
 	@Input()
 	menuItems: MenuItem[] = [
 		'chats',
@@ -43,26 +49,40 @@ export class ChitChatComponent {
 	];
 	sidePaneVisible: boolean = true;
 
-	isSmallScreen: boolean = false;
+	conversationContext: ConversationContext | null = null;
 
-	chatContext: { isGroup: boolean; participantId: string } | null =
-		null;
+	isSplitPaneSplitted: boolean = false;
 
-	constructor(private screenService: ScreenService) {
-		this.isSmallScreen = this.screenService.sizes['sm'];
+	constructor(private authService: AuthService) {}
 
-		this.screenService.breakPointChanged.subscribe(() => {
-			this.isSmallScreen = this.screenService.sizes['sm'];
-		});
-	}
+	protected handleUserClicked = (user: User) => {
+		const loggedinUser = this.authService.getCurrentUser();
 
-	onUserClicked = (user: User) => {
 		if (
-			!this.chatContext ||
-			this.chatContext.isGroup ||
-			this.chatContext.participantId !== user.uid
+			(!!this.conversationContext &&
+				!this.conversationContext.isGroup &&
+				this.conversationContext.user.uid === user.uid) ||
+			!loggedinUser
 		)
-			this.chatContext = { isGroup: false, participantId: user.uid };
+			return;
+
+		this.conversationContext = {
+			isGroup: false,
+			user: user,
+			participantIds: [loggedinUser.userInfo.uid, user.uid],
+		};
 		this.sidePaneVisible = false;
+	};
+
+	protected handleSplittedChanged = (e: {
+		breakPoint: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+		value: boolean;
+	}) => {
+		this.isSplitPaneSplitted = e.value;
+	};
+
+	protected handleBackButtonClicked = () => {
+		this.sidePaneVisible = true;
+		this.conversationContext = null;
 	};
 }

@@ -1,5 +1,5 @@
 <ion-header mode="ios">
-	<ion-toolbar class="ch-menu-header-toolbar">
+	<ion-toolbar class="ch-header-toolbar ch-menu-header-toolbar">
 		<ng-container *ngIf="user$ | async as user; else offline">
 			<ch-user-avatar
 				slot="start"
@@ -14,7 +14,9 @@
 
 		<ng-template #offline></ng-template>
 
-		<ion-title mode="md" class="ch-menu-title">{{ title }}</ion-title>
+		<ion-title mode="md" class="ch-header-title">{{
+			title
+		}}</ion-title>
 
 		<div slot="end">
 			<ng-content slot-end></ng-content>

@@ -1,34 +1,80 @@
 <div class="ch-message-board">
 	<div class="ch-list-container ch-chat-container">
 		<ng-container *ngIf="messages$ | async as messages">
-			<rx-virtual-scroll-viewport
-				*ngIf="messages.length > 0"
-				autosize
-				[id]="viewportId"
-				class="ch-vscroll-viewport"
-				[runwayItems]="30"
-				[runwayItemsOpposite]="10"
-				(scrolledIndexChange)="
-					handleScrollIndexChange(
-						$event,
-						messages[0],
-						messages.length
-					)
-				"
-				(viewRange)="handleViewRangeChanged($event)"
-			>
-				<div
-					*rxVirtualFor="
-						let item of messages$;
-						renderCallback: itemsRendered;
-						trackBy: trackMessage
+			<ng-container *ngIf="currentUser$ | async as user">
+				<rx-virtual-scroll-viewport
+					#viewport
+					*ngIf="messages.length > 0"
+					autosize
+					[id]="viewportId"
+					class="ch-vscroll-viewport"
+					[runwayItems]="15"
+					[runwayItemsOpposite]="3"
+					(scrolledIndexChange)="
+						handleScrollIndexChange(
+							$event,
+							messages[0],
+							messages,
+							viewport
+						)
 					"
-					class="chat-bubble"
+					[initialScrollIndex]="messages.length - 1"
 				>
-					<div>{{ item.message.text }}</div>
-					<div>{{ item.sendAt | date }}</div>
-				</div>
-			</rx-virtual-scroll-viewport>
+					<div class="ch-message-board-outer-wrapper">
+						<div
+							class="ch-message-board-inner-wrapper"
+							[style.maxWidth.px]="maxWidth"
+						>
+							<div
+								*rxVirtualFor="
+									let item of messages$;
+									let index = index;
+									let count = count;
+									renderCallback: itemsRendered;
+									trackBy: trackMessage
+								"
+								class="ch-message-container"
+							>
+								<ng-container
+									*ngIf="
+										!messages[index - 1] ||
+										isDifferentDay(
+											item.sendAt,
+											messages[index - 1].sendAt
+										)
+									"
+								>
+									<div class="ch-message-date-indicator-container">
+										<div class="ch-message-date-indicator">
+											{{ item.sendAt | smartDate }}
+										</div>
+									</div>
+								</ng-container>
+
+								<div
+									class="message-bubble-wrapper"
+									[ngClass]="{
+										'ch-align-end':
+											item.senderId === user.userInfo.uid
+									}"
+									[style.maxWidth]="messageBubbleDimensions.maxWidth"
+								>
+									<ch-message-bubble
+										[message]="item"
+										[cssClass]="
+											fetchMessageBubbleCssClass(
+												messages,
+												index,
+												user.userInfo.uid
+											)
+										"
+									></ch-message-bubble>
+								</div>
+							</div>
+						</div>
+					</div>
+				</rx-virtual-scroll-viewport>
+			</ng-container>
 		</ng-container>
 	</div>
 </div>

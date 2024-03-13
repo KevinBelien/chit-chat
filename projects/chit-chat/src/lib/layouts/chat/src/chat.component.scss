@@ -8,6 +8,11 @@
 	width: 100%;
 	display: flex;
 	flex-direction: column;
+	background-color: var(
+		--ch-message-board-background,
+		--ion-background-color,
+		#fff
+	);
 }
 
 .ch-message-board-container {
@@ -20,5 +25,12 @@
 		--ion-background-color,
 		#fff
 	);
-	padding: 1.5em 2em;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.ch-message-input-wrapper {
+	min-width: 0;
+	flex-grow: 1;
 }

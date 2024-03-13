@@ -9,7 +9,7 @@
 		--ion-background-color,
 		#fff
 	);
-	border: 2px solid var(--ch-message-input-border);
+	border: 0.8px solid var(--ch-message-input-border, #d5d5d5);
 
 	.ch-align-end {
 		align-self: flex-end;
@@ -29,13 +29,94 @@
 		outline: 0;
 		background: transparent;
 		cursor: text;
-		padding: 0.7em 0.8em;
+		padding: 0.7em 0.3em 0.7em 0.6em;
 	}
 }
 
 .ch-input[placeholder]:empty::before {
 	content: attr(placeholder);
-	color: var(--ch-placeholder-color, #555);
+	color: var(--ch-placeholder-color, #777);
+}
+
+.ch-input-btn-container {
+	display: flex;
+
+	.ch-btn-submit-container {
+		position: relative;
+		padding-inline-start: 3px;
+		margin-inline-start: 3px;
+		&::before {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			top: 0;
+			left: 0;
+			margin: auto;
+			border-left: 0.8px solid
+				var(
+					--ch-message-input-button-color,
+					--ion-text-color,
+					#515151
+				);
+			height: 21px;
+		}
+	}
+}
+
+.ch-input-btn {
+	--color: var(
+		--ch-message-input-button-color,
+		--ion-text-color,
+		#515151
+	);
+
+	font-size: 11px;
+
+	--background-hover: var(
+		--ch-message-input-button-background-hover,
+		--ion-background-hover,
+		#919191
+	);
+	--background-focused: var(
+		--ch-message-input-button-background-focused,
+		--ion-background-hover,
+		#919191
+	);
+	--background-activated: var(
+		--ch-message-input-button-background-activated,
+		--ion-background-hover,
+		#919191
+	);
+
+	--padding-start: 0.7em;
+	--padding-end: 0.7em;
+	&.ch-btn-submit {
+		--padding-start: 1.1em;
+		--padding-end: 1.1em;
+	}
+}
+
+.emoji-picker-popover {
+	// --min-width: 330px;
+	// --max-width: 500px;
+	--offset-y: -16px;
+	--width: auto;
+	--background: transparent;
+}
+
+.emoji-picker-container {
+	min-width: 0;
+	width: 100%;
+	height: 100%;
+}
+
+::ng-deep .ch-emoji-picker {
+	display: flex;
+
+	.emoji-mart-search-icon {
+		top: 7px;
+	}
 }
 
 // [placeholder]:empty:focus::before {
