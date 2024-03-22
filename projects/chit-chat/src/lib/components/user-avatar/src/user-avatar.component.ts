@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
@@ -17,7 +17,12 @@ import { ColorHelper } from 'chit-chat/src/lib/utils';
 @Component({
 	selector: 'ch-user-avatar',
 	standalone: true,
-	imports: [CommonModule, IonicModule, StatusBadgeComponent],
+	imports: [
+		CommonModule,
+		IonicModule,
+		StatusBadgeComponent,
+		NgOptimizedImage,
+	],
 	templateUrl: './user-avatar.component.html',
 	styleUrls: ['./user-avatar.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,

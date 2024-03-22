@@ -8,7 +8,7 @@
 		(click)="handleClick($event)"
 	>
 		<ng-container *ngIf="!!src; else noProfilePic">
-			<img [alt]="alt" [src]="src" />
+			<img [alt]="alt" [ngSrc]="src" fill />
 		</ng-container>
 
 		<ng-template #noProfilePic>
