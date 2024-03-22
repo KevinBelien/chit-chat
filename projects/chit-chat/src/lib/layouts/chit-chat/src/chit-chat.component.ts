@@ -3,6 +3,7 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	Input,
+	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
@@ -37,6 +38,9 @@ import { SmartDatePipe } from 'chit-chat/src/lib/utils';
 	},
 })
 export class ChitChatComponent {
+	@ViewChild(MenuComponent)
+	menuComponent?: MenuComponent;
+
 	currentDate = new Date();
 
 	@Input()
@@ -82,6 +86,7 @@ export class ChitChatComponent {
 	};
 
 	protected handleBackButtonClicked = () => {
+		this.menuComponent?.resetSelections();
 		this.sidePaneVisible = true;
 		this.conversationContext = null;
 	};

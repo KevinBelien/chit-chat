@@ -5,6 +5,7 @@ import {
 	EventEmitter,
 	Input,
 	Output,
+	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import {
@@ -13,8 +14,8 @@ import {
 } from 'chit-chat/src/lib/components/tabs';
 import { UsersListComponent } from 'chit-chat/src/lib/components/users-list';
 import { User } from 'chit-chat/src/lib/users';
-import { MenuHeaderComponent } from './menu-header/menu-header.component';
 import { MenuItem, menuItems } from './../types/menu-item.type';
+import { MenuHeaderComponent } from './menu-header/menu-header.component';
 
 @Component({
 	selector: 'ch-menu',
@@ -36,6 +37,9 @@ import { MenuItem, menuItems } from './../types/menu-item.type';
 	},
 })
 export class MenuComponent {
+	@ViewChild(UsersListComponent)
+	userListComponent?: UsersListComponent;
+
 	@Input()
 	menuItems: MenuItem[] = [...menuItems];
 
@@ -62,5 +66,13 @@ export class MenuComponent {
 	protected handleUserClick = (user: User) => {
 		this.selectedUser = user;
 		this.onUserClicked.emit(user);
+	};
+
+	resetSelections = () => {
+		this.resetUserSelection();
+	};
+
+	resetUserSelection = () => {
+		this.userListComponent?.resetSelection();
 	};
 }
