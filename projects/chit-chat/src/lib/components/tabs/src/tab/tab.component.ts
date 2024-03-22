@@ -6,13 +6,18 @@ import {
 	trigger,
 } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	Input,
+} from '@angular/core';
 
 @Component({
 	selector: 'ch-tab',
 	standalone: true,
 	imports: [CommonModule],
-	// changeDetection: ChangeDetectionStrategy.OnPush,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './tab.component.html',
 	styleUrls: ['./tab.component.scss'],
 	animations: [
@@ -35,4 +40,16 @@ export class TabComponent {
 	@Input() icon: string | null = null;
 
 	@Input() animationsEnabled: boolean = false;
+
+	constructor(private cd: ChangeDetectorRef) {}
+
+	setActive = (value: boolean) => {
+		this.isActive = value;
+		this.cd.detectChanges();
+	};
+
+	setAnimationsEnabled = (value: boolean) => {
+		this.animationsEnabled = value;
+		this.cd.detectChanges();
+	};
 }

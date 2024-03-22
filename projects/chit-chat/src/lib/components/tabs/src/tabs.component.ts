@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
-	AfterContentInit,
+	AfterViewInit,
+	ChangeDetectionStrategy,
 	Component,
 	ContentChildren,
 	EventEmitter,
@@ -17,7 +18,7 @@ import { TabComponent } from './tab/tab.component';
 	selector: 'ch-tabs',
 	standalone: true,
 	imports: [CommonModule, IonicModule],
-	// changeDetection: ChangeDetectionStrategy.OnPush,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './tabs.component.html',
 	styleUrls: ['./tabs.component.scss'],
 	host: {
@@ -25,7 +26,7 @@ import { TabComponent } from './tab/tab.component';
 		class: 'ch-element',
 	},
 })
-export class TabsComponent implements AfterContentInit, OnChanges {
+export class TabsComponent implements AfterViewInit, OnChanges {
 	@ContentChildren(TabComponent)
 	tabs: QueryList<TabComponent> | null = null;
 
@@ -51,9 +52,7 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 
 	constructor() {}
 
-	// contentChildren are set
-	ngAfterContentInit() {
-		console.log('gets here');
+	ngAfterViewInit() {
 		if (!this.tabs) return;
 		this.tabs.forEach(
 			(tab) => (tab.animationsEnabled = this.animationsEnabled)
@@ -78,19 +77,17 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 			}
 		}
 		if (changes['animationsEnabled']) {
-			this.tabs?.forEach(
-				(tab) =>
-					(tab.animationsEnabled =
-						changes['animationsEnabled'].currentValue)
+			this.tabs?.forEach((tab) =>
+				tab.setAnimationsEnabled(
+					changes['animationsEnabled'].currentValue
+				)
 			);
 		}
 	}
 
 	selectTabByIndex = (index: number) => {
 		if (!this.tabs || this.tabs.length < index) return;
-		if (this.activeTab) {
-			this.activeTab.isActive = false;
-		}
+
 		const tab = this.tabs.find((tab, i) => i === index);
 
 		if (!tab) return;
@@ -99,15 +96,14 @@ export class TabsComponent implements AfterContentInit, OnChanges {
 	};
 
 	selectTab = (tab: TabComponent, index: number) => {
-		if (!this.tabs) return;
+		if (!this.tabs || tab === this.activeTab) return;
 
 		if (this.activeTab) {
-			this.activeTab.isActive = false;
+			this.activeTab.setActive(false);
 		}
 
 		this.activeTab = tab;
-
-		tab.isActive = true;
+		tab.setActive(true);
 
 		this.onSelectionChanged.emit({
 			component: tab,

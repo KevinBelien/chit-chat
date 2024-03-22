@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
 	AfterViewInit,
+	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
 	Input,
@@ -14,7 +15,7 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	selector: 'ch-split-pane',
 	standalone: true,
 	imports: [CommonModule],
-	// changeDetection: ChangeDetectionStrategy.OnPush,
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './split-pane.component.html',
 	styleUrls: ['./split-pane.component.scss'],
 	host: {
