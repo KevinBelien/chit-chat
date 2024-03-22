@@ -12,6 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	EventEmitter,
 	Input,
@@ -99,7 +100,8 @@ export class UsersListComponent
 	constructor(
 		private userService: UserService,
 		private authService: AuthService,
-		private screenService: ScreenService
+		private screenService: ScreenService,
+		private cd: ChangeDetectorRef
 	) {
 		this.isMobile = this.screenService.isMobile();
 		this.buffers = this.calcBuffer();
@@ -221,5 +223,10 @@ export class UsersListComponent
 
 	searchUsers = (e: Event) => {
 		this.searchValue$.next((e.target as HTMLInputElement).value);
+	};
+
+	resetSelection = () => {
+		this.selectedUserId = null;
+		this.cd.detectChanges();
 	};
 }
