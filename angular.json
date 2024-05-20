@@ -11,7 +11,8 @@
 				"@schematics/angular:component": {
 					"standalone": true,
 					"skipTests": true,
-					"style": "scss"
+					"style": "scss",
+					"changeDetection": "OnPush"
 				},
 				"@schematics/angular:directive": {
 					"standalone": true
