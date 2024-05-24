@@ -6,19 +6,14 @@
 					#viewport
 					*ngIf="messages.length > 0"
 					autosize
+					keepScrolledIndexOnPrepend
 					[id]="viewportId"
 					class="ch-vscroll-viewport"
-					[runwayItems]="15"
-					[runwayItemsOpposite]="3"
-					(scrolledIndexChange)="
-						handleScrollIndexChange(
-							$event,
-							messages[0],
-							messages,
-							viewport
-						)
-					"
-					[initialScrollIndex]="messages.length - 1"
+					[runwayItems]="10"
+					[runwayItemsOpposite]="10"
+					(viewRange)="setViewRange($event)"
+					(scrolledIndexChange)="scrolled$.next($event)"
+					[initialScrollIndex]="batchSize - 1"
 				>
 					<div class="ch-message-board-outer-wrapper">
 						<div
@@ -29,8 +24,7 @@
 								*rxVirtualFor="
 									let item of messages$;
 									let index = index;
-									let count = count;
-									renderCallback: itemsRendered;
+									renderCallback: viewsRendered$;
 									trackBy: trackMessage
 								"
 								class="ch-message-container"
