@@ -81,10 +81,7 @@ export class MessageBoardComponent implements OnChanges {
 
 	viewportId: string = `chat-list-viewport-${crypto.randomUUID()}`;
 
-	scrolled$ = new Subject<{
-		lastMessage: Message | null;
-		index: number | null;
-	}>();
+	scrolled$ = new Subject<number>();
 	viewsRendered$ = new Subject<Message[]>();
 	viewRange: ListRange = { start: 0, end: 0 };
 
@@ -148,7 +145,7 @@ export class MessageBoardComponent implements OnChanges {
 					return this.messageService.getMessages(
 						conversationContext,
 						loggedinUser.userInfo.uid,
-						!!scrolled ? scrolled.lastMessage : null,
+						this.lastMessage,
 						this.batchSize
 					) as Observable<Message[]>;
 				}
@@ -177,7 +174,7 @@ export class MessageBoardComponent implements OnChanges {
 				];
 			}),
 			tap((messages) => {
-				console.log(messages);
+				// console.log(messages);
 				this.lastMessage = messages[0];
 			}),
 			startWith([])

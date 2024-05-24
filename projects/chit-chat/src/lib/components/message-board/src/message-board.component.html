@@ -12,12 +12,7 @@
 					[runwayItems]="10"
 					[runwayItemsOpposite]="10"
 					(viewRange)="setViewRange($event)"
-					(scrolledIndexChange)="
-						scrolled$.next({
-							lastMessage: messages[0],
-							index: $event
-						})
-					"
+					(scrolledIndexChange)="scrolled$.next($event)"
 					[initialScrollIndex]="batchSize - 1"
 				>
 					<div class="ch-message-board-outer-wrapper">
