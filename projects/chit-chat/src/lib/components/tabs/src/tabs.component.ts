@@ -50,8 +50,6 @@ export class TabsComponent implements AfterViewInit, OnChanges {
 		currentIndex: number;
 	}>();
 
-	constructor() {}
-
 	ngAfterViewInit() {
 		if (!this.tabs) return;
 		this.tabs.forEach(

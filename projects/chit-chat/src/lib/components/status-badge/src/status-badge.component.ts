@@ -34,8 +34,6 @@ export class StatusBadgeComponent implements OnChanges {
 		icon: 'ellipse',
 	};
 
-	constructor() {}
-
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['status']) {
 			this.badgeConfig = this.getBadgeConfig(
