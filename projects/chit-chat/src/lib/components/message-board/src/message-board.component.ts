@@ -184,7 +184,7 @@ export class MessageBoardComponent implements OnChanges {
 				];
 			}),
 			tap((messages) => {
-				// console.log(messages);
+				// console.log(messages.length);
 				this.lastMessage = messages[0];
 			}),
 			startWith([])
@@ -223,22 +223,32 @@ export class MessageBoardComponent implements OnChanges {
 		currentUserId: string
 	): string {
 		const classes = [];
+		const previousMessage = messages[index - 1];
+		const currentMessage = messages[index];
+		const nextMessage = messages[index + 1];
 
 		if (
 			index === 0 ||
-			messages[index - 1].senderId !== messages[index].senderId
+			(!!previousMessage &&
+				!!currentMessage &&
+				previousMessage.senderId !== currentMessage.senderId)
 		) {
 			classes.push('ch-first-group-message');
 		}
 
 		if (
 			index === messages.length - 1 ||
-			messages[index + 1].senderId !== messages[index].senderId
+			(!!nextMessage &&
+				currentMessage &&
+				messages[index + 1].senderId !== messages[index].senderId)
 		) {
 			classes.push('ch-last-group-message');
 		}
 
-		if (messages[index].senderId === currentUserId) {
+		if (
+			!!currentMessage &&
+			currentMessage.senderId === currentUserId
+		) {
 			classes.push('ch-message-user');
 		}
 
