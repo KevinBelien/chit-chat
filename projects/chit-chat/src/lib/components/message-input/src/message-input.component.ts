@@ -9,6 +9,7 @@ import {
 	Output,
 	SimpleChanges,
 	ViewChild,
+	inject,
 } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
@@ -32,6 +33,8 @@ import {
 	styleUrls: ['./message-input.component.scss'],
 })
 export class MessageInputComponent implements OnChanges {
+	readonly screenService: ScreenService = inject(ScreenService);
+
 	@ViewChild('messageInput') messageInput?: ElementRef;
 
 	@Input()
@@ -76,8 +79,6 @@ export class MessageInputComponent implements OnChanges {
 	}>();
 
 	readonly isNative: boolean = Capacitor.isNativePlatform();
-
-	constructor(private screen: ScreenService) {}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['message']) {
@@ -170,12 +171,12 @@ export class MessageInputComponent implements OnChanges {
 		if (
 			!specialKeysPressed &&
 			pressedKeys.includes('enter') &&
-			!this.screen.isMobile()
+			!this.screenService.isMobile()
 		) {
 			this.send();
 		} else if (
 			(specialKeysPressed && pressedKeys.includes('enter')) ||
-			this.screen.isMobile()
+			this.screenService.isMobile()
 		) {
 			const selection: Selection | null = window.getSelection();
 			if (!selection) return;

@@ -8,6 +8,7 @@ import {
 	OnChanges,
 	Output,
 	SimpleChanges,
+	inject,
 } from '@angular/core';
 import { ScreenService } from 'chit-chat/src/lib/utils';
 
@@ -24,6 +25,8 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 	},
 })
 export class SplitPaneComponent implements OnChanges, AfterViewInit {
+	readonly screenService: ScreenService = inject(ScreenService);
+
 	@Input()
 	when: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'sm';
 
@@ -48,7 +51,7 @@ export class SplitPaneComponent implements OnChanges, AfterViewInit {
 		value: boolean;
 	}>();
 
-	constructor(private screenService: ScreenService) {
+	constructor() {
 		this.setSplitted(this.screenService.sizes[this.when]);
 
 		this.width = this.calcWidth();

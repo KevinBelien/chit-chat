@@ -11,6 +11,7 @@ import {
 	ChangeDetectorRef,
 	Component,
 	Input,
+	inject,
 } from '@angular/core';
 
 @Component({
@@ -33,6 +34,9 @@ import {
 	},
 })
 export class TabComponent {
+	readonly changeDetectorRef: ChangeDetectorRef =
+		inject(ChangeDetectorRef);
+
 	@Input() isActive = false;
 
 	@Input() title: string | null = null;
@@ -41,15 +45,13 @@ export class TabComponent {
 
 	@Input() animationsEnabled: boolean = false;
 
-	constructor(private cd: ChangeDetectorRef) {}
-
 	setActive = (value: boolean) => {
 		this.isActive = value;
-		this.cd.detectChanges();
+		this.changeDetectorRef.detectChanges();
 	};
 
 	setAnimationsEnabled = (value: boolean) => {
 		this.animationsEnabled = value;
-		this.cd.detectChanges();
+		this.changeDetectorRef.detectChanges();
 	};
 }
