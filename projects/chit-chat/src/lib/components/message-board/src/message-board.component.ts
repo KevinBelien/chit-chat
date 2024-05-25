@@ -6,6 +6,7 @@ import {
 	OnChanges,
 	SimpleChanges,
 	ViewChild,
+	inject,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
@@ -19,7 +20,6 @@ import {
 	Subject,
 	combineLatest,
 	map,
-	of,
 	scan,
 	startWith,
 	switchMap,
@@ -62,10 +62,12 @@ import { DateHelper, SmartDatePipe } from 'chit-chat/src/lib/utils';
 	},
 })
 export class MessageBoardComponent implements OnChanges {
+	readonly messageService: MessageService = inject(MessageService);
+	readonly authService: AuthService = inject(AuthService);
+	readonly screenService: ScreenService = inject(ScreenService);
+
 	@ViewChild(RxVirtualScrollViewportComponent, { static: false })
 	viewport?: RxVirtualScrollViewportComponent;
-
-	// initialBatchSize: number = 60;
 
 	@Input()
 	batchSize: number = 20;
@@ -73,7 +75,6 @@ export class MessageBoardComponent implements OnChanges {
 	@Input()
 	maxWidth: number = 900;
 
-	@Input()
 	messageBubbleDimensions: { maxWidth: number | string };
 
 	@Input()
@@ -87,7 +88,6 @@ export class MessageBoardComponent implements OnChanges {
 
 	conversationContext$: BehaviorSubject<ConversationContext | null> =
 		new BehaviorSubject<ConversationContext | null>(null);
-
 	currentUser$: Observable<AuthUser | null> = this.authService.user$;
 
 	messages$?: Observable<Message[]> = combineLatest([
@@ -98,9 +98,10 @@ export class MessageBoardComponent implements OnChanges {
 			this.lastMessage = null;
 			this.initialScrollIsStable = false;
 			this.viewRange = { start: 0, end: 0 };
-			if (!loggedinUser || !conversationContext) return of([]);
+			if (!loggedinUser || !conversationContext) return EMPTY;
 			return this.infiniteScroll(loggedinUser, conversationContext);
-		})
+		}),
+		startWith([])
 	);
 
 	lastMessage: Message | null = null;
@@ -109,33 +110,13 @@ export class MessageBoardComponent implements OnChanges {
 
 	scrolledIndexChangedCounter: number = 0;
 
-	constructor(
-		private messageService: MessageService,
-		private authService: AuthService,
-		private screenService: ScreenService
-	) {
-		this.currentUser$ = this.authService.user$;
-
+	constructor() {
 		this.messageBubbleDimensions =
 			this.calcDimensionsOfMessageBubble();
 		this.screenService.breakPointChanged.subscribe(() => {
 			this.messageBubbleDimensions =
 				this.calcDimensionsOfMessageBubble();
 		});
-
-		this.messages$ = combineLatest([
-			this.currentUser$,
-			this.conversationContext$,
-		]).pipe(
-			switchMap(([loggedinUser, conversationContext]) => {
-				this.lastMessage = null;
-				this.initialScrollIsStable = false;
-				this.viewRange = { start: 0, end: 0 };
-				if (!loggedinUser || !conversationContext) return EMPTY;
-				return this.infiniteScroll(loggedinUser, conversationContext);
-			}),
-			startWith([])
-		);
 	}
 
 	private infiniteScroll = (

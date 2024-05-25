@@ -17,11 +17,10 @@ import {
 	EventEmitter,
 	Input,
 	OnChanges,
-	OnDestroy,
-	OnInit,
 	Output,
 	SimpleChanges,
 	ViewChild,
+	inject,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { DtoUser } from 'chit-chat';
@@ -32,13 +31,11 @@ import { ScreenService } from 'chit-chat/src/lib/utils';
 import {
 	BehaviorSubject,
 	Observable,
-	Subject,
 	combineLatest,
 	map,
 	of,
 	startWith,
 	switchMap,
-	takeUntil,
 } from 'rxjs';
 import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 
@@ -67,19 +64,21 @@ import { SearchbarOptions } from './../interfaces/searchbar-options.interface';
 		class: 'ch-element',
 	},
 })
-export class UsersListComponent
-	implements OnInit, OnChanges, OnDestroy
-{
+export class UsersListComponent implements OnChanges {
+	readonly userService: UserService = inject(UserService);
+	readonly authService: AuthService = inject(AuthService);
+	readonly screenService: ScreenService = inject(ScreenService);
+	readonly changeDetectorRef: ChangeDetectorRef =
+		inject(ChangeDetectorRef);
+
 	@ViewChild(CdkVirtualScrollViewport)
 	viewport?: CdkVirtualScrollViewport;
 
-	@Input() searchbarOptions: SearchbarOptions;
+	@Input() searchbarOptions: SearchbarOptions = { debounce: 350 };
 
 	@Input() selectedUserId: string | null = null;
 
-	users$?: Observable<User[]>;
-
-	currentUser$: Observable<AuthUser | null>;
+	@Output() onUserClick = new EventEmitter<User>();
 
 	itemSize: number = 55;
 	buffers: { minBufferPx: number; maxBufferPx: number };
@@ -88,50 +87,36 @@ export class UsersListComponent
 
 	viewportTopItemIndex?: number;
 
-	isMobile: boolean = false;
-
-	private destroy$: Subject<void> = new Subject<void>();
+	isMobile: boolean = this.screenService.isMobile();
 
 	private searchValue$: BehaviorSubject<string> =
 		new BehaviorSubject<string>('');
 
-	@Output() onUserClick = new EventEmitter<User>();
+	currentUser$: Observable<AuthUser | null> = this.authService.user$;
 
-	constructor(
-		private userService: UserService,
-		private authService: AuthService,
-		private screenService: ScreenService,
-		private cd: ChangeDetectorRef
-	) {
-		this.isMobile = this.screenService.isMobile();
+	users$?: Observable<User[]> = this.currentUser$.pipe(
+		switchMap((currentUser: AuthUser | null) => {
+			const allUsers$: Observable<User[]> = currentUser
+				? (this.userService.getUsers() as Observable<User[]>)
+				: of([]);
+
+			return combineLatest([
+				allUsers$.pipe(startWith([])),
+				this.searchValue$,
+				this.currentUser$.pipe(startWith(null)),
+			]).pipe(
+				map(([users, filterValue, currentUser]) => {
+					return users.filter((user: DtoUser) =>
+						this.filterUser(user, currentUser, filterValue)
+					);
+				})
+			);
+		})
+	);
+
+	constructor() {
 		this.buffers = this.calcBuffer();
-		this.searchbarOptions = { debounce: 350 };
-		this.currentUser$ = this.authService.user$;
-
-		this.users$ = this.currentUser$.pipe(
-			switchMap((currentUser: AuthUser | null) => {
-				const allUsers$: Observable<User[]> = currentUser
-					? (this.userService.getUsers() as Observable<User[]>)
-					: of([]);
-
-				return combineLatest([
-					allUsers$.pipe(startWith([])),
-					this.searchValue$,
-					this.currentUser$.pipe(startWith(null)),
-				]).pipe(
-					takeUntil(this.destroy$),
-					map(([users, filterValue, currentUser]) => {
-						return users.filter((user: DtoUser) =>
-							this.filterUser(user, currentUser, filterValue)
-						);
-					})
-				);
-			}),
-			takeUntil(this.destroy$)
-		);
 	}
-
-	ngOnInit(): void {}
 
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['searchbarOptions']) {
@@ -139,11 +124,6 @@ export class UsersListComponent
 				!('visible' in this.searchbarOptions) ||
 				!!this.searchbarOptions.visible;
 		}
-	}
-
-	ngOnDestroy(): void {
-		this.destroy$.next();
-		this.destroy$.complete();
 	}
 
 	// groupUsers = (users: Array<User>, groupExpr: keyof User) => {
@@ -227,6 +207,6 @@ export class UsersListComponent
 
 	resetSelection = () => {
 		this.selectedUserId = null;
-		this.cd.detectChanges();
+		this.changeDetectorRef.detectChanges();
 	};
 }
