@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+	ChangeDetectionStrategy,
+	Component,
+	inject,
+} from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
 import { UserAvatarComponent } from 'chit-chat/src/lib/components/user-avatar';
@@ -19,9 +23,7 @@ import { Observable } from 'rxjs';
 	},
 })
 export class ConversationListComponent {
-	user$: Observable<AuthUser | null>;
-
-	constructor(private auth: AuthService) {
-		this.user$ = this.auth.user$.asObservable();
-	}
+	readonly authService: AuthService = inject(AuthService);
+	user$: Observable<AuthUser | null> =
+		this.authService.user$.asObservable();
 }

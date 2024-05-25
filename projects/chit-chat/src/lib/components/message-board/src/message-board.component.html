@@ -2,9 +2,9 @@
 	<div class="ch-list-container ch-chat-container">
 		<ng-container *ngIf="messages$ | async as messages">
 			<ng-container *ngIf="currentUser$ | async as user">
+				@if (messages.length > 0) {
 				<rx-virtual-scroll-viewport
 					#viewport
-					*ngIf="messages.length > 0"
 					autosize
 					keepScrolledIndexOnPrepend
 					[id]="viewportId"
@@ -66,8 +66,8 @@
 								</div>
 							</div>
 						</div>
-					</div>
-				</rx-virtual-scroll-viewport>
+					</div> </rx-virtual-scroll-viewport
+				>}
 			</ng-container>
 		</ng-container>
 	</div>

@@ -1,7 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
-	ChangeDetectorRef,
 	Component,
 	EventEmitter,
 	Input,
@@ -60,8 +59,6 @@ export class UserAvatarComponent implements OnChanges {
 	@Output()
 	onClick = new EventEmitter<Event>();
 
-	constructor(private cd: ChangeDetectorRef) {}
-
 	ngOnChanges(changes: SimpleChanges): void {
 		if (!!changes['displayName']) {
 			const displayName = changes['displayName'].currentValue;
@@ -81,8 +78,6 @@ export class UserAvatarComponent implements OnChanges {
 			)
 				? '#21252a'
 				: '#fff';
-
-			this.cd.detectChanges();
 		}
 	}
 
