@@ -44,7 +44,7 @@ export class KeysPressedDirective {
 					pressedKeys: Array.from(this.pressedKeys),
 					triggeredKeyCombination: keyCombination,
 				});
-				return; // Exit function once a valid combination is found
+				return;
 			}
 		}
 	}

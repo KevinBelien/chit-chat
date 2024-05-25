@@ -117,6 +117,20 @@ export class MessageBoardComponent implements OnChanges {
 			this.messageBubbleDimensions =
 				this.calcDimensionsOfMessageBubble();
 		});
+
+		this.messages$ = combineLatest([
+			this.currentUser$,
+			this.conversationContext$,
+		]).pipe(
+			switchMap(([loggedinUser, conversationContext]) => {
+				this.lastMessage = null;
+				this.initialScrollIsStable = false;
+				this.viewRange = { start: 0, end: 0 };
+				if (!loggedinUser || !conversationContext) return EMPTY;
+				return this.infiniteScroll(loggedinUser, conversationContext);
+			}),
+			startWith([])
+		);
 	}
 
 	private infiniteScroll = (
