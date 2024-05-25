@@ -19,6 +19,7 @@ import {
 	Subject,
 	combineLatest,
 	map,
+	of,
 	scan,
 	startWith,
 	switchMap,
@@ -64,6 +65,8 @@ export class MessageBoardComponent implements OnChanges {
 	@ViewChild(RxVirtualScrollViewportComponent, { static: false })
 	viewport?: RxVirtualScrollViewportComponent;
 
+	// initialBatchSize: number = 60;
+
 	@Input()
 	batchSize: number = 20;
 
@@ -76,17 +79,29 @@ export class MessageBoardComponent implements OnChanges {
 	@Input()
 	conversationContext: ConversationContext | null = null;
 
-	conversationContext$: BehaviorSubject<ConversationContext | null> =
-		new BehaviorSubject<ConversationContext | null>(null);
-
 	viewportId: string = `chat-list-viewport-${crypto.randomUUID()}`;
 
 	scrolled$ = new Subject<number>();
 	viewsRendered$ = new Subject<Message[]>();
 	viewRange: ListRange = { start: 0, end: 0 };
 
-	currentUser$: Observable<AuthUser | null>;
-	messages$?: Observable<Message[]>;
+	conversationContext$: BehaviorSubject<ConversationContext | null> =
+		new BehaviorSubject<ConversationContext | null>(null);
+
+	currentUser$: Observable<AuthUser | null> = this.authService.user$;
+
+	messages$?: Observable<Message[]> = combineLatest([
+		this.currentUser$,
+		this.conversationContext$,
+	]).pipe(
+		switchMap(([loggedinUser, conversationContext]) => {
+			this.lastMessage = null;
+			this.initialScrollIsStable = false;
+			this.viewRange = { start: 0, end: 0 };
+			if (!loggedinUser || !conversationContext) return of([]);
+			return this.infiniteScroll(loggedinUser, conversationContext);
+		})
+	);
 
 	lastMessage: Message | null = null;
 
@@ -174,7 +189,7 @@ export class MessageBoardComponent implements OnChanges {
 				];
 			}),
 			tap((messages) => {
-				// console.log(messages);
+				// console.log(messages.length);
 				this.lastMessage = messages[0];
 			}),
 			startWith([])
@@ -213,22 +228,32 @@ export class MessageBoardComponent implements OnChanges {
 		currentUserId: string
 	): string {
 		const classes = [];
+		const previousMessage = messages[index - 1];
+		const currentMessage = messages[index];
+		const nextMessage = messages[index + 1];
 
 		if (
 			index === 0 ||
-			messages[index - 1].senderId !== messages[index].senderId
+			(!!previousMessage &&
+				!!currentMessage &&
+				previousMessage.senderId !== currentMessage.senderId)
 		) {
 			classes.push('ch-first-group-message');
 		}
 
 		if (
 			index === messages.length - 1 ||
-			messages[index + 1].senderId !== messages[index].senderId
+			(!!nextMessage &&
+				currentMessage &&
+				messages[index + 1].senderId !== messages[index].senderId)
 		) {
 			classes.push('ch-last-group-message');
 		}
 
-		if (messages[index].senderId === currentUserId) {
+		if (
+			!!currentMessage &&
+			currentMessage.senderId === currentUserId
+		) {
 			classes.push('ch-message-user');
 		}
 
