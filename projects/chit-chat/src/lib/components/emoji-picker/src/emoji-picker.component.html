@@ -1,1 +1,24 @@
-<p>emoji-picker works!</p>
+<!-- <cdk-virtual-scroll-viewport
+	class="ion-content-scroll-host ch-vscroll-viewport ch-user-list-viewport"
+	[style.height.px]="500"
+	[itemSize]="40"
+	[minBufferPx]="50"
+	[maxBufferPx]="100"
+>
+	<div *cdkVirtualFor="let emoji of emojis">
+		<button class="emoji-btn">{{ emoji.value }}</button>
+	</div>
+</cdk-virtual-scroll-viewport> -->
+
+<div class="emoji-picker">
+	<div *ngFor="let group of groupedEmojis">
+		<div class="ch-emoji-group-title">
+			{{ group.title | titlecase }}
+		</div>
+		<div class="emoji-wrapper">
+			<button *ngFor="let emoji of group.emojis" class="emoji-btn">
+				{{ emoji.value }}
+			</button>
+		</div>
+	</div>
+</div>

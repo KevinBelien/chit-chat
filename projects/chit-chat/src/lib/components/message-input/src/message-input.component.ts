@@ -220,6 +220,7 @@ export class MessageInputComponent implements OnChanges {
 	protected handleEmojiBtnClick = (e: Event) => {
 		e.stopPropagation();
 	};
+
 	protected handleSubmitBtnClick = (e: Event) => {
 		e.stopPropagation();
 
