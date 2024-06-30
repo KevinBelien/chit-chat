@@ -20,4 +20,12 @@ export class ObjectHelper {
 			)
 		);
 	};
+
+	public static omit = <T, K extends keyof T>(
+		obj: T,
+		keyToRemove: K
+	): Omit<T, K> => {
+		const { [keyToRemove]: _, ...rest } = obj;
+		return rest;
+	};
 }

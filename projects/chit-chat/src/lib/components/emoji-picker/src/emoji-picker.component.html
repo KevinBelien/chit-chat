@@ -1,24 +1,42 @@
-<!-- <cdk-virtual-scroll-viewport
-	class="ion-content-scroll-host ch-vscroll-viewport ch-user-list-viewport"
-	[style.height.px]="500"
-	[itemSize]="40"
-	[minBufferPx]="50"
-	[maxBufferPx]="100"
->
-	<div *cdkVirtualFor="let emoji of emojis">
-		<button class="emoji-btn">{{ emoji.value }}</button>
-	</div>
-</cdk-virtual-scroll-viewport> -->
-
 <div class="emoji-picker">
-	<div *ngFor="let group of groupedEmojis">
-		<div class="ch-emoji-group-title">
-			{{ group.title | titlecase }}
+	<cdk-virtual-scroll-viewport
+		class="ch-vscroll-viewport"
+		[style.height]="'100%'"
+		[itemSize]="itemSize"
+		[minBufferPx]="250"
+		[maxBufferPx]="500"
+		(scrolledIndexChange)="handleScrolledIndexChanged($event)"
+	>
+		<div
+			class="static-category sticky row"
+			[style.display]="scrollIndex === 0 ? 'none' : 'block'"
+		>
+			<div class="ch-emoji-group-title">
+				{{ currentCategory }}
+			</div>
 		</div>
-		<div class="emoji-wrapper">
-			<button *ngFor="let emoji of group.emojis" class="emoji-btn">
-				{{ emoji.value }}
-			</button>
+
+		<div
+			*cdkVirtualFor="let row of rows; let index = index"
+			class="row"
+			[ngClass]="{
+				sticky: row.type === 'category',
+				'virtual-category': row.type === 'category'
+			}"
+		>
+			<ng-container *ngIf="row.type === 'category'">
+				<div class="ch-emoji-group-title">
+					{{ row.value }}
+				</div>
+			</ng-container>
+
+			<ng-container *ngIf="row.type === 'emoji'">
+				<ng-container *ngFor="let emoji of row.value">
+					<button class="emoji-btn">
+						{{ emoji.value }}
+					</button>
+				</ng-container>
+			</ng-container>
 		</div>
-	</div>
+	</cdk-virtual-scroll-viewport>
 </div>
