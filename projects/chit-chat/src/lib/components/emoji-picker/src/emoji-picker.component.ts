@@ -11,13 +11,21 @@ import {
 	Input,
 	OnChanges,
 	OnDestroy,
+	OnInit,
+	Renderer2,
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { Subject, takeUntil } from 'rxjs';
 import { emojis, groupedEmojis } from './data';
-import { Emoji, EmojiCategory, GroupedEmoji } from './interfaces';
+import { EmojiSize, EmojiSizeKey } from './enums/emoji-size.enum';
+import {
+	Emoji,
+	EmojiCategory,
+	EmojiPickerRow,
+	GroupedEmoji,
+} from './interfaces';
 
 @Component({
 	selector: 'ch-emoji-picker',
@@ -32,13 +40,13 @@ import { Emoji, EmojiCategory, GroupedEmoji } from './interfaces';
 	},
 })
 export class EmojiPickerComponent
-	implements AfterViewInit, OnDestroy, OnChanges
+	implements OnInit, AfterViewInit, OnDestroy, OnChanges
 {
 	@ViewChild(CdkVirtualScrollViewport, { static: false })
 	viewport?: CdkVirtualScrollViewport;
 
 	@Input()
-	emojiSize: 'xs' | 'sm' | 'default' | 'lg' | 'xl' = 'default';
+	emojiSize: EmojiSizeKey = 'default';
 
 	emojiSizeInPx: number;
 
@@ -47,6 +55,9 @@ export class EmojiPickerComponent
 
 	@Input()
 	width: number = 250;
+
+	@Input()
+	scrollbarVisible: boolean = false;
 
 	@HostBinding('style.--item-size-multiplier')
 	itemSizeMultiplier: number = 1.5;
@@ -75,7 +86,7 @@ export class EmojiPickerComponent
 	@HostBinding('style.--picker-width')
 	pickerWidth: string = `${this.width}px`;
 
-	constructor() {
+	constructor(private renderer: Renderer2) {
 		this.emojiSizeInPx = this.calculateEmojiSize();
 
 		this.itemSize = this.emojiSizeInPx * this.itemSizeMultiplier;
@@ -89,6 +100,10 @@ export class EmojiPickerComponent
 				: (this.rows[0].value as EmojiCategory);
 	}
 
+	ngOnInit(): void {
+		this.loadCountryFlagEmojiPolyfill();
+	}
+
 	ngAfterViewInit() {
 		this.viewport?.renderedRangeStream
 			.pipe(takeUntil(this.destroy$))
@@ -99,10 +114,6 @@ export class EmojiPickerComponent
 					-(this.viewport?.getOffsetToRenderedContentStart() || 0) +
 					'px';
 			});
-	}
-
-	ngOnDestroy() {
-		this.destroy$.next(true);
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -129,33 +140,31 @@ export class EmojiPickerComponent
 		}
 	}
 
+	ngOnDestroy() {
+		this.destroy$.next(true);
+	}
+
+	//add polyfill script to support flag emojis for windows users
+	private loadCountryFlagEmojiPolyfill() {
+		const script = this.renderer.createElement('script');
+		script.type = 'module';
+		script.defer = true;
+		script.text = `
+      import { polyfillCountryFlagEmojis } from 'https://cdn.skypack.dev/country-flag-emoji-polyfill';
+      polyfillCountryFlagEmojis();
+    `;
+		this.renderer.appendChild(document.body, script);
+	}
+
 	private calculateEmojiSize = () => {
 		const viewportWidth = this.getViewportWidth();
-		const averageSize = this.getAverageSize();
+		const averageSize = EmojiSize[this.emojiSize];
 		const maxEmojisPerRow =
 			this.calculateAmountEmojiInRows(averageSize);
 
-		console.log(maxEmojisPerRow);
-		console.log('viewportwidth', viewportWidth);
-		console.log(viewportWidth / maxEmojisPerRow);
-		return (
+		return this.toFixedAndFloor(
 			viewportWidth / (maxEmojisPerRow * this.itemSizeMultiplier)
 		);
-	};
-
-	private getAverageSize = () => {
-		switch (this.emojiSize) {
-			case 'xs':
-				return 16;
-			case 'sm':
-				return 20;
-			case 'lg':
-				return 28;
-			case 'xl':
-				return 32;
-			default:
-				return 24;
-		}
 	};
 
 	findDuplicates = (arr: any[], key: string): any[] => {
@@ -166,7 +175,6 @@ export class EmojiPickerComponent
 			const keyValue = item[key];
 
 			if (seenKeys.has(keyValue)) {
-				console.log(keyValue);
 				duplicates.push(item);
 			} else {
 				seenKeys.add(keyValue);
@@ -232,25 +240,29 @@ export class EmojiPickerComponent
 	};
 
 	getScrollbarWidth(): number {
-		const outer = document.createElement('div');
-		outer.style.visibility = 'hidden';
-		outer.style.overflow = 'scroll'; // forcing scrollbar to appear
-		document.body.appendChild(outer);
-
-		const inner = document.createElement('div');
-		outer.appendChild(inner);
-
-		const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
-
-		outer.parentNode!.removeChild(outer);
-
-		return scrollbarWidth;
+		return this.scrollbarVisible ? this.getGlobalScrollbarWidth() : 0;
 	}
-}
 
-type EmojiPickerRow =
-	| {
-			type: 'category';
-			value: EmojiCategory | Emoji[];
-	  }
-	| { type: 'emoji'; value: Emoji[] };
+	private getGlobalScrollbarWidth = (): number => {
+		const root = document.querySelector(':root') as HTMLElement;
+		const scrollbarWidth = getComputedStyle(root).getPropertyValue(
+			'--ch-scrollbar-width'
+		);
+		return parseFloat(scrollbarWidth.replace('px', '').trim());
+	};
+
+	private toFixedAndFloor = (value: number) => {
+		const multiplier = Math.pow(10, 10);
+		const flooredValue = Math.floor(value * multiplier) / multiplier;
+
+		return Number(flooredValue.toFixed(10));
+	};
+
+	trackEmojiRow = (index: number) => {
+		return index;
+	};
+
+	trackEmoji = (index: number, data: any) => {
+		return data.value;
+	};
+}

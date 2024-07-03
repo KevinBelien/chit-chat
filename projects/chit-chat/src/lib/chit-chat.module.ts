@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { ModuleWithProviders, NgModule } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Inject, ModuleWithProviders, NgModule } from '@angular/core';
 import {
 	AngularFireModule,
 	FIREBASE_OPTIONS,
@@ -10,12 +10,20 @@ import {
 	LibConfig,
 	LibConfigService,
 } from 'chit-chat/src/lib/lib-config';
+import { ScreenService } from 'chit-chat/src/lib/utils';
 
 @NgModule({
 	declarations: [],
 	imports: [CommonModule, AngularFireModule, AngularFirestoreModule],
 })
 export class ChitChatModule {
+	constructor(
+		@Inject(DOCUMENT) private document: Document,
+		private screenService: ScreenService
+	) {
+		if (this.screenService.isMobile())
+			this.document.body.classList.add('ch-scroll-mobile');
+	}
 	static forRoot(
 		config: LibConfig
 	): ModuleWithProviders<ChitChatModule> {
@@ -23,6 +31,7 @@ export class ChitChatModule {
 			ngModule: ChitChatModule,
 			providers: [
 				AuthService,
+				ScreenService,
 				{
 					provide: FIREBASE_OPTIONS,
 					useValue: config.firebaseConfig,

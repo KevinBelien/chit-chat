@@ -16,7 +16,6 @@
 .ch-emoji-group-title {
 	background-color: var(--ion-background-color, #fff);
 	font-weight: 500;
-	// padding-inline: 0.3em;
 	user-select: none;
 	height: calc(
 		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
@@ -28,7 +27,7 @@
 .sticky {
 	position: -webkit-sticky;
 	position: sticky;
-	top: var(--sp-offset, 0px);
+	top: calc(var(--sp-offset, 0px));
 }
 
 .row {
@@ -39,8 +38,9 @@
 
 .emoji-btn {
 	font-size: var(--emoji-size, 24px);
-	font-family: 'Apple Color Emoji', 'Noto Color Emoji',
-		'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+	font-family: 'Apple Color Emoji', Twemoji Mozilla,
+		'Noto Color Emoji', 'Android Emoji', 'Twemoji Country Flags',
+		'Segoe UI Emoji', Segoe UI Symbol, Segoe UI;
 	width: calc(
 		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
 	);
@@ -58,7 +58,3 @@
 		);
 	}
 }
-
-// .ch-vscroll-viewport {
-// 	position: relative;
-// }

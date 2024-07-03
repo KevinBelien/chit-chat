@@ -1,10 +1,11 @@
 <div class="emoji-picker">
 	<cdk-virtual-scroll-viewport
 		class="ch-vscroll-viewport"
+		[ngClass]="{ 'ch-scroll-hidden': !scrollbarVisible }"
 		[style.height]="'100%'"
 		[itemSize]="itemSize"
-		[minBufferPx]="250"
-		[maxBufferPx]="500"
+		[minBufferPx]="300"
+		[maxBufferPx]="600"
 		(scrolledIndexChange)="handleScrolledIndexChanged($event)"
 	>
 		<div
@@ -12,12 +13,17 @@
 			[style.display]="scrollIndex === 0 ? 'none' : 'block'"
 		>
 			<div class="ch-emoji-group-title">
-				{{ currentCategory }}
+				{{ currentCategory ?? '' }}
 			</div>
 		</div>
 
 		<div
-			*cdkVirtualFor="let row of rows; let index = index"
+			*cdkVirtualFor="
+				let row of rows;
+				let index = index;
+				templateCacheSize: 20;
+				trackBy: trackEmojiRow
+			"
 			class="row"
 			[ngClass]="{
 				sticky: row.type === 'category',
@@ -31,7 +37,9 @@
 			</ng-container>
 
 			<ng-container *ngIf="row.type === 'emoji'">
-				<ng-container *ngFor="let emoji of row.value">
+				<ng-container
+					*ngFor="let emoji of row.value; trackBy: trackEmoji"
+				>
 					<button class="emoji-btn">
 						{{ emoji.value }}
 					</button>
