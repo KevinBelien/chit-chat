@@ -117,7 +117,10 @@ body:not(.ch-scroll-mobile)
 	.rx-virtual-scroll__runway::-webkit-scrollbar-thumb:hover {
 	background-color: var(--ch-color-scroll-hover, rgb(201, 201, 210));
 }
-
+body .ch-scroll-hidden.ch-vscroll-viewport::-webkit-scrollbar,
+body
+	.ch-scroll-hidden.ch-vscroll-viewport
+	.rx-virtual-scroll__runway::-webkit-scrollbar,
 .ch-scroll-hidden::-webkit-scrollbar {
 	width: 0px;
 	-webkit-overflow-scrolling: touch; /* Enables smooth scrolling on iOS */

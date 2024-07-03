@@ -57,7 +57,7 @@ export class EmojiPickerComponent
 	width: number = 250;
 
 	@Input()
-	scrollbarVisible: boolean = false;
+	scrollbarVisible: boolean = true;
 
 	@HostBinding('style.--item-size-multiplier')
 	itemSizeMultiplier: number = 1.5;
