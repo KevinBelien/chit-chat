@@ -156,16 +156,15 @@ export class EmojiPickerComponent
 		{ eventType }: { eventType: 'touch' | 'mouse' },
 		emoji: Emoji
 	) => {
-		this.touchHoldTriggered = true;
-		console.log('touched', eventType, emoji);
+		this.touchHoldTriggered = eventType === 'mouse';
 	};
 
 	handleEmojiClick = (e: Event, emoji: Emoji) => {
 		if (this.touchHoldTriggered) {
 			this.touchHoldTriggered = false;
+
 			return;
 		}
-		console.log('clicked');
 	};
 
 	//add polyfill script to support flag emojis for windows users
