@@ -1,15 +1,15 @@
-.emoji-picker {
+.ch-emoji-picker {
 	height: var(--picker-height, 400px);
 	width: var(--picker-width, 400px);
 	position: relative;
 }
 
-.static-category {
+.ch-static-category {
 	z-index: 10; /* Ensure it stays below the sticky elements */
 	width: 100%;
 }
 
-.virtual-category {
+.ch-virtual-category {
 	z-index: 20;
 }
 
@@ -24,19 +24,19 @@
 	align-items: center;
 }
 
-.sticky {
+.ch-sticky {
 	position: -webkit-sticky;
 	position: sticky;
 	top: calc(var(--sp-offset, 0px));
 }
 
-.row {
+.ch-row {
 	height: calc(
 		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
 	);
 }
 
-.emoji-btn {
+.ch-emoji-btn {
 	font-size: var(--emoji-size, 24px);
 	font-family: 'Apple Color Emoji', Twemoji Mozilla,
 		'Noto Color Emoji', 'Android Emoji', 'Twemoji Country Flags',

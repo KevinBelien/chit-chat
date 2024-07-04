@@ -17,6 +17,7 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
+import { TouchHoldDirective } from 'chit-chat/src/lib/utils';
 import { Subject, takeUntil } from 'rxjs';
 import { emojis, groupedEmojis } from './data';
 import { EmojiSize, EmojiSizeKey } from './enums/emoji-size.enum';
@@ -30,7 +31,12 @@ import {
 @Component({
 	selector: 'ch-emoji-picker',
 	standalone: true,
-	imports: [CommonModule, IonicModule, ScrollingModule],
+	imports: [
+		CommonModule,
+		IonicModule,
+		ScrollingModule,
+		TouchHoldDirective,
+	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './emoji-picker.component.html',
 	styleUrl: './emoji-picker.component.scss',
@@ -85,6 +91,8 @@ export class EmojiPickerComponent
 
 	@HostBinding('style.--picker-width')
 	pickerWidth: string = `${this.width}px`;
+
+	private touchHoldTriggered: boolean = false;
 
 	constructor(private renderer: Renderer2) {
 		this.emojiSizeInPx = this.calculateEmojiSize();
@@ -144,6 +152,22 @@ export class EmojiPickerComponent
 		this.destroy$.next(true);
 	}
 
+	handleTouchHold = (
+		{ eventType }: { eventType: 'touch' | 'mouse' },
+		emoji: Emoji
+	) => {
+		this.touchHoldTriggered = true;
+		console.log('touched', eventType, emoji);
+	};
+
+	handleEmojiClick = (e: Event, emoji: Emoji) => {
+		if (this.touchHoldTriggered) {
+			this.touchHoldTriggered = false;
+			return;
+		}
+		console.log('clicked');
+	};
+
 	//add polyfill script to support flag emojis for windows users
 	private loadCountryFlagEmojiPolyfill() {
 		const script = this.renderer.createElement('script');
@@ -158,9 +182,9 @@ export class EmojiPickerComponent
 
 	private calculateEmojiSize = () => {
 		const viewportWidth = this.getViewportWidth();
-		const averageSize = EmojiSize[this.emojiSize];
+		const idealEmojiSize = EmojiSize[this.emojiSize];
 		const maxEmojisPerRow =
-			this.calculateAmountEmojiInRows(averageSize);
+			this.calculateAmountEmojiInRows(idealEmojiSize);
 
 		return this.toFixedAndFloor(
 			viewportWidth / (maxEmojisPerRow * this.itemSizeMultiplier)
