@@ -5,29 +5,31 @@ import {
 	Input,
 	OnDestroy,
 	Output,
+	Renderer2,
 } from '@angular/core';
 import { Subject, fromEvent, merge, timer } from 'rxjs';
 import { filter, mergeMap, takeUntil, tap } from 'rxjs/operators';
-
 @Directive({
 	standalone: true,
 	selector: '[chTouchHold]',
 })
 export class TouchHoldDirective implements OnDestroy {
 	@Input() holdTimeInMs: number = 750;
-
 	@Output() onTouchHold = new EventEmitter<{
 		eventType: 'touch' | 'mouse';
 	}>();
 
 	private destroy$ = new Subject<void>();
+	private contextMenuListener?: () => void;
 
-	constructor(private element: ElementRef) {
+	constructor(
+		private element: ElementRef,
+		private renderer: Renderer2
+	) {
 		const touchStart$ = fromEvent<TouchEvent>(
 			this.element.nativeElement,
 			'touchstart'
 		);
-
 		const touchEnd$ = fromEvent<TouchEvent>(
 			this.element.nativeElement,
 			'touchend'
@@ -40,26 +42,22 @@ export class TouchHoldDirective implements OnDestroy {
 		const mouseDown$ = fromEvent<MouseEvent>(
 			this.element.nativeElement,
 			'mousedown'
-		).pipe(filter((event) => event.button == 0));
-
+		).pipe(filter((event) => event.button === 0));
 		const mouseUp$ = fromEvent<MouseEvent>(
 			this.element.nativeElement,
 			'mouseup'
-		).pipe(filter((event) => event.button == 0));
+		).pipe(filter((event) => event.button === 0));
 		const mouseLeave$ = fromEvent<MouseEvent>(
 			this.element.nativeElement,
 			'mouseleave'
-		).pipe(filter((event) => event.button == 0));
+		).pipe(filter((event) => event.button === 0));
 
 		const hold$ = merge(
 			touchStart$.pipe(
 				mergeMap(() =>
 					timer(this.holdTimeInMs).pipe(
 						takeUntil(merge(touchEnd$, touchMove$)),
-						tap(() => {
-							this.onTouchHold.emit({ eventType: 'touch' });
-							this.disableContextMenu(true);
-						})
+						tap(() => this.emitEvent('touch'))
 					)
 				)
 			),
@@ -67,7 +65,7 @@ export class TouchHoldDirective implements OnDestroy {
 				mergeMap(() =>
 					timer(this.holdTimeInMs).pipe(
 						takeUntil(merge(mouseUp$, mouseLeave$)),
-						tap(() => this.onTouchHold.emit({ eventType: 'mouse' }))
+						tap(() => this.emitEvent('mouse'))
 					)
 				)
 			)
@@ -76,23 +74,29 @@ export class TouchHoldDirective implements OnDestroy {
 		hold$.subscribe();
 	}
 
-	private disableContextMenu(disable: boolean): void {
-		if (disable) {
-			this.element.nativeElement.addEventListener(
-				'contextmenu',
-				this.preventContextMenu
-			);
-		} else {
-			this.element.nativeElement.removeEventListener(
-				'contextmenu',
-				this.preventContextMenu
-			);
+	private emitEvent(eventType: 'touch' | 'mouse'): void {
+		this.onTouchHold.emit({ eventType });
+		if (eventType === 'touch') {
+			this.disableContextMenu(true);
 		}
 	}
 
-	private preventContextMenu(event: Event): void {
-		event.preventDefault();
+	private disableContextMenu(disable: boolean): void {
+		if (disable) {
+			this.contextMenuListener = this.renderer.listen(
+				this.element.nativeElement,
+				'contextmenu',
+				this.preventContextMenu
+			);
+		} else if (this.contextMenuListener) {
+			this.contextMenuListener();
+			this.contextMenuListener = undefined;
+		}
 	}
+
+	private preventContextMenu = (event: Event): void => {
+		event.preventDefault();
+	};
 
 	ngOnDestroy() {
 		this.destroy$.next();
