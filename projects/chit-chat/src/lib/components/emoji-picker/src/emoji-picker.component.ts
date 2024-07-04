@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
+	ChangeDetectorRef,
 	Component,
 	HostBinding,
 	Input,
@@ -16,27 +17,23 @@ import {
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
-import { IonicModule } from '@ionic/angular';
-import { TouchHoldDirective } from 'chit-chat/src/lib/utils';
 import { Subject, takeUntil } from 'rxjs';
+import { EmojiButtonComponent } from './components/emoji-button/emoji-button.component';
 import { emojis, groupedEmojis } from './data';
 import { EmojiSize, EmojiSizeKey } from './enums/emoji-size.enum';
 import {
 	Emoji,
 	EmojiCategory,
+	EmojiClickEvent,
 	EmojiPickerRow,
+	EmojiTouchHoldEvent,
 	GroupedEmoji,
 } from './interfaces';
 
 @Component({
 	selector: 'ch-emoji-picker',
 	standalone: true,
-	imports: [
-		CommonModule,
-		IonicModule,
-		ScrollingModule,
-		TouchHoldDirective,
-	],
+	imports: [CommonModule, ScrollingModule, EmojiButtonComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './emoji-picker.component.html',
 	styleUrl: './emoji-picker.component.scss',
@@ -83,22 +80,22 @@ export class EmojiPickerComponent
 
 	@HostBinding('style.--sp-offset') spo: string = '0px';
 
-	@HostBinding('style.--emoji-size')
-	emoSize: string;
-
 	@HostBinding('style.--picker-height')
 	pickerHeight: string = `${this.height}px`;
 
 	@HostBinding('style.--picker-width')
 	pickerWidth: string = `${this.width}px`;
 
-	private touchHoldTriggered: boolean = false;
-
-	constructor(private renderer: Renderer2) {
+	constructor(
+		private renderer: Renderer2,
+		private cd: ChangeDetectorRef
+	) {
 		this.emojiSizeInPx = this.calculateEmojiSize();
 
-		this.itemSize = this.emojiSizeInPx * this.itemSizeMultiplier;
-		this.emoSize = `${this.emojiSizeInPx}px`;
+		this.itemSize = this.toFixedAndFloor(
+			this.emojiSizeInPx * this.itemSizeMultiplier,
+			2
+		);
 
 		this.rows = this.calculateEmojiRows();
 
@@ -127,8 +124,6 @@ export class EmojiPickerComponent
 	ngOnChanges(changes: SimpleChanges): void {
 		if (changes['emojiSize']) {
 			this.emojiSizeInPx = this.calculateEmojiSize();
-
-			this.emoSize = `${this.emojiSizeInPx}px`;
 			this.itemSize = this.emojiSizeInPx * this.itemSizeMultiplier;
 			this.rows = this.calculateEmojiRows();
 		}
@@ -152,24 +147,6 @@ export class EmojiPickerComponent
 		this.destroy$.next();
 	}
 
-	handleTouchHold = (
-		{ eventType }: { eventType: 'touch' | 'mouse' },
-		emoji: Emoji
-	) => {
-		this.touchHoldTriggered =
-			eventType === 'mouse' &&
-			!!emoji.skinTones &&
-			emoji.skinTones.length > 0;
-	};
-
-	handleEmojiClick = (e: Event, emoji: Emoji) => {
-		if (this.touchHoldTriggered) {
-			this.touchHoldTriggered = false;
-
-			return;
-		}
-	};
-
 	//add polyfill script to support flag emojis for windows users
 	private loadCountryFlagEmojiPolyfill() {
 		const script = this.renderer.createElement('script');
@@ -189,7 +166,8 @@ export class EmojiPickerComponent
 			this.calculateAmountEmojiInRows(idealEmojiSize);
 
 		return this.toFixedAndFloor(
-			viewportWidth / (maxEmojisPerRow * this.itemSizeMultiplier)
+			viewportWidth / (maxEmojisPerRow * this.itemSizeMultiplier),
+			2
 		);
 	};
 
@@ -277,11 +255,11 @@ export class EmojiPickerComponent
 		return parseFloat(scrollbarWidth.replace('px', '').trim());
 	};
 
-	private toFixedAndFloor = (value: number) => {
-		const multiplier = Math.pow(10, 10);
+	private toFixedAndFloor = (value: number, decimals: number) => {
+		const multiplier = Math.pow(10, decimals);
 		const flooredValue = Math.floor(value * multiplier) / multiplier;
 
-		return Number(flooredValue.toFixed(10));
+		return Number(flooredValue.toFixed(decimals));
 	};
 
 	trackEmojiRow = (index: number) => {
@@ -290,5 +268,13 @@ export class EmojiPickerComponent
 
 	trackEmoji = (index: number, data: any) => {
 		return data.value;
+	};
+
+	handleEmojiClick = (e: EmojiClickEvent) => {
+		console.log('on emoji click', e);
+	};
+
+	handleEmojiTouchHold = (e: EmojiTouchHoldEvent) => {
+		console.log('on emoji hold', e);
 	};
 }

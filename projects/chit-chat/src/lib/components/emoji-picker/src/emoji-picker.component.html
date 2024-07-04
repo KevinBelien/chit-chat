@@ -5,7 +5,7 @@
 		[style.height]="'100%'"
 		[itemSize]="itemSize"
 		[minBufferPx]="300"
-		[maxBufferPx]="600"
+		[maxBufferPx]="1500"
 		(scrolledIndexChange)="handleScrolledIndexChanged($event)"
 	>
 		<div
@@ -40,14 +40,12 @@
 				<ng-container
 					*ngFor="let emoji of row.value; trackBy: trackEmoji"
 				>
-					<button
-						chTouchHold
-						(onTouchHold)="handleTouchHold($event, emoji)"
-						(click)="handleEmojiClick($event, emoji)"
-						class="ch-emoji-btn"
-					>
-						{{ emoji.value }}
-					</button>
+					<ch-emoji-button
+						[emoji]="emoji"
+						[emojiSize]="emojiSizeInPx"
+						(onClick)="handleEmojiClick($event)"
+						(onTouchHold)="handleEmojiTouchHold($event)"
+					></ch-emoji-button>
 				</ng-container>
 			</ng-container>
 		</div>

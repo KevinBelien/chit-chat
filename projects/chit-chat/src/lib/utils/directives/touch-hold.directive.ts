@@ -15,9 +15,7 @@ import { filter, mergeMap, takeUntil, tap } from 'rxjs/operators';
 })
 export class TouchHoldDirective implements OnDestroy {
 	@Input() holdTimeInMs: number = 750;
-	@Output() onTouchHold = new EventEmitter<{
-		eventType: 'touch' | 'mouse';
-	}>();
+	@Output() onTouchHold = new EventEmitter<TouchHoldEvent>();
 
 	private destroy$ = new Subject<void>();
 	private contextMenuListener?: () => void;
@@ -103,4 +101,7 @@ export class TouchHoldDirective implements OnDestroy {
 		this.destroy$.complete();
 		this.disableContextMenu(false);
 	}
+}
+export interface TouchHoldEvent {
+	eventType: 'touch' | 'mouse';
 }

@@ -1,0 +1,10 @@
+@if (!!emoji) {
+<button
+	chTouchHold
+	(onTouchHold)="handleTouchHold($event, emoji)"
+	(click)="handleEmojiClick($event, emoji)"
+	class="ch-emoji-btn"
+>
+	{{ emoji.value }}
+</button>
+}
