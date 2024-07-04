@@ -60,46 +60,49 @@ export class UserService {
 				catchError((error: any) => {
 					console.error(error);
 					return throwError(
-						() => new Error('Error occurred while fetching users.')
+						() =>
+							new Error(
+								`Error occurred while fetching users.${error}`
+							)
 					).pipe(startWith([] as User[]));
 				}),
 				retry(3)
 			);
 	};
 
-	getUsersBatch = (
-		lastSeenName: string | null,
-		batchSize: number,
-		activatedUsersOnly: boolean = false
-	): Observable<any> => {
-		return this.afs
-			.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
-				!!activatedUsersOnly
-					? ref
-							.where('isActivated', '==', true)
-							.orderBy('name')
-							.startAfter(lastSeenName)
-							.limit(batchSize)
-					: ref
-							.orderBy('name')
-							.startAfter(lastSeenName)
-							.limit(batchSize)
-			)
-			.snapshotChanges()
-			.pipe(
-				distinctUntilChanged(),
-				map((result) => {
-					return result.reduce((acc, cur) => {
-						const id = cur.payload.doc.id;
-						const data = cur.payload.doc.data();
-						return { ...acc, [id]: data };
-					}, {});
-				})
-				// map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
-				// 	User.fromCollection(result)
-				// ),
-			);
-	};
+	// getUsersBatch = (
+	// 	lastSeenName: string | null,
+	// 	batchSize: number,
+	// 	activatedUsersOnly: boolean = false
+	// ): Observable<any> => {
+	// 	return this.afs
+	// 		.collection<DtoUser>(FireStoreCollection.USERS, (ref) =>
+	// 			!!activatedUsersOnly
+	// 				? ref
+	// 						.where('isActivated', '==', true)
+	// 						.orderBy('name')
+	// 						.startAfter(lastSeenName)
+	// 						.limit(batchSize)
+	// 				: ref
+	// 						.orderBy('name')
+	// 						.startAfter(lastSeenName)
+	// 						.limit(batchSize)
+	// 		)
+	// 		.snapshotChanges()
+	// 		.pipe(
+	// 			distinctUntilChanged(),
+	// 			map((result) => {
+	// 				return result.reduce((acc, cur) => {
+	// 					const id = cur.payload.doc.id;
+	// 					const data = cur.payload.doc.data();
+	// 					return { ...acc, [id]: data };
+	// 				}, {});
+	// 			})
+	// 			// map<DtoUser[], MapResultCollection<DtoUser>>((result) =>
+	// 			// 	User.fromCollection(result)
+	// 			// ),
+	// 		);
+	// };
 
 	setUserStatus = async (
 		documentID: string,
@@ -146,7 +149,17 @@ export class UserService {
 					);
 
 				return UserRole.fromPermissionDto(permissions);
-			})
+			}),
+			catchError((error: any) => {
+				console.error(error);
+				return throwError(
+					() =>
+						new Error(
+							`Error occurred while fetching user roles.${error}`
+						)
+				);
+			}),
+			retry(3)
 		);
 	};
 }

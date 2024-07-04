@@ -138,10 +138,9 @@ export class UsersListComponent implements OnChanges {
 
 	//CALCULATE BUFFER SIZE REGARDING SCREEN HEIGHT AND LIST ITEM SIZE
 	private calcBuffer = () => {
-		const searchbarHeight = this.isSearchbarVisible ? 60 : 0;
 		return {
-			minBufferPx: window.innerHeight - searchbarHeight,
-			maxBufferPx: window.innerHeight + this.itemSize,
+			minBufferPx: window.innerHeight,
+			maxBufferPx: window.innerHeight + this.itemSize * 4,
 		};
 	};
 

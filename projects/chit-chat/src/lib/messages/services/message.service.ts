@@ -16,7 +16,8 @@ import {
 	catchError,
 	distinctUntilChanged,
 	map,
-	of,
+	startWith,
+	throwError,
 } from 'rxjs';
 import { DtoMessage } from '../dto';
 import { Message } from './../models/message.model';
@@ -101,10 +102,14 @@ export class MessageService {
 						return Message.fromDtoCollection(dtos).data;
 					}
 				),
-
 				catchError((error: any) => {
 					console.error(error);
-					return of([] as Message[]); // Return an empty array in case of an error
+					return throwError(
+						() =>
+							new Error(
+								`Error occurred while fetching messages.${error}`
+							)
+					).pipe(startWith([] as Message[]));
 				})
 			);
 	};

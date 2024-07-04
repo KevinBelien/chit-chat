@@ -83,7 +83,7 @@ export class AuthService {
 			)
 			.subscribe(
 				async (user: MapResult<DtoUser, AuthUser | null>) => {
-					setTimeout(() => this.user$.next(user.data), 1000);
+					this.user$.next(user.data);
 					if (!!user.error) {
 						throw user.error;
 					}

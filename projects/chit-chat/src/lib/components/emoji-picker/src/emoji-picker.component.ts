@@ -79,7 +79,7 @@ export class EmojiPickerComponent
 
 	rows: EmojiPickerRow[];
 
-	destroy$ = new Subject<boolean>();
+	destroy$ = new Subject<void>();
 
 	@HostBinding('style.--sp-offset') spo: string = '0px';
 
@@ -149,14 +149,17 @@ export class EmojiPickerComponent
 	}
 
 	ngOnDestroy() {
-		this.destroy$.next(true);
+		this.destroy$.next();
 	}
 
 	handleTouchHold = (
 		{ eventType }: { eventType: 'touch' | 'mouse' },
 		emoji: Emoji
 	) => {
-		this.touchHoldTriggered = eventType === 'mouse';
+		this.touchHoldTriggered =
+			eventType === 'mouse' &&
+			!!emoji.skinTones &&
+			emoji.skinTones.length > 0;
 	};
 
 	handleEmojiClick = (e: Event, emoji: Emoji) => {
