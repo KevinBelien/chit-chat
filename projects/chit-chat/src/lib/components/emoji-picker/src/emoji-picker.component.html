@@ -4,8 +4,8 @@
 		[ngClass]="{ 'ch-scroll-hidden': !scrollbarVisible }"
 		[style.height]="'100%'"
 		[itemSize]="itemSize"
-		[minBufferPx]="300"
-		[maxBufferPx]="1500"
+		[minBufferPx]="height"
+		[maxBufferPx]="height + itemSize * 3"
 		(scrolledIndexChange)="handleScrolledIndexChanged($event)"
 	>
 		<div
