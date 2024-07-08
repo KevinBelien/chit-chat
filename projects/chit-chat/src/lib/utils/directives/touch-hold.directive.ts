@@ -5,7 +5,6 @@ import {
 	Input,
 	OnDestroy,
 	Output,
-	Renderer2,
 } from '@angular/core';
 import { Subject, fromEvent, merge, timer } from 'rxjs';
 import { filter, mergeMap, takeUntil, tap } from 'rxjs/operators';
@@ -18,12 +17,8 @@ export class TouchHoldDirective implements OnDestroy {
 	@Output() onTouchHold = new EventEmitter<TouchHoldEvent>();
 
 	private destroy$ = new Subject<void>();
-	private contextMenuListener?: () => void;
 
-	constructor(
-		private element: ElementRef,
-		private renderer: Renderer2
-	) {
+	constructor(private element: ElementRef) {
 		const touchStart$ = fromEvent<TouchEvent>(
 			this.element.nativeElement,
 			'touchstart'
@@ -55,7 +50,7 @@ export class TouchHoldDirective implements OnDestroy {
 				mergeMap(() =>
 					timer(this.holdTimeInMs).pipe(
 						takeUntil(merge(touchEnd$, touchMove$)),
-						tap(() => this.emitEvent('touch'))
+						tap(() => this.onTouchHold.emit({ eventType: 'touch' }))
 					)
 				)
 			),
@@ -63,7 +58,7 @@ export class TouchHoldDirective implements OnDestroy {
 				mergeMap(() =>
 					timer(this.holdTimeInMs).pipe(
 						takeUntil(merge(mouseUp$, mouseLeave$)),
-						tap(() => this.emitEvent('mouse'))
+						tap(() => this.onTouchHold.emit({ eventType: 'mouse' }))
 					)
 				)
 			)
@@ -72,34 +67,10 @@ export class TouchHoldDirective implements OnDestroy {
 		hold$.subscribe();
 	}
 
-	private emitEvent(eventType: 'touch' | 'mouse'): void {
-		this.onTouchHold.emit({ eventType });
-		if (eventType === 'touch') {
-			this.disableContextMenu(true);
-		}
-	}
-
-	private disableContextMenu(disable: boolean): void {
-		if (disable) {
-			this.contextMenuListener = this.renderer.listen(
-				this.element.nativeElement,
-				'contextmenu',
-				this.preventContextMenu
-			);
-		} else if (this.contextMenuListener) {
-			this.contextMenuListener();
-			this.contextMenuListener = undefined;
-		}
-	}
-
-	private preventContextMenu = (event: Event): void => {
-		event.preventDefault();
-	};
-
 	ngOnDestroy() {
 		this.destroy$.next();
 		this.destroy$.complete();
-		this.disableContextMenu(false);
+		console.log('gets to destroy');
 	}
 }
 export interface TouchHoldEvent {

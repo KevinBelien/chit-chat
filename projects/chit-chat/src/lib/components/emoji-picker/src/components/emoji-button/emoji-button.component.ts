@@ -3,16 +3,10 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	EventEmitter,
-	HostBinding,
 	Input,
-	OnChanges,
 	Output,
-	SimpleChanges,
 } from '@angular/core';
-import {
-	TouchHoldDirective,
-	TouchHoldEvent,
-} from 'chit-chat/src/lib/utils';
+import { TouchHoldEvent } from 'chit-chat/src/lib/utils';
 import {
 	Emoji,
 	EmojiClickEvent,
@@ -22,17 +16,18 @@ import {
 @Component({
 	selector: 'ch-emoji-button',
 	standalone: true,
-	imports: [CommonModule, TouchHoldDirective],
+	imports: [CommonModule],
 	templateUrl: './emoji-button.component.html',
 	styleUrl: './emoji-button.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
+	host: {
+		'collision-id': crypto.randomUUID(),
+		class: 'ch-element',
+	},
 })
-export class EmojiButtonComponent implements OnChanges {
+export class EmojiButtonComponent {
 	@Input()
 	emoji?: Emoji;
-
-	@Input()
-	emojiSize: number = 24;
 
 	private touchHoldTriggered: boolean = false;
 
@@ -42,18 +37,9 @@ export class EmojiButtonComponent implements OnChanges {
 	@Output()
 	onClick = new EventEmitter<EmojiClickEvent>();
 
-	@HostBinding('style.--emoji-size')
-	emoSize: string = `${this.emojiSize}px`;
-
 	constructor() {}
 
-	ngOnChanges(changes: SimpleChanges): void {
-		if (changes['emojiSize']) {
-			this.emoSize = `${changes['emojiSize'].currentValue}px`;
-		}
-	}
-
-	handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
+	protected handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
 		if (this.touchHoldTriggered) {
 			this.touchHoldTriggered = false;
 
@@ -63,7 +49,7 @@ export class EmojiButtonComponent implements OnChanges {
 		this.onClick.emit({ event: e, emoji });
 	};
 
-	handleTouchHold = (e: TouchHoldEvent, emoji: Emoji) => {
+	protected handleTouchHold = (e: TouchHoldEvent, emoji: Emoji) => {
 		this.touchHoldTriggered =
 			e.eventType === 'mouse' &&
 			!!emoji.skinTones &&

@@ -1,20 +1,21 @@
 :host {
-	display: contents;
+	display: block;
+	height: 100%;
+	width: 100%;
 }
-
 .ch-emoji-btn {
 	font-size: var(--emoji-size, 24px);
 	font-family: 'Apple Color Emoji', Twemoji Mozilla,
 		'Noto Color Emoji', 'Android Emoji', 'Twemoji Country Flags',
 		'Segoe UI Emoji', Segoe UI Symbol, Segoe UI;
+	background-color: transparent;
+	user-select: none;
 	width: calc(
 		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
 	);
 	height: calc(
 		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
 	);
-	background-color: transparent;
-	user-select: none;
 
 	&:hover {
 		background-color: color-mix(

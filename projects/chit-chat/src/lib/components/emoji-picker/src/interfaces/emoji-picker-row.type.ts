@@ -1,8 +1,9 @@
 import { Emoji, EmojiCategory } from '.';
 
-export type EmojiPickerRow =
+export type EmojiPickerRow = { id: string } & (
 	| {
 			type: 'category';
 			value: EmojiCategory | Emoji[];
 	  }
-	| { type: 'emoji'; value: Emoji[] };
+	| { type: 'emoji'; value: Emoji[] }
+);

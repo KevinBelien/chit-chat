@@ -3,35 +3,3 @@
 	width: var(--picker-width, 400px);
 	position: relative;
 }
-
-.ch-static-category {
-	z-index: 10; /* Ensure it stays below the sticky elements */
-	width: 100%;
-}
-
-.ch-virtual-category {
-	z-index: 20;
-}
-
-.ch-emoji-group-title {
-	background-color: var(--ion-background-color, #fff);
-	font-weight: 500;
-	user-select: none;
-	height: calc(
-		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
-	);
-	display: flex;
-	align-items: center;
-}
-
-.ch-sticky {
-	position: -webkit-sticky;
-	position: sticky;
-	top: calc(var(--sp-offset, 0px));
-}
-
-.ch-row {
-	height: calc(
-		var(--emoji-size, 24px) * var(--item-size-multiplier, 1.5)
-	);
-}
