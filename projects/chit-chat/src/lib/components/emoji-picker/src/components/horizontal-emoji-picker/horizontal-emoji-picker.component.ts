@@ -8,12 +8,10 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	ElementRef,
-	EventEmitter,
 	HostBinding,
 	Input,
 	OnChanges,
 	OnDestroy,
-	Output,
 	Renderer2,
 	SimpleChanges,
 	ViewChild,
@@ -24,9 +22,7 @@ import { EmojiSize, EmojiSizeKey } from '../../enums';
 import {
 	Emoji,
 	EmojiCategory,
-	EmojiClickEvent,
 	EmojiPickerRow,
-	EmojiTouchHoldEvent,
 	GroupedEmoji,
 } from '../../interfaces';
 import { EmojiButtonComponent } from '../emoji-button/emoji-button.component';
@@ -95,12 +91,6 @@ export class HorizontalEmojiPickerComponent
 	emoSize?: string;
 
 	private touchHoldEventActive: boolean = false;
-
-	@Output()
-	onEmojiTouchHold = new EventEmitter<EmojiTouchHoldEvent>();
-
-	@Output()
-	onEmojiClick = new EventEmitter<EmojiClickEvent>();
 
 	constructor(private renderer: Renderer2, private el: ElementRef) {
 		this.emojiSizeInPx = this.calculateEmojiSize();

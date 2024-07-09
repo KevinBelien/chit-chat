@@ -2,16 +2,9 @@ import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	Component,
-	EventEmitter,
 	Input,
-	Output,
 } from '@angular/core';
-import { TouchHoldEvent } from 'chit-chat/src/lib/utils';
-import {
-	Emoji,
-	EmojiClickEvent,
-	EmojiTouchHoldEvent,
-} from '../../interfaces';
+import { Emoji } from '../../interfaces';
 
 @Component({
 	selector: 'ch-emoji-button',
@@ -31,12 +24,6 @@ export class EmojiButtonComponent {
 
 	private touchHoldTriggered: boolean = false;
 
-	@Output()
-	onTouchHold = new EventEmitter<EmojiTouchHoldEvent>();
-
-	@Output()
-	onClick = new EventEmitter<EmojiClickEvent>();
-
 	constructor() {}
 
 	protected handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
@@ -45,16 +32,5 @@ export class EmojiButtonComponent {
 
 			return;
 		}
-
-		this.onClick.emit({ event: e, emoji });
-	};
-
-	protected handleTouchHold = (e: TouchHoldEvent, emoji: Emoji) => {
-		this.touchHoldTriggered =
-			e.eventType === 'mouse' &&
-			!!emoji.skinTones &&
-			emoji.skinTones.length > 0;
-
-		this.onTouchHold.emit({ event: e, emoji });
 	};
 }

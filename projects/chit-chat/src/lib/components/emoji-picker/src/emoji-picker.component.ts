@@ -13,7 +13,6 @@ import {
 } from '@angular/core';
 import { HorizontalEmojiPickerComponent } from './components/horizontal-emoji-picker/horizontal-emoji-picker.component';
 import { EmojiSizeKey } from './enums/emoji-size.enum';
-import { EmojiClickEvent, EmojiTouchHoldEvent } from './interfaces';
 
 @Component({
 	selector: 'ch-emoji-picker',
@@ -75,12 +74,4 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
     `;
 		this.renderer.appendChild(document.body, script);
 	}
-
-	handleEmojiClick = (e: EmojiClickEvent) => {
-		console.log('clicked', e);
-	};
-
-	handleEmojiTouchHold = (e: EmojiTouchHoldEvent) => {
-		console.log('touched', e);
-	};
 }
