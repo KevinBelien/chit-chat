@@ -166,10 +166,11 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 			(event.pointerType === 'mouse' &&
 				event.button !== 0 &&
 				event.button !== 2) ||
-			(event.pointerType !== 'mouse' && event.button !== 1)
+			(event.pointerType !== 'mouse' && event.button !== 0)
 		) {
 			return;
 		}
+
 		if (
 			!this.trackDataAttribute ||
 			targetElement.hasAttribute(this.trackDataAttribute)
