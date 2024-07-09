@@ -11,6 +11,11 @@ import {
 import { Subject, timer } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 
+export type ClickTouchHoldEvent = {
+	event: PointerEvent;
+	data?: any;
+};
+
 @Directive({
 	selector: '[chClickTouchHold]',
 	standalone: true,
@@ -19,8 +24,8 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 	@Input() touchHoldTimeInMillis = 750; // Default to 750 milliseconds
 	@Input() preventContextMenu = true; // Default to true
 	@Input() trackDataAttribute?: string; // Attribute to check
-	@Output() onClick = new EventEmitter<PointerEvent>();
-	@Output() onTouchHold = new EventEmitter<PointerEvent>();
+	@Output() onClick = new EventEmitter<ClickTouchHoldEvent>();
+	@Output() onTouchHold = new EventEmitter<ClickTouchHoldEvent>();
 
 	private destroy$ = new Subject<void>();
 	private pointerDown$ = new Subject<PointerEvent>();
@@ -68,7 +73,7 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 		);
 
 		this.pointerUpListener = this.renderer.listen(
-			this.elementRef.nativeElement,
+			'document',
 			'pointerup',
 			(event: PointerEvent) => {
 				const targetElement = event.target as HTMLElement;
@@ -136,7 +141,7 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 		);
 
 		this.scrollListener = this.renderer.listen(
-			this.elementRef.nativeElement,
+			'window',
 			'scroll',
 			() => {
 				this.scroll$.next();
@@ -163,6 +168,14 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 						takeUntil(this.scroll$),
 						tap(() => {
 							const targetElement = this.getElementFromEvent(event);
+							const data =
+								!!targetElement &&
+								!!this.trackDataAttribute &&
+								targetElement.hasAttribute(this.trackDataAttribute)
+									? targetElement.getAttribute(
+											this.trackDataAttribute
+									  )
+									: undefined;
 							if (
 								!this.hasPointerLeftElement &&
 								targetElement &&
@@ -170,12 +183,12 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 									(targetElement.hasAttribute(
 										this.trackDataAttribute
 									) &&
-										this.pointerDownDataAttribute ===
-											targetElement.getAttribute(
-												this.trackDataAttribute
-											)))
+										this.pointerDownDataAttribute === data))
 							) {
-								this.onTouchHold.emit(event);
+								this.onTouchHold.emit({
+									event: event,
+									data: data,
+								});
 							}
 						})
 					)
@@ -187,8 +200,16 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 		this.pointerUp$
 			.pipe(
 				tap((event) => {
+					const targetElement = this.getElementFromEvent(event);
+
+					const data =
+						!!targetElement &&
+						!!this.trackDataAttribute &&
+						targetElement.hasAttribute(this.trackDataAttribute)
+							? targetElement.getAttribute(this.trackDataAttribute)
+							: undefined;
 					if (!this.hasPointerLeftElement) {
-						this.onClick.emit(event);
+						this.onClick.emit({ event: event, data: data });
 					}
 				}),
 				takeUntil(this.destroy$)

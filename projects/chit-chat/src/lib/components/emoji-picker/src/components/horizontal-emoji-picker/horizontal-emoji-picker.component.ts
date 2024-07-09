@@ -31,7 +31,10 @@ import {
 } from '../../interfaces';
 import { EmojiButtonComponent } from '../emoji-button/emoji-button.component';
 
-import { ClickTouchHoldDirective } from 'chit-chat/src/lib/utils';
+import {
+	ClickTouchHoldDirective,
+	ClickTouchHoldEvent,
+} from 'chit-chat/src/lib/utils';
 
 @Component({
 	selector: 'ch-horizontal-emoji-picker',
@@ -305,28 +308,17 @@ export class HorizontalEmojiPickerComponent
 	// 		this.onEmojiClick.emit({ event: e, emoji });
 	// };
 
-	handleTouchHold = (e: PointerEvent) => {
-		const target = e.target as HTMLElement;
-		// Check if the target element has the class 'emoji-button'
-		if (!target.classList.contains('ch-emoji-btn')) return; // Retrieve the emoji from the data-emoji attribute
-		console.log(e);
+	handleTouchHold = (e: ClickTouchHoldEvent) => {
 		this.touchHoldEventActive = true;
-		const emojiId = target.getAttribute('data-emoji');
 
-		if (!!emojiId)
-			// Call the method to show the popover with the target element and the emoji
-			console.log('gets to touchHold', mappedEmojis.get(emojiId));
+		if (!e.data) return;
+		// Call the method to show the popover with the target element and the emoji
+		console.log('gets to touchHold', mappedEmojis.get(e.data), e);
 	};
-	handleClick = (e: PointerEvent) => {
-		const target = e.target as HTMLElement;
-		// Check if the target element has the class 'emoji-button'
-		if (!target.classList.contains('ch-emoji-btn')) return;
-
-		// Retrieve the emoji from the data-emoji attribute
-		const emojiId = target.getAttribute('data-emoji');
-
-		if (!!emojiId)
-			console.log('gets to click', mappedEmojis.get(emojiId), e);
+	handleClick = (e: ClickTouchHoldEvent) => {
+		if (!e.data) return;
+		// Call the method to show the popover with the target element and the emoji
+		console.log('gets to click', mappedEmojis.get(e.data), e);
 
 		// console.log('pointer out', e);
 	};
