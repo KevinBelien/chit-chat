@@ -10,13 +10,8 @@ import {
 } from '@angular/core';
 import { Subject, timer } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
-
-export type ClickTouchHoldEvent = {
-	event: PointerEvent | KeyboardEvent;
-	data?: any;
-	pointerType?: string;
-	interactionType?: 'left' | 'right' | 'enter' | 'space';
-};
+import { ClickActionType, PointerDeviceType } from '../enums';
+import { ClickEvent, TouchHoldEvent } from '../types';
 
 @Directive({
 	selector: '[chClickTouchHold]',
@@ -26,8 +21,8 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 	@Input() touchHoldTimeInMillis = 750;
 	@Input() preventContextMenu = true;
 	@Input() trackDataAttribute?: string;
-	@Output() onClick = new EventEmitter<ClickTouchHoldEvent>();
-	@Output() onTouchHold = new EventEmitter<ClickTouchHoldEvent>();
+	@Output() onClick = new EventEmitter<ClickEvent>();
+	@Output() onTouchHold = new EventEmitter<TouchHoldEvent>();
 
 	private destroy$ = new Subject<void>();
 	private pointerDown$ = new Subject<PointerEvent>();
@@ -163,10 +158,11 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 	private onPointerDown(event: PointerEvent): void {
 		const targetElement = event.target as HTMLElement;
 		if (
-			(event.pointerType === 'mouse' &&
+			(event.pointerType === PointerDeviceType.MOUSE &&
 				event.button !== 0 &&
 				event.button !== 2) ||
-			(event.pointerType !== 'mouse' && event.button !== 0)
+			(event.pointerType !== PointerDeviceType.MOUSE &&
+				event.button !== 0)
 		) {
 			return;
 		}
@@ -254,7 +250,10 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 			this.onClick.emit({
 				event,
 				data,
-				interactionType: event.key === 'Enter' ? 'enter' : 'space',
+				action:
+					event.key === 'Enter'
+						? ClickActionType.ENTER
+						: ClickActionType.SPACE,
 			});
 		}
 		this.keyHandled = false;
@@ -280,12 +279,12 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 			this.onClick.emit({
 				event,
 				data,
-				pointerType: event.pointerType,
-				interactionType:
-					event.pointerType === 'mouse'
+				pointerType: event.pointerType as PointerDeviceType,
+				action:
+					event.pointerType === PointerDeviceType.MOUSE
 						? event.button === 0
-							? 'left'
-							: 'right'
+							? ClickActionType.LEFTCLICK
+							: ClickActionType.RIGHTCLICK
 						: undefined,
 			});
 		}

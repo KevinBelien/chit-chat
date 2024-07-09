@@ -12,12 +12,18 @@ import {
 	ViewChild,
 } from '@angular/core';
 import { HorizontalEmojiPickerComponent } from './components/horizontal-emoji-picker/horizontal-emoji-picker.component';
+import { VerticalEmojiPickerComponent } from './components/vertical-emoji-picker/vertical-emoji-picker.component';
+import { EmojiPickerOrientation } from './enums';
 import { EmojiSizeKey } from './enums/emoji-size.enum';
 
 @Component({
 	selector: 'ch-emoji-picker',
 	standalone: true,
-	imports: [CommonModule, HorizontalEmojiPickerComponent],
+	imports: [
+		CommonModule,
+		VerticalEmojiPickerComponent,
+		HorizontalEmojiPickerComponent,
+	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './emoji-picker.component.html',
 	styleUrl: './emoji-picker.component.scss',
@@ -40,6 +46,10 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 	width: number = 250;
 
 	@Input()
+	orientation: EmojiPickerOrientation =
+		EmojiPickerOrientation.VERTICAL;
+
+	@Input()
 	scrollbarVisible: boolean = true;
 
 	@HostBinding('style.--picker-height')
@@ -47,6 +57,8 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 
 	@HostBinding('style.--picker-width')
 	pickerWidth: string = `${this.width}px`;
+
+	protected Orientations = EmojiPickerOrientation;
 
 	constructor(private renderer: Renderer2) {}
 
