@@ -11,6 +11,7 @@ import {
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
+import { EmojiTabsComponent } from './components/emoji-tabs/emoji-tabs.component';
 import { HorizontalEmojiPickerComponent } from './components/horizontal-emoji-picker/horizontal-emoji-picker.component';
 import { VerticalEmojiPickerComponent } from './components/vertical-emoji-picker/vertical-emoji-picker.component';
 import { EmojiPickerOrientation } from './enums';
@@ -23,6 +24,7 @@ import { EmojiSizeKey } from './enums/emoji-size.enum';
 		CommonModule,
 		VerticalEmojiPickerComponent,
 		HorizontalEmojiPickerComponent,
+		EmojiTabsComponent,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './emoji-picker.component.html',
@@ -43,7 +45,7 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 	height: number = 400;
 
 	@Input()
-	width: number = 250;
+	width: number = 350;
 
 	@Input()
 	orientation: EmojiPickerOrientation =
@@ -58,7 +60,7 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 	@HostBinding('style.--picker-width')
 	pickerWidth: string = `${this.width}px`;
 
-	protected Orientations = EmojiPickerOrientation;
+	readonly Orientations = EmojiPickerOrientation;
 
 	constructor(private renderer: Renderer2) {}
 

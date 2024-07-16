@@ -91,8 +91,6 @@ export class VerticalEmojiPickerComponent
 	@HostBinding('style.--emoji-size')
 	emoSize?: string;
 
-	private touchHoldEventActive: boolean = false;
-
 	constructor(private renderer: Renderer2, private el: ElementRef) {
 		this.emojiSizeInPx = this.calculateEmojiSize();
 		this.emoSize = `${this.emojiSizeInPx}px`;
@@ -277,8 +275,8 @@ export class VerticalEmojiPickerComponent
 		return row.id;
 	};
 
-	trackEmoji = (index: number, data: any) => {
-		return data.value;
+	trackEmoji = (index: number, emoji: Emoji) => {
+		return emoji.value;
 	};
 
 	// protected handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
@@ -300,7 +298,7 @@ export class VerticalEmojiPickerComponent
 	// };
 
 	handleTouchHold = (e: TouchHoldEvent) => {
-		this.touchHoldEventActive = true;
+		// this.touchHoldEventActive = true;
 
 		if (!e.data) return;
 		// Call the method to show the popover with the target element and the emoji

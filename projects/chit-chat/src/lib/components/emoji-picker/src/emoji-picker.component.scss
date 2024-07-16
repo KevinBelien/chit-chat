@@ -2,4 +2,11 @@
 	height: var(--picker-height, 400px);
 	width: var(--picker-width, 400px);
 	position: relative;
+	display: flex;
+	flex-direction: column;
+}
+
+.ch-emoji-picker-container {
+	position: relative;
+	flex-grow: 1;
 }

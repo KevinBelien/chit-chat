@@ -1,19 +1,22 @@
 <div class="ch-emoji-picker">
-	<ng-container
-		*ngIf="
-			orientation === Orientations.VERTICAL;
-			else horizontalEmojiPicker
-		"
-	>
-		<ch-vertical-emoji-picker
-			[height]="height"
-			[width]="width"
-			[emojiSize]="emojiSize"
-			[scrollbarVisible]="scrollbarVisible"
-		></ch-vertical-emoji-picker>
-	</ng-container>
+	<ch-emoji-tabs></ch-emoji-tabs>
+	<div class="ch-emoji-picker-container">
+		<ng-container
+			*ngIf="
+				orientation === Orientations.VERTICAL;
+				else horizontalEmojiPicker
+			"
+		>
+			<ch-vertical-emoji-picker
+				[height]="height"
+				[width]="width"
+				[emojiSize]="emojiSize"
+				[scrollbarVisible]="scrollbarVisible"
+			></ch-vertical-emoji-picker>
+		</ng-container>
 
-	<ng-template #horizontalEmojiPicker
-		><ch-horizontal-emoji-picker></ch-horizontal-emoji-picker
-	></ng-template>
+		<ng-template #horizontalEmojiPicker
+			><ch-horizontal-emoji-picker></ch-horizontal-emoji-picker
+		></ng-template>
+	</div>
 </div>

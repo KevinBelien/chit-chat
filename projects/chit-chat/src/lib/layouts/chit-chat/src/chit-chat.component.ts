@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'chit-chat/src/lib/auth';
+import { ButtonComponent } from 'chit-chat/src/lib/components/button';
 import { EmojiPickerComponent } from 'chit-chat/src/lib/components/emoji-picker';
 import { SplitPaneComponent } from 'chit-chat/src/lib/components/split-pane';
 import { ConversationContext } from 'chit-chat/src/lib/conversations';
@@ -30,6 +31,7 @@ import { SmartDatePipe } from 'chit-chat/src/lib/utils';
 		SplitPaneComponent,
 		EmojiPickerComponent,
 		SmartDatePipe,
+		ButtonComponent,
 	],
 
 	templateUrl: './chit-chat.component.html',

@@ -25,6 +25,7 @@ export const skinTones = [
 export type SkinTone = (typeof skinTones)[number];
 
 export const emojiCategories = [
+	'recent',
 	'smileys-people',
 	'animals-nature',
 	'food-drink',
@@ -39,7 +40,5 @@ export type EmojiCategory = (typeof emojiCategories)[number];
 
 export interface GroupedEmoji {
 	category: EmojiCategory;
-	title: string;
-	icon: string;
 	emojis: Emoji[];
 }

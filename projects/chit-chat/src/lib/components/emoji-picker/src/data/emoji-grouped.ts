@@ -3,8 +3,6 @@ import { GroupedEmoji } from '../interfaces';
 export const groupedEmojis: Array<GroupedEmoji> = [
 	{
 		category: 'smileys-people',
-		title: 'Smileys & people',
-		icon: '',
 		emojis: [
 			{
 				name: 'Grinning Face',
@@ -11325,8 +11323,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'animals-nature',
-		title: 'Animals & nature',
-		icon: '',
 		emojis: [
 			{
 				name: 'Dog Face',
@@ -13018,8 +13014,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'food-drink',
-		title: 'Food & drink',
-		icon: '',
 		emojis: [
 			{
 				name: 'Green Apple',
@@ -14049,8 +14043,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'activities',
-		title: 'Activities',
-		icon: '',
 		emojis: [
 			{
 				name: 'Soccer Ball',
@@ -16161,8 +16153,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'travel-places',
-		title: 'Travel & places',
-		icon: '',
 		emojis: [
 			{
 				name: 'Automobile',
@@ -17312,8 +17302,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'objects',
-		title: 'Objects',
-		icon: '',
 		emojis: [
 			{
 				name: 'Watch',
@@ -19011,8 +18999,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'symbols',
-		title: 'Symbols',
-		icon: '',
 		emojis: [
 			{
 				name: 'pink heart',
@@ -21402,8 +21388,6 @@ export const groupedEmojis: Array<GroupedEmoji> = [
 	},
 	{
 		category: 'flags',
-		title: 'Flags',
-		icon: '',
 		emojis: [
 			{
 				name: 'white flag',

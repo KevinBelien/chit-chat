@@ -11,7 +11,7 @@ import {
 import { Subject, timer } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ClickActionType, PointerDeviceType } from '../enums';
-import { ClickEvent, TouchHoldEvent } from '../types';
+import { ClickEvent, TouchHoldEvent } from '../interfaces';
 
 @Directive({
 	selector: '[chClickTouchHold]',

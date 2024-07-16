@@ -1,0 +1,39 @@
+<div class="ch-emoji-tabs">
+	<ng-container
+		*ngFor="let category of emojiCategories; trackBy: trackCategory"
+	>
+		<!-- <svg
+			chHover
+			(hoverChange)="handleHoverChange($event, category)"
+			class="ch-icon"
+			xmlns="http://www.w3.org/2000/svg"
+			height="24px"
+			width="24px"
+			viewBox="0 -960 960 960"
+		>
+			<path
+				[attr.d]="
+					categoryHovered === category
+						? emojiCategoryIcons[category].solid
+						: emojiCategoryIcons[category].outline
+				"
+			></path>
+		</svg> -->
+		<!-- <ch-icon
+			chHover
+			(hoverChange)="handleHoverChange($event, category)"
+			[iconPath]="
+				categoryHovered === category
+					? emojiCategoryIcons[category].solid
+					: emojiCategoryIcons[category].outline
+			"
+		>
+		</ch-icon> -->
+
+		<ch-button
+			chHover
+			(hoverChange)="handleHoverChange($event, category)"
+			label="hello"
+		></ch-button>
+	</ng-container>
+</div>
