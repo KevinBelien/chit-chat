@@ -1,4 +1,14 @@
-<button chRipple [ngClass]="buttonClass" [disabled]="disabled">
+<button
+	chRipple
+	[rippleEnabled]="activeStateEnabled"
+	[ngClass]="buttonClass"
+	[disabled]="disabled"
+	[ngStyle]="{
+		width: width ? width + 'px' : 'auto',
+		height: height ? height + 'px' : 'auto'
+	}"
+	(click)="handleClick($event)"
+>
 	<ng-content></ng-content>
 
 	<ng-container *ngIf="!!icon">

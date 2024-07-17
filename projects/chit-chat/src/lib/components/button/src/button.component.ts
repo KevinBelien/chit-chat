@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import {
 	ChangeDetectionStrategy,
 	Component,
+	EventEmitter,
 	Input,
+	Output,
 } from '@angular/core';
 import { IconComponent } from 'chit-chat/src/lib/components/icon';
 import { RippleDirective } from 'chit-chat/src/lib/utils';
@@ -30,7 +32,7 @@ export class ButtonComponent {
 	@Input() width?: number;
 	@Input() height?: number;
 	@Input() disabled: boolean = false;
-	@Input() activeStateEnables: boolean = true;
+	@Input() activeStateEnabled: boolean = true;
 	@Input() focusStateEnabled: boolean = true;
 	@Input() hoverStateEnabled: boolean = true;
 	@Input() type: ButtonType = 'primary';
@@ -38,6 +40,8 @@ export class ButtonComponent {
 	@Input() iconPosition: IconPosition = 'left';
 	@Input() raised: boolean = false;
 	@Input() shape: ButtonShape = 'default';
+
+	@Output() onClick = new EventEmitter<MouseEvent>();
 
 	iconClass() {
 		const iconClasses = {
@@ -55,6 +59,20 @@ export class ButtonComponent {
 	}
 
 	get buttonClass() {
+		console.log(this.fill, {
+			'ch-element ch-button': true,
+			'ch-button-icon-only': this.icon && !this.label,
+			'ch-button-vertical':
+				(this.iconPosition === 'top' ||
+					this.iconPosition === 'bottom') &&
+				this.label,
+
+			[`ch-button-${this.type}`]: true,
+			'ch-button-raised': this.raised,
+			'ch-button-rounded': this.shape === 'round',
+			[`ch-button-${this.fill}`]: true,
+			...(this.cssClass ? { [this.cssClass]: true } : undefined),
+		});
 		return {
 			'ch-element ch-button': true,
 			'ch-button-icon-only': this.icon && !this.label,
@@ -67,6 +85,11 @@ export class ButtonComponent {
 			'ch-button-raised': this.raised,
 			'ch-button-rounded': this.shape === 'round',
 			[`ch-button-${this.fill}`]: true,
+			...(this.cssClass ? { [this.cssClass]: true } : undefined),
 		};
 	}
+
+	handleClick = (e: MouseEvent) => {
+		this.onClick.emit(e);
+	};
 }

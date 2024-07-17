@@ -2,6 +2,7 @@ import {
 	AfterViewInit,
 	Directive,
 	ElementRef,
+	Input,
 	NgZone,
 	OnDestroy,
 	Renderer2,
@@ -15,6 +16,8 @@ import {
 	},
 })
 export class RippleDirective implements AfterViewInit, OnDestroy {
+	@Input() rippleEnabled: boolean = true;
+
 	private hostEl: HTMLElement;
 	private pointerDownListener?: () => void;
 	private inkElement?: HTMLElement;
@@ -76,7 +79,7 @@ export class RippleDirective implements AfterViewInit, OnDestroy {
 	};
 
 	onPointerDown = (e: MouseEvent) => {
-		if (!this.inkElement) return;
+		if (!this.inkElement || !this.rippleEnabled) return;
 
 		// Only append the ink element if it's not already in the host element
 		if (!this.inkElement.parentElement) {

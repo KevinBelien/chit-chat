@@ -34,6 +34,15 @@
 			chHover
 			(hoverChange)="handleHoverChange($event, category)"
 			label="hello"
-		></ch-button>
+			type="primary"
+			fill="solid"
+			shape="round"
+			[icon]="
+				categoryHovered === category
+					? emojiCategoryIcons[category].solid
+					: emojiCategoryIcons[category].outline
+			"
+		>
+		</ch-button>
 	</ng-container>
 </div>

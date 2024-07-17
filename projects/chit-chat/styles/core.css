@@ -1,6 +1,7 @@
 :root {
 	--ch-scrollbar-width: 6px;
 	--ch-scrollbar-border-radius: 6px;
+	--ch-ripple-color: rgba(255, 255, 255, 0.3);
 }
 
 .ch-disabled,
@@ -177,7 +178,7 @@ body
 .ch-ink {
 	display: block;
 	position: absolute;
-	background: rgba(0, 0, 0, 0.3);
+	background: var(--ch-ripple-color);
 	border-radius: 100%;
 	transform: scale(0);
 }

@@ -1,16 +1,14 @@
 ::ng-deep .ch-emoji-tabs {
 	width: 100%;
 	display: flex;
-	column-gap: 0.5em;
-
-	background: #18181b;
-	padding: 1rem;
-
-	ch-icon .ch-icon {
-		fill: var(--ch-message-input-button-color, currentColor);
-
-		// &:hover {
-		// 	fill: var(--ch-color-primary, currentColor);
-		// }
-	}
+	justify-content: space-around;
+	column-gap: 1em;
+	padding: 1em;
+	// ch-button.ch-element
+	// 	.ch-button
+	// 	.ch-button-icon
+	// 	ch-icon.ch-element
+	// 	.ch-icon {
+	// 	fill: var(--ch-message-input-button-color, currentColor);
+	// }
 }
