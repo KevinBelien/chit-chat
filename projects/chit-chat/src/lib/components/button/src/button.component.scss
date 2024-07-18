@@ -1,3 +1,83 @@
+// Mixin Definitions
+@mixin button-solid($color, $default-color) {
+	background-color: var(--#{$color}, var(--#{$default-color}));
+	border-color: var(--#{$color}, var(--#{$default-color}));
+	color: #fff;
+
+	.ch-button-icon ch-icon .ch-icon {
+		fill: #fff;
+	}
+
+	&:not(:disabled):not(.ch-hover-state-disabled):hover {
+		background-color: hsl(
+			from var(--#{$color}, var(--#{$default-color})) h s calc(l - 10)
+		);
+		border-color: hsl(
+			from var(--#{$color}, var(--#{$default-color})) h s calc(l - 10)
+		);
+	}
+
+	&:not(:disabled):not(.ch-active-state-disabled):active {
+		background-color: hsl(
+			from var(--#{$color}, var(--#{$default-color})) h s calc(l - 15)
+		);
+		border-color: hsl(
+			from var(--#{$color}, var(--#{$default-color})) h s calc(l - 15)
+		);
+	}
+}
+
+@mixin button-outline($color, $default-color) {
+	border-color: var(--#{$color}, var(--#{$default-color}));
+	color: var(--#{$color}, var(--#{$default-color}));
+
+	ch-icon .ch-icon {
+		fill: var(--#{$color}, var(--#{$default-color}));
+	}
+
+	&:not(:disabled):not(.ch-hover-state-disabled):hover {
+		background-color: color-mix(
+			in srgb,
+			currentColor 10%,
+			transparent
+		);
+	}
+
+	&:not(:disabled):not(.ch-active-state-disabled):active {
+		background-color: color-mix(
+			in srgb,
+			currentColor 20%,
+			transparent
+		);
+	}
+}
+
+@mixin button-clear($color, $default-color) {
+	border-color: transparent;
+	color: var(--#{$color}, var(--#{$default-color}));
+
+	ch-icon .ch-icon {
+		fill: var(--#{$color}, var(--#{$default-color}));
+	}
+
+	&:not(:disabled):not(.ch-hover-state-disabled):hover {
+		background-color: color-mix(
+			in srgb,
+			currentColor 10%,
+			transparent
+		);
+	}
+
+	&:not(:disabled):not(.ch-active-state-disabled):active {
+		background-color: color-mix(
+			in srgb,
+			currentColor 20%,
+			transparent
+		);
+	}
+}
+
+// CSS Variables
 :host {
 	--ch-color-contrast: #151515;
 	--ch-color-contrast-alter: #e9e9e9;
@@ -5,7 +85,6 @@
 	--ch-color-contrast-lighter: hsl(
 		from var(--ch-color-contrast) h s calc(l + 10)
 	);
-
 	--ch-color-contrast-lightest: hsl(
 		from var(--ch-color-contrast) h s calc(l + 15)
 	);
@@ -17,53 +96,18 @@
 		--ch-color-contrast-lighter: hsl(
 			from var(--ch-color-contrast) h s calc(l - 10)
 		);
-
 		--ch-color-contrast-lightest: hsl(
 			from var(--ch-color-contrast) h s calc(l - 15)
 		);
 	}
 
 	--ch-default-color-primary: #107a5c;
-	--ch-color-primary-darker: hsl(
-		from var(--ch-color-primary, var(--ch-default-color-primary)) h s
-			calc(l - 10)
-	);
-	--ch-color-primary-darkest: hsl(
-		from var(--ch-color-primary, var(--ch-default-color-primary)) h s
-			calc(l - 15)
-	);
-
 	--ch-default-color-success: #23a55a;
-	--ch-color-success-darker: hsl(
-		from var(--ch-color-success, var(--ch-default-color-success)) h s
-			calc(l - 10)
-	);
-	--ch-color-success-darkest: hsl(
-		from var(--ch-color-success, var(--ch-default-color-success)) h s
-			calc(l - 15)
-	);
-
 	--ch-default-color-danger: #fb3640;
-	--ch-color-danger-darker: hsl(
-		from var(--ch-color-danger, var(--ch-default-color-danger)) h s
-			calc(l - 10)
-	);
-	--ch-color-danger-darkest: hsl(
-		from var(--ch-color-danger, var(--ch-default-color-danger)) h s
-			calc(l - 15)
-	);
-
 	--ch-default-color-warning: #dea704;
-	--ch-color-warning-darker: hsl(
-		from var(--ch-color-warning, var(--ch-default-color-warning)) h s
-			calc(l - 10)
-	);
-	--ch-color-warning-darkest: hsl(
-		from var(--ch-color-warning, var(--ch-default-color-warning)) h s
-			calc(l - 15)
-	);
 }
 
+// Button Styles
 ::ng-deep .ch-button {
 	display: inline-flex;
 	cursor: pointer;
@@ -82,113 +126,35 @@
 
 	&.ch-button-solid {
 		&.ch-button-primary {
-			background-color: var(
-				--ch-color-primary,
-				var(--ch-default-color-primary)
+			@include button-solid(
+				ch-color-primary,
+				ch-default-color-primary
 			);
-			border-color: var(
-				--ch-color-primary,
-				var(--ch-default-color-primary)
-			);
-
-			color: #fff;
-			.ch-button-icon ch-icon .ch-icon {
-				fill: #fff;
-			}
-
-			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--ch-color-primary-darker);
-				border-color: var(--ch-color-primary-darker);
-			}
-
-			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--ch-color-primary-darkest);
-				border-color: var(--ch-color-primary-darkest);
-			}
 		}
 
 		&.ch-button-success {
-			background-color: var(
-				--ch-color-success,
-				var(--ch-default-color-success)
+			@include button-solid(
+				ch-color-success,
+				ch-default-color-success
 			);
-			border-color: var(
-				--ch-color-success,
-				var(--ch-default-color-success)
-			);
-
-			color: #fff;
-			.ch-button-icon ch-icon .ch-icon {
-				fill: #fff;
-			}
-
-			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--ch-color-success-darker);
-				border-color: var(--ch-color-success-darker);
-			}
-
-			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--ch-color-success-darkest);
-				border-color: var(--ch-color-success-darkest);
-			}
 		}
 
 		&.ch-button-danger {
-			background-color: var(
-				--ch-color-danger,
-				var(--ch-default-color-danger)
-			);
-			border-color: var(
-				--ch-color-danger,
-				var(--ch-default-color-danger)
-			);
-
-			color: #fff;
-			.ch-button-icon ch-icon .ch-icon {
-				fill: #fff;
-			}
-
-			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--ch-color-danger-darker);
-				border-color: var(--ch-color-danger-darker);
-			}
-			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--ch-color-danger-darkest);
-				border-color: var(--ch-color-danger-darkest);
-			}
+			@include button-solid(ch-color-danger, ch-default-color-danger);
 		}
 
 		&.ch-button-warning {
-			background-color: var(
-				--ch-color-warning,
-				var(--ch-default-color-warning)
+			@include button-solid(
+				ch-color-warning,
+				ch-default-color-warning
 			);
-			border-color: var(
-				--ch-color-warning,
-				var(--ch-default-color-warning)
-			);
-
-			color: #fff;
-			.ch-button-icon ch-icon .ch-icon {
-				fill: #fff;
-			}
-
-			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--ch-color-warning-darker);
-				border-color: var(--ch-color-warning-darker);
-			}
-
-			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--ch-color-warning-darkest);
-				border-color: var(--ch-color-warning-darkest);
-			}
 		}
 
 		&.ch-button-contrast {
 			background-color: var(--ch-color-contrast);
 			border-color: var(--ch-color-contrast);
-
 			color: var(--ch-color-contrast-alter);
+
 			.ch-button-icon ch-icon .ch-icon {
 				fill: var(--ch-color-contrast-alter);
 			}
@@ -207,57 +173,33 @@
 
 	&.ch-button-outlined {
 		background-color: transparent;
+
 		&.ch-button-primary {
-			border-color: var(
-				--ch-color-primary,
-				var(--ch-default-color-primary)
+			@include button-outline(
+				ch-color-primary,
+				ch-default-color-primary
 			);
-			color: var(--ch-color-primary, var(--ch-default-color-primary));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-primary,
-					var(--ch-default-color-primary)
-				);
-			}
 		}
 
 		&.ch-button-success {
-			border-color: var(
-				--ch-color-success,
-				var(--ch-default-color-success)
+			@include button-outline(
+				ch-color-success,
+				ch-default-color-success
 			);
-			color: var(--ch-color-success, var(--ch-default-color-success));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-success,
-					var(--ch-default-color-success)
-				);
-			}
 		}
 
 		&.ch-button-danger {
-			border-color: var(
-				--ch-color-danger,
-				var(--ch-default-color-danger)
+			@include button-outline(
+				ch-color-danger,
+				ch-default-color-danger
 			);
-			color: var(--ch-color-danger, var(--ch-default-color-danger));
-			ch-icon .ch-icon {
-				fill: var(--ch-color-danger, var(--ch-default-color-danger));
-			}
 		}
 
 		&.ch-button-warning {
-			border-color: var(
-				--ch-color-warning,
-				var(--ch-default-color-warning)
+			@include button-outline(
+				ch-color-warning,
+				ch-default-color-warning
 			);
-			color: var(--ch-color-warning, var(--ch-default-color-warning));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-warning,
-					var(--ch-default-color-warning)
-				);
-			}
 		}
 
 		&.ch-button-contrast {
@@ -267,90 +209,55 @@
 			ch-icon .ch-icon {
 				fill: var(--ch-color-contrast);
 			}
-		}
 
-		&:not(:disabled):not(.ch-hover-state-disabled):hover {
-			background-color: color-mix(
-				in srgb,
-				currentColor 10%,
-				transparent
-			);
-		}
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
+				background-color: color-mix(
+					in srgb,
+					currentColor 10%,
+					transparent
+				);
+			}
 
-		&:not(:disabled):not(.ch-active-state-disabled):active {
-			background-color: color-mix(
-				in srgb,
-				currentColor 20%,
-				transparent
-			);
+			&:not(:disabled):not(.ch-active-state-disabled):active {
+				background-color: color-mix(
+					in srgb,
+					currentColor 20%,
+					transparent
+				);
+			}
 		}
 	}
 
 	&.ch-button-clear {
 		background-color: transparent;
+
 		&.ch-button-primary {
-			border-color: transparent;
-			color: var(--ch-color-primary, var(--ch-default-color-primary));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-primary,
-					var(--ch-default-color-primary)
-				);
-			}
+			@include button-clear(
+				ch-color-primary,
+				ch-default-color-primary
+			);
 		}
 
 		&.ch-button-success {
-			border-color: transparent;
-			color: var(--ch-color-success, var(--ch-default-color-success));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-success,
-					var(--ch-default-color-success)
-				);
-			}
+			@include button-clear(
+				ch-color-success,
+				ch-default-color-success
+			);
 		}
 
 		&.ch-button-danger {
-			border-color: transparent;
-			color: var(--ch-color-danger, var(--ch-default-color-danger));
-			ch-icon .ch-icon {
-				fill: var(--ch-color-danger, var(--ch-default-color-danger));
-			}
+			@include button-clear(ch-color-danger, ch-default-color-danger);
 		}
 
 		&.ch-button-warning {
-			border-color: transparent;
-			color: var(--ch-color-warning, var(--ch-default-color-warning));
-			ch-icon .ch-icon {
-				fill: var(
-					--ch-color-warning,
-					var(--ch-default-color-warning)
-				);
-			}
+			@include button-clear(
+				ch-color-warning,
+				ch-default-color-warning
+			);
 		}
 
 		&.ch-button-contrast {
-			border-color: transparent;
-			color: var(--ch-color-contrast);
-			ch-icon .ch-icon {
-				fill: var(--ch-color-contrast);
-			}
-		}
-
-		&:not(:disabled):not(.ch-hover-state-disabled):hover {
-			background-color: color-mix(
-				in srgb,
-				currentColor 10%,
-				transparent
-			);
-		}
-
-		&:not(:disabled):not(.ch-active-state-disabled):active {
-			background-color: color-mix(
-				in srgb,
-				currentColor 20%,
-				transparent
-			);
+			@include button-clear(ch-color-contrast, ch-color-contrast);
 		}
 	}
 
@@ -361,11 +268,6 @@
 
 	&.ch-button-rounded {
 		border-radius: 999px;
-	}
-
-	&:disabled {
-		cursor: default;
-		pointer-events: none;
 	}
 
 	&.ch-button-icon-only {
@@ -404,5 +306,10 @@
 
 	.ch-button-icon-left {
 		margin-right: 0.4rem;
+	}
+
+	&:disabled {
+		cursor: default;
+		pointer-events: none;
 	}
 }
