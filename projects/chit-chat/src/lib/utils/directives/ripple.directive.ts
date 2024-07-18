@@ -1,7 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import {
 	AfterViewInit,
 	Directive,
 	ElementRef,
+	Inject,
 	Input,
 	NgZone,
 	OnDestroy,
@@ -25,7 +27,8 @@ export class RippleDirective implements AfterViewInit, OnDestroy {
 	constructor(
 		private renderer: Renderer2,
 		private el: ElementRef,
-		public zone: NgZone
+		public zone: NgZone,
+		@Inject(DOCUMENT) private document: Document
 	) {
 		this.hostEl = el.nativeElement as HTMLElement;
 	}
@@ -99,14 +102,23 @@ export class RippleDirective implements AfterViewInit, OnDestroy {
 			this.renderer.setStyle(this.inkElement, 'height', d + 'px');
 		}
 
+		const rect = this.hostEl.getBoundingClientRect();
+		const scrollLeft =
+			this.document.documentElement.scrollLeft ||
+			this.document.body.scrollLeft;
+		const scrollTop =
+			this.document.documentElement.scrollTop ||
+			this.document.body.scrollTop;
+
 		const x =
 			e.pageX -
-			this.hostEl.offsetLeft -
+			rect.left -
+			scrollLeft -
 			this.inkElement.offsetWidth / 2;
-
 		const y =
 			e.pageY -
-			this.hostEl.offsetTop -
+			rect.top -
+			scrollTop -
 			this.inkElement.offsetHeight / 2;
 
 		this.renderer.setStyle(this.inkElement, 'top', y + 'px');
