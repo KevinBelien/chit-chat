@@ -96,12 +96,12 @@
 				fill: #fff;
 			}
 
-			&:not(:disabled):hover {
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--color-primary-darker);
 				border-color: var(--color-primary-darker);
 			}
 
-			&:not(:disabled):active {
+			&:not(:disabled):not(.ch-active-state-disabled):active {
 				background-color: var(--color-primary-darkest);
 				border-color: var(--color-primary-darkest);
 			}
@@ -122,12 +122,12 @@
 				fill: #fff;
 			}
 
-			&:not(:disabled):hover {
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--color-success-darker);
 				border-color: var(--color-success-darker);
 			}
 
-			&:not(:disabled):active {
+			&:not(:disabled):not(.ch-active-state-disabled):active {
 				background-color: var(--color-success-darkest);
 				border-color: var(--color-success-darkest);
 			}
@@ -148,11 +148,11 @@
 				fill: #fff;
 			}
 
-			&:not(:disabled):hover {
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--color-danger-darker);
 				border-color: var(--color-danger-darker);
 			}
-			&:not(:disabled):active {
+			&:not(:disabled):not(.ch-active-state-disabled):active {
 				background-color: var(--color-danger-darkest);
 				border-color: var(--color-danger-darkest);
 			}
@@ -173,12 +173,12 @@
 				fill: #fff;
 			}
 
-			&:not(:disabled):hover {
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--color-warning-darker);
 				border-color: var(--color-warning-darker);
 			}
 
-			&:not(:disabled):active {
+			&:not(:disabled):not(.ch-active-state-disabled):active {
 				background-color: var(--color-warning-darkest);
 				border-color: var(--color-warning-darkest);
 			}
@@ -193,12 +193,12 @@
 				fill: var(--ch-color-contrast-alter);
 			}
 
-			&:not(:disabled):hover {
+			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--ch-color-contrast-lighter);
 				border-color: var(--ch-color-contrast-lighter);
 			}
 
-			&:not(:disabled):active {
+			&:not(:disabled):not(.ch-active-state-disabled):active {
 				background-color: var(--ch-color-contrast-lightest);
 				border-color: var(--ch-color-contrast-lightest);
 			}
@@ -260,7 +260,7 @@
 			}
 		}
 
-		&:not(:disabled):hover {
+		&:not(:disabled):not(.ch-hover-state-disabled):hover {
 			background-color: color-mix(
 				in srgb,
 				currentColor 10%,
@@ -268,7 +268,7 @@
 			);
 		}
 
-		&:not(:disabled):active {
+		&:not(:disabled):not(.ch-active-state-disabled):active {
 			background-color: color-mix(
 				in srgb,
 				currentColor 20%,
@@ -319,7 +319,7 @@
 			}
 		}
 
-		&:not(:disabled):hover {
+		&:not(:disabled):not(.ch-hover-state-disabled):hover {
 			background-color: color-mix(
 				in srgb,
 				currentColor 10%,
@@ -327,7 +327,7 @@
 			);
 		}
 
-		&:not(:disabled):active {
+		&:not(:disabled):not(.ch-active-state-disabled):active {
 			background-color: color-mix(
 				in srgb,
 				currentColor 20%,

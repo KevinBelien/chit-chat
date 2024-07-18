@@ -33,7 +33,6 @@ export class ButtonComponent {
 	@Input() height?: number;
 	@Input() disabled: boolean = false;
 	@Input() activeStateEnabled: boolean = true;
-	@Input() focusStateEnabled: boolean = true;
 	@Input() hoverStateEnabled: boolean = true;
 	@Input() type: ButtonType = 'primary';
 	@Input() fill: ButtonFill = 'solid';
@@ -85,6 +84,8 @@ export class ButtonComponent {
 			'ch-button-raised': this.raised,
 			'ch-button-rounded': this.shape === 'round',
 			[`ch-button-${this.fill}`]: true,
+			['ch-active-state-disabled']: !this.activeStateEnabled,
+			['ch-hover-state-disabled']: !this.hoverStateEnabled,
 			...(this.cssClass ? { [this.cssClass]: true } : undefined),
 		};
 	}
