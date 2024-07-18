@@ -33,12 +33,14 @@ export class ButtonComponent {
 	@Input() height?: number;
 	@Input() disabled: boolean = false;
 	@Input() activeStateEnabled: boolean = true;
+	@Input() focusStateEnabled: boolean = true;
 	@Input() hoverStateEnabled: boolean = true;
 	@Input() type: ButtonType = 'primary';
 	@Input() fill: ButtonFill = 'solid';
 	@Input() iconPosition: IconPosition = 'left';
 	@Input() raised: boolean = false;
 	@Input() shape: ButtonShape = 'default';
+	@Input() tabIndex: number | null = null;
 
 	@Output() onClick = new EventEmitter<MouseEvent>();
 
@@ -58,20 +60,6 @@ export class ButtonComponent {
 	}
 
 	get buttonClass() {
-		console.log(this.fill, {
-			'ch-element ch-button': true,
-			'ch-button-icon-only': this.icon && !this.label,
-			'ch-button-vertical':
-				(this.iconPosition === 'top' ||
-					this.iconPosition === 'bottom') &&
-				this.label,
-
-			[`ch-button-${this.type}`]: true,
-			'ch-button-raised': this.raised,
-			'ch-button-rounded': this.shape === 'round',
-			[`ch-button-${this.fill}`]: true,
-			...(this.cssClass ? { [this.cssClass]: true } : undefined),
-		});
 		return {
 			'ch-element ch-button': true,
 			'ch-button-icon-only': this.icon && !this.label,
@@ -84,8 +72,10 @@ export class ButtonComponent {
 			'ch-button-raised': this.raised,
 			'ch-button-rounded': this.shape === 'round',
 			[`ch-button-${this.fill}`]: true,
-			['ch-active-state-disabled']: !this.activeStateEnabled,
 			['ch-hover-state-disabled']: !this.hoverStateEnabled,
+			['ch-focus-state-disabled']: !this.focusStateEnabled,
+			['ch-active-state-disabled']: !this.activeStateEnabled,
+
 			...(this.cssClass ? { [this.cssClass]: true } : undefined),
 		};
 	}

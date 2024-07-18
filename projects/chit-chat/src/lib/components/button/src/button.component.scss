@@ -17,6 +17,12 @@
 		);
 	}
 
+	&:not(:disabled):not(.ch-focus-state-disabled):focus-visible {
+		outline: 2px solid var(--#{$color}, var(--#{$default-color}));
+		outline-offset: 2px;
+		box-shadow: none;
+	}
+
 	&:not(:disabled):not(.ch-active-state-disabled):active {
 		background-color: hsl(
 			from var(--#{$color}, var(--#{$default-color})) h s calc(l - 15)
@@ -43,6 +49,12 @@
 		);
 	}
 
+	&:not(:disabled):not(.ch-focus-state-disabled):focus-visible {
+		outline: 2px solid var(--#{$color}, var(--#{$default-color}));
+		outline-offset: 2px;
+		box-shadow: none;
+	}
+
 	&:not(:disabled):not(.ch-active-state-disabled):active {
 		background-color: color-mix(
 			in srgb,
@@ -66,6 +78,12 @@
 			currentColor 10%,
 			transparent
 		);
+	}
+
+	&:not(:disabled):not(.ch-focus-state-disabled):focus-visible {
+		outline: 2px solid var(--#{$color}, var(--#{$default-color}));
+		outline-offset: 2px;
+		box-shadow: none;
 	}
 
 	&:not(:disabled):not(.ch-active-state-disabled):active {
@@ -105,6 +123,7 @@
 	--ch-default-color-success: #23a55a;
 	--ch-default-color-danger: #fb3640;
 	--ch-default-color-warning: #dea704;
+	--ch-default-color-info: #3b82f6;
 }
 
 // Button Styles
@@ -149,6 +168,9 @@
 				ch-default-color-warning
 			);
 		}
+		&.ch-button-info {
+			@include button-solid(ch-color-info, ch-default-color-info);
+		}
 
 		&.ch-button-contrast {
 			background-color: var(--ch-color-contrast);
@@ -162,6 +184,12 @@
 			&:not(:disabled):not(.ch-hover-state-disabled):hover {
 				background-color: var(--ch-color-contrast-lighter);
 				border-color: var(--ch-color-contrast-lighter);
+			}
+
+			&:not(:disabled):not(.ch-focus-state-disabled):focus-visible {
+				outline: 2px solid var(--ch-color-contrast);
+				outline-offset: 2px;
+				box-shadow: none;
 			}
 
 			&:not(:disabled):not(.ch-active-state-disabled):active {
@@ -202,6 +230,10 @@
 			);
 		}
 
+		&.ch-button-info {
+			@include button-outline(ch-color-info, ch-default-color-info);
+		}
+
 		&.ch-button-contrast {
 			border-color: var(--ch-color-contrast);
 			color: var(--ch-color-contrast);
@@ -216,6 +248,12 @@
 					currentColor 10%,
 					transparent
 				);
+			}
+
+			&:not(:disabled):not(.ch-focus-state-disabled):focus-visible {
+				outline: 2px solid var(--ch-color-contrast);
+				outline-offset: 2px;
+				box-shadow: none;
 			}
 
 			&:not(:disabled):not(.ch-active-state-disabled):active {
@@ -256,9 +294,18 @@
 			);
 		}
 
+		&.ch-button-info {
+			@include button-clear(ch-color-info, ch-default-color-info);
+		}
+
 		&.ch-button-contrast {
 			@include button-clear(ch-color-contrast, ch-color-contrast);
 		}
+	}
+
+	&.ch-focus-state-disabled:focus,
+	&.ch-focus-state-disabled:focus-visible {
+		outline: none;
 	}
 
 	&.ch-button-raised {

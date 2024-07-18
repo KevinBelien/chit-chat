@@ -3,4 +3,5 @@ export type ButtonType =
 	| 'success'
 	| 'danger'
 	| 'warning'
+	| 'info'
 	| 'contrast';
