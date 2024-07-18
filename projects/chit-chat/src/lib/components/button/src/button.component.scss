@@ -23,43 +23,43 @@
 		);
 	}
 
-	--default-color-primary: #107a5c;
-	--color-primary-darker: hsl(
-		from var(--ch-color-primary, var(--default-color-primary)) h s
+	--ch-default-color-primary: #107a5c;
+	--ch-color-primary-darker: hsl(
+		from var(--ch-color-primary, var(--ch-default-color-primary)) h s
 			calc(l - 10)
 	);
-	--color-primary-darkest: hsl(
-		from var(--ch-color-primary, var(--default-color-primary)) h s
+	--ch-color-primary-darkest: hsl(
+		from var(--ch-color-primary, var(--ch-default-color-primary)) h s
 			calc(l - 15)
 	);
 
-	--default-color-success: #23a55a;
-	--color-success-darker: hsl(
-		from var(--ch-color-success, var(--default-color-success)) h s
+	--ch-default-color-success: #23a55a;
+	--ch-color-success-darker: hsl(
+		from var(--ch-color-success, var(--ch-default-color-success)) h s
 			calc(l - 10)
 	);
-	--color-success-darkest: hsl(
-		from var(--ch-color-success, var(--default-color-success)) h s
+	--ch-color-success-darkest: hsl(
+		from var(--ch-color-success, var(--ch-default-color-success)) h s
 			calc(l - 15)
 	);
 
-	--default-color-danger: #fb3640;
-	--color-danger-darker: hsl(
-		from var(--ch-color-danger, var(--default-color-danger)) h s
+	--ch-default-color-danger: #fb3640;
+	--ch-color-danger-darker: hsl(
+		from var(--ch-color-danger, var(--ch-default-color-danger)) h s
 			calc(l - 10)
 	);
-	--color-danger-darkest: hsl(
-		from var(--ch-color-danger, var(--default-color-danger)) h s
+	--ch-color-danger-darkest: hsl(
+		from var(--ch-color-danger, var(--ch-default-color-danger)) h s
 			calc(l - 15)
 	);
 
-	--default-color-warning: #dea704;
-	--color-warning-darker: hsl(
-		from var(--ch-color-warning, var(--default-color-warning)) h s
+	--ch-default-color-warning: #dea704;
+	--ch-color-warning-darker: hsl(
+		from var(--ch-color-warning, var(--ch-default-color-warning)) h s
 			calc(l - 10)
 	);
-	--color-warning-darkest: hsl(
-		from var(--ch-color-warning, var(--default-color-warning)) h s
+	--ch-color-warning-darkest: hsl(
+		from var(--ch-color-warning, var(--ch-default-color-warning)) h s
 			calc(l - 15)
 	);
 }
@@ -84,11 +84,11 @@
 		&.ch-button-primary {
 			background-color: var(
 				--ch-color-primary,
-				var(--default-color-primary)
+				var(--ch-default-color-primary)
 			);
 			border-color: var(
 				--ch-color-primary,
-				var(--default-color-primary)
+				var(--ch-default-color-primary)
 			);
 
 			color: #fff;
@@ -97,24 +97,24 @@
 			}
 
 			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--color-primary-darker);
-				border-color: var(--color-primary-darker);
+				background-color: var(--ch-color-primary-darker);
+				border-color: var(--ch-color-primary-darker);
 			}
 
 			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--color-primary-darkest);
-				border-color: var(--color-primary-darkest);
+				background-color: var(--ch-color-primary-darkest);
+				border-color: var(--ch-color-primary-darkest);
 			}
 		}
 
 		&.ch-button-success {
 			background-color: var(
 				--ch-color-success,
-				--default-color-success
+				--ch-default-color-success
 			);
 			border-color: var(
 				--ch-color-success,
-				var(--default-color-success)
+				var(--ch-default-color-success)
 			);
 
 			color: #fff;
@@ -123,24 +123,24 @@
 			}
 
 			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--color-success-darker);
-				border-color: var(--color-success-darker);
+				background-color: var(--ch-color-success-darker);
+				border-color: var(--ch-color-success-darker);
 			}
 
 			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--color-success-darkest);
-				border-color: var(--color-success-darkest);
+				background-color: var(--ch-color-success-darkest);
+				border-color: var(--ch-color-success-darkest);
 			}
 		}
 
 		&.ch-button-danger {
 			background-color: var(
 				--ch-color-danger,
-				--default-color-danger
+				--ch-default-color-danger
 			);
 			border-color: var(
 				--ch-color-danger,
-				var(--default-color-danger)
+				var(--ch-default-color-danger)
 			);
 
 			color: #fff;
@@ -149,23 +149,23 @@
 			}
 
 			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--color-danger-darker);
-				border-color: var(--color-danger-darker);
+				background-color: var(--ch-color-danger-darker);
+				border-color: var(--ch-color-danger-darker);
 			}
 			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--color-danger-darkest);
-				border-color: var(--color-danger-darkest);
+				background-color: var(--ch-color-danger-darkest);
+				border-color: var(--ch-color-danger-darkest);
 			}
 		}
 
 		&.ch-button-warning {
 			background-color: var(
 				--ch-color-warning,
-				--default-color-warning
+				--ch-default-color-warning
 			);
 			border-color: var(
 				--ch-color-warning,
-				var(--default-color-warning)
+				var(--ch-default-color-warning)
 			);
 
 			color: #fff;
@@ -174,13 +174,13 @@
 			}
 
 			&:not(:disabled):not(.ch-hover-state-disabled):hover {
-				background-color: var(--color-warning-darker);
-				border-color: var(--color-warning-darker);
+				background-color: var(--ch-color-warning-darker);
+				border-color: var(--ch-color-warning-darker);
 			}
 
 			&:not(:disabled):not(.ch-active-state-disabled):active {
-				background-color: var(--color-warning-darkest);
-				border-color: var(--color-warning-darkest);
+				background-color: var(--ch-color-warning-darkest);
+				border-color: var(--ch-color-warning-darkest);
 			}
 		}
 
@@ -210,44 +210,53 @@
 		&.ch-button-primary {
 			border-color: var(
 				--ch-color-primary,
-				var(--default-color-primary)
+				var(--ch-default-color-primary)
 			);
-			color: var(--ch-color-primary, var(--default-color-primary));
+			color: var(--ch-color-primary, var(--ch-default-color-primary));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-primary, var(--default-color-primary));
+				fill: var(
+					--ch-color-primary,
+					var(--ch-default-color-primary)
+				);
 			}
 		}
 
 		&.ch-button-success {
 			border-color: var(
 				--ch-color-success,
-				var(--default-color-success)
+				var(--ch-default-color-success)
 			);
-			color: var(--ch-color-success, var(--default-color-success));
+			color: var(--ch-color-success, var(--ch-default-color-success));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-success, var(--default-color-success));
+				fill: var(
+					--ch-color-success,
+					var(--ch-default-color-success)
+				);
 			}
 		}
 
 		&.ch-button-danger {
 			border-color: var(
 				--ch-color-danger,
-				var(--default-color-danger)
+				var(--ch-default-color-danger)
 			);
-			color: var(--ch-color-danger, var(--default-color-danger));
+			color: var(--ch-color-danger, var(--ch-default-color-danger));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-danger, var(--default-color-danger));
+				fill: var(--ch-color-danger, var(--ch-default-color-danger));
 			}
 		}
 
 		&.ch-button-warning {
 			border-color: var(
 				--ch-color-warning,
-				var(--default-color-warning)
+				var(--ch-default-color-warning)
 			);
-			color: var(--ch-color-warning, var(--default-color-warning));
+			color: var(--ch-color-warning, var(--ch-default-color-warning));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-warning, var(--default-color-warning));
+				fill: var(
+					--ch-color-warning,
+					var(--ch-default-color-warning)
+				);
 			}
 		}
 
@@ -281,33 +290,42 @@
 		background-color: transparent;
 		&.ch-button-primary {
 			border-color: transparent;
-			color: var(--ch-color-primary, var(--default-color-primary));
+			color: var(--ch-color-primary, var(--ch-default-color-primary));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-primary, var(--default-color-primary));
+				fill: var(
+					--ch-color-primary,
+					var(--ch-default-color-primary)
+				);
 			}
 		}
 
 		&.ch-button-success {
 			border-color: transparent;
-			color: var(--ch-color-success, var(--default-color-success));
+			color: var(--ch-color-success, var(--ch-default-color-success));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-success, var(--default-color-success));
+				fill: var(
+					--ch-color-success,
+					var(--ch-default-color-success)
+				);
 			}
 		}
 
 		&.ch-button-danger {
 			border-color: transparent;
-			color: var(--ch-color-danger, var(--default-color-danger));
+			color: var(--ch-color-danger, var(--ch-default-color-danger));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-danger, var(--default-color-danger));
+				fill: var(--ch-color-danger, var(--ch-default-color-danger));
 			}
 		}
 
 		&.ch-button-warning {
 			border-color: transparent;
-			color: var(--ch-color-warning, var(--default-color-warning));
+			color: var(--ch-color-warning, var(--ch-default-color-warning));
 			ch-icon .ch-icon {
-				fill: var(--ch-color-warning, var(--default-color-warning));
+				fill: var(
+					--ch-color-warning,
+					var(--ch-default-color-warning)
+				);
 			}
 		}
 
