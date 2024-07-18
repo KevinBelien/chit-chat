@@ -1,7 +1,7 @@
 :root {
 	--ch-scrollbar-width: 6px;
 	--ch-scrollbar-border-radius: 6px;
-	--ch-ripple-color: rgba(255, 255, 255, 0.6);
+	--ch-ripple-color: rgba(255, 255, 255, 0.5);
 }
 
 .ch-disabled,
@@ -150,6 +150,36 @@ body
 /* ------------------------------------------------------ */
 /* --------------------- END INPUT ---------------------- */
 /* ------------------------------------------------------ */
+
+/* ------------------------------------------------------ */
+/* ----------------------- RIPPLE ----------------------- */
+/* ------------------------------------------------------ */
+.ch-ripple {
+	position: relative;
+	overflow: hidden;
+}
+
+.ch-ink {
+	display: block;
+	position: absolute;
+	background: var(--ch-ripple-color);
+	border-radius: 100%;
+	transform: scale(0);
+}
+
+.ch-ink-animate {
+	animation: ripple 0.4s linear;
+}
+
+@keyframes ripple {
+	100% {
+		opacity: 0;
+		transform: scale(2.5);
+	}
+}
+/* ------------------------------------------------------ */
+/* --------------------- END RIPPLE --------------------- */
+/* ------------------------------------------------------ */
 .sc-ion-buttons-ios-s .button-clear {
 	--color: var(
 		--ch-button-color-clear,
@@ -166,73 +196,3 @@ body
 	--padding-top: 8px;
 	--padding-bottom: 8px;
 }
-
-/* ------------------------------------------------------ */
-/* ----------------------- RIPPLE ----------------------- */
-/* ------------------------------------------------------ */
-.ch-ripple-container {
-	position: relative;
-	overflow: hidden;
-}
-
-.ch-ink {
-	display: block;
-	position: absolute;
-	background: var(--ch-ripple-color);
-	border-radius: 100%;
-	transform: scale(0);
-}
-
-.ch-ink-animate {
-	-webkit-animation: ripple 0.65s linear;
-	-moz-animation: ripple 0.65s linear;
-	-ms-animation: ripple 0.65s linear;
-	-o-animation: ripple 0.65s linear;
-	animation: ripple 0.65s linear;
-}
-
-@-webkit-keyframes ripple {
-	100% {
-		opacity: 0;
-		-webkit-transform: scale(2.5);
-	}
-}
-@-moz-keyframes ripple {
-	100% {
-		opacity: 0;
-		-moz-transform: scale(2.5);
-	}
-}
-@-o-keyframes ripple {
-	100% {
-		opacity: 0;
-		-o-transform: scale(2.5);
-	}
-}
-@keyframes ripple {
-	100% {
-		opacity: 0;
-		transform: scale(2.5);
-	}
-}
-
-/* .ch-ripple {
-	position: absolute;
-	border-radius: 50%;
-	background: #ffffff80;
-	transform: scale(0);
-	animation: ripple-animation 600ms linear;
-	pointer-events: none;
-	transition: transform 600ms, opacity 600ms;
-}
-
-.ch-ripple-fade-out {
-	opacity: 0;
-}
-
-@keyframes ripple-animation {
-	to {
-		transform: scale(2.5);
-		opacity: 0;
-	}
-} */

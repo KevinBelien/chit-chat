@@ -14,7 +14,7 @@ import {
 	selector: '[chRipple]',
 	standalone: true,
 	host: {
-		class: 'ch-ripple-container',
+		class: 'ch-ripple',
 	},
 })
 export class RippleDirective implements AfterViewInit, OnDestroy {
