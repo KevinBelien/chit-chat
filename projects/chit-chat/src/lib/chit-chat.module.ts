@@ -21,7 +21,7 @@ export class ChitChatModule {
 		private screenService: ScreenService
 	) {
 		if (this.screenService.isMobile())
-			this.document.body.classList.add('ch-scroll-mobile');
+			this.document.body.classList.add('ch-mobile');
 	}
 	static forRoot(
 		config: LibConfig

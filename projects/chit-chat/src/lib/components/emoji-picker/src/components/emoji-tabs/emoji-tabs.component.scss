@@ -29,3 +29,21 @@
 		}
 	}
 }
+
+//MOBILE HOVER TRIGGER FIX
+::ng-deep body.ch-mobile .ch-emoji-tabs ch-button.ch-element {
+	&:hover
+		.ch-button:not(.ch-button-active)
+		.ch-button-icon
+		ch-icon.ch-element
+		.ch-icon {
+		fill: var(--ch-message-input-button-color, currentColor);
+	}
+
+	.ch-button:not(.ch-button-active) {
+		&:active,
+		&:hover {
+			background-color: inherit;
+		}
+	}
+}

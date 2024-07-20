@@ -27,7 +27,7 @@
 	}
 }
 
-.ch-list-container.ch-user-list-container:not(.ch-scroll-mobile)
+.ch-list-container.ch-user-list-container:not(.ch-mobile)
 	.ch-vscroll-viewport {
 	&::-webkit-scrollbar {
 		visibility: hidden;
