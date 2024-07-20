@@ -326,7 +326,7 @@ export class VerticalEmojiPickerComponent
 
 		this.manuallyNavigated = true;
 
-		this.viewport?.scrollToIndex(index + 1);
+		this.viewport?.scrollToIndex(index === 0 ? index : index + 1);
 	};
 
 	calculateIndexOfCategory = (category: EmojiCategory) => {
