@@ -1,6 +1,6 @@
-import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
+	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
 	HostBinding,
@@ -14,8 +14,14 @@ import {
 import { EmojiTabsComponent } from './components/emoji-tabs/emoji-tabs.component';
 import { HorizontalEmojiPickerComponent } from './components/horizontal-emoji-picker/horizontal-emoji-picker.component';
 import { VerticalEmojiPickerComponent } from './components/vertical-emoji-picker/vertical-emoji-picker.component';
+import { groupedEmojis } from './data';
 import { EmojiPickerOrientation } from './enums';
 import { EmojiSizeKey } from './enums/emoji-size.enum';
+import {
+	EmojiCategory,
+	GroupedEmoji,
+	emojiCategories,
+} from './interfaces';
 
 @Component({
 	selector: 'ch-emoji-picker',
@@ -27,6 +33,7 @@ import { EmojiSizeKey } from './enums/emoji-size.enum';
 		EmojiTabsComponent,
 	],
 	changeDetection: ChangeDetectionStrategy.OnPush,
+
 	templateUrl: './emoji-picker.component.html',
 	styleUrl: './emoji-picker.component.scss',
 	host: {
@@ -34,15 +41,17 @@ import { EmojiSizeKey } from './enums/emoji-size.enum';
 		class: 'ch-element',
 	},
 })
-export class EmojiPickerComponent implements OnInit, OnChanges {
-	@ViewChild(CdkVirtualScrollViewport, { static: false })
-	viewport?: CdkVirtualScrollViewport;
+export class EmojiPickerComponent
+	implements OnInit, AfterViewInit, OnChanges
+{
+	@ViewChild(VerticalEmojiPickerComponent, { static: false })
+	verticalEmojiPickerComponent?: VerticalEmojiPickerComponent;
 
 	@Input()
 	emojiSize: EmojiSizeKey = 'default';
 
 	@Input()
-	height: number = 400;
+	height: number = 450;
 
 	@Input()
 	width: number = 350;
@@ -53,6 +62,16 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 
 	@Input()
 	scrollbarVisible: boolean = true;
+
+	emojis: GroupedEmoji[] = [...groupedEmojis];
+
+	@Input()
+	emojiCategories: EmojiCategory[] = [...emojiCategories].filter(
+		(cat) => cat !== 'recent'
+	);
+
+	@Input()
+	selectedCategory: EmojiCategory = this.emojiCategories[0];
 
 	@HostBinding('style.--picker-height')
 	pickerHeight: string = `${this.height}px`;
@@ -75,6 +94,21 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
 		if (changes['width']) {
 			this.pickerWidth = `${this.width}px`;
 		}
+
+		if (
+			changes['emojiCategories'] &&
+			!changes['emojiCategories'].isFirstChange()
+		) {
+			this.emojis = this.filterAndSortEmojisByCategoryList(
+				this.emojiCategories
+			);
+		}
+	}
+
+	ngAfterViewInit(): void {
+		this.emojis = this.filterAndSortEmojisByCategoryList(
+			this.emojiCategories
+		);
 	}
 
 	//add polyfill script to support flag emojis for windows users
@@ -88,4 +122,47 @@ export class EmojiPickerComponent implements OnInit, OnChanges {
     `;
 		this.renderer.appendChild(document.body, script);
 	}
+
+	handleCategoryTabClicked = (category: EmojiCategory) => {
+		this.selectedCategory = category;
+
+		if (this.verticalEmojiPickerComponent) {
+			this.verticalEmojiPickerComponent.navigateToCategory(category);
+		}
+	};
+
+	filterGroupedEmojisByIncludedCategories = (
+		emojis: GroupedEmoji[],
+
+		includedCategories: EmojiCategory[]
+	): GroupedEmoji[] => {
+		return emojis.filter((group) =>
+			includedCategories.includes(group.category)
+		);
+	};
+
+	filterAndSortEmojisByCategoryList = (
+		categories: EmojiCategory[]
+	) => {
+		const filteredEmojis =
+			this.filterGroupedEmojisByIncludedCategories(
+				this.emojis,
+				categories
+			);
+		return this.sortGroupedEmojisByCategories(
+			filteredEmojis,
+			categories
+		);
+	};
+
+	sortGroupedEmojisByCategories = (
+		emojis: GroupedEmoji[],
+		categories: EmojiCategory[]
+	): GroupedEmoji[] => {
+		return emojis.sort(
+			(a, b) =>
+				categories.indexOf(a.category) -
+				categories.indexOf(b.category)
+		);
+	};
 }

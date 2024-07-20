@@ -8,8 +8,13 @@ import {
 	Output,
 	Renderer2,
 } from '@angular/core';
-import { Subject, timer } from 'rxjs';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { Subject, fromEvent, timer } from 'rxjs';
+import {
+	debounceTime,
+	switchMap,
+	takeUntil,
+	tap,
+} from 'rxjs/operators';
 import { ClickActionType, PointerDeviceType } from '../enums';
 import { ClickEvent, TouchHoldEvent } from '../interfaces';
 
@@ -20,7 +25,7 @@ import { ClickEvent, TouchHoldEvent } from '../interfaces';
 export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 	@Input() touchHoldTimeInMillis = 750;
 	@Input() preventContextMenu = true;
-	@Input() trackDataAttribute?: string;
+	@Input() dataAttribute?: string;
 	@Output() onClick = new EventEmitter<ClickEvent>();
 	@Output() onTouchHold = new EventEmitter<TouchHoldEvent>();
 
@@ -30,21 +35,12 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 	private pointerMove$ = new Subject<PointerEvent>();
 	private touchMove$ = new Subject<TouchEvent>();
 	private scroll$ = new Subject<void>();
-	private keyDown$ = new Subject<KeyboardEvent>();
-
-	private pointerDownListener: () => void = () => {};
-	private pointerUpListener: () => void = () => {};
-	private pointerMoveListener: () => void = () => {};
-	private touchMoveListener: () => void = () => {};
-	private scrollListener: () => void = () => {};
-	private keyDownListener: () => void = () => {};
-	private keyUpListener: () => void = () => {};
-	private contextMenuListener: () => void = () => {};
 
 	private pointerDownTarget: EventTarget | null = null;
 	private pointerDownDataAttribute: string | null = null;
-	private hasPointerLeftElement = false;
-	private keyHandled = false;
+	private hasPointerExited = false;
+
+	private eventListeners: Array<() => void> = [];
 
 	constructor(
 		private elementRef: ElementRef,
@@ -75,13 +71,6 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 				takeUntil(this.destroy$)
 			)
 			.subscribe();
-
-		this.keyDown$
-			.pipe(
-				tap((event) => this.handleKeyDown(event)),
-				takeUntil(this.destroy$)
-			)
-			.subscribe();
 	}
 
 	ngOnDestroy(): void {
@@ -90,163 +79,114 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 		this.destroy$.complete();
 	}
 
-	private addEventListeners(): void {
-		this.pointerDownListener = this.renderer.listen(
-			this.elementRef.nativeElement,
-			'pointerdown',
-			(event: PointerEvent) => this.onPointerDown(event)
-		);
+	private addEventListeners = (): void => {
+		const nativeElement = this.elementRef.nativeElement;
 
-		this.pointerUpListener = this.renderer.listen(
-			'document',
-			'pointerup',
-			(event: PointerEvent) => this.onPointerUp(event)
-		);
+		this.eventListeners = [
+			this.renderer.listen(
+				nativeElement,
+				'pointerdown',
+				(event: PointerEvent) => this.onPointerDown(event)
+			),
+			this.renderer.listen(
+				nativeElement,
+				'pointerup',
+				(event: PointerEvent) => this.onPointerUp(event)
+			),
 
-		this.pointerMoveListener = this.renderer.listen(
-			'document',
-			'pointermove',
-			(event: PointerEvent) => this.onPointerMove(event)
-		);
+			this.renderer.listen(nativeElement, 'scroll', () =>
+				this.scroll$.next()
+			),
 
-		this.touchMoveListener = this.renderer.listen(
-			'document',
-			'touchmove',
-			(event: TouchEvent) => this.onTouchMove(event)
-		);
+			this.renderer.listen(
+				nativeElement,
+				'keyup',
+				(event: KeyboardEvent) => this.onKeyUp(event)
+			),
+		];
 
-		this.scrollListener = this.renderer.listen(
-			'window',
-			'scroll',
-			() => this.scroll$.next()
-		);
+		fromEvent<PointerEvent>(nativeElement, 'pointermove')
+			.pipe(debounceTime(50), takeUntil(this.destroy$))
+			.subscribe((e: PointerEvent) => this.onPointerMove(e));
 
-		this.keyDownListener = this.renderer.listen(
-			this.elementRef.nativeElement,
-			'keydown',
-			(event: KeyboardEvent) => this.keyDown$.next(event)
-		);
-
-		this.keyUpListener = this.renderer.listen(
-			this.elementRef.nativeElement,
-			'keyup',
-			(event: KeyboardEvent) => this.onKeyUp(event)
-		);
+		fromEvent<TouchEvent>(nativeElement, 'touchmove')
+			.pipe(debounceTime(50), takeUntil(this.destroy$))
+			.subscribe((e: TouchEvent) => this.onTouchMove(e));
 
 		if (this.preventContextMenu) {
-			this.contextMenuListener = this.renderer.listen(
-				this.elementRef.nativeElement,
-				'contextmenu',
-				(event: MouseEvent) => event.preventDefault()
+			this.eventListeners.push(
+				this.renderer.listen(
+					nativeElement,
+					'contextmenu',
+					(event: MouseEvent) => event.preventDefault()
+				)
 			);
 		}
-	}
+	};
 
-	private removeEventListeners(): void {
-		this.pointerDownListener();
-		this.pointerUpListener();
-		this.pointerMoveListener();
-		this.touchMoveListener();
-		this.scrollListener();
-		this.keyDownListener();
-		this.keyUpListener();
-		if (this.preventContextMenu) {
-			this.contextMenuListener();
-		}
-	}
+	private removeEventListeners = (): void => {
+		this.eventListeners.forEach((unlisten) => unlisten());
+	};
 
-	private onPointerDown(event: PointerEvent): void {
-		const targetElement = event.target as HTMLElement;
-		if (
-			(event.pointerType === PointerDeviceType.MOUSE &&
-				event.button !== 0 &&
-				event.button !== 2) ||
-			(event.pointerType !== PointerDeviceType.MOUSE &&
-				event.button !== 0)
-		) {
-			return;
-		}
+	private onPointerDown = (event: PointerEvent): void => {
+		if (!this.isPointerDownValid(event) || !event.target) return;
 
-		if (
-			!this.trackDataAttribute ||
-			targetElement.hasAttribute(this.trackDataAttribute)
-		) {
-			this.pointerDownTarget = event.target;
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (targetElement) {
+			this.pointerDownTarget = targetElement;
 			this.pointerDownDataAttribute =
-				this.getTrackData(targetElement);
-			this.hasPointerLeftElement = false;
+				this.getAttributeValue(targetElement);
+			this.hasPointerExited = false;
 			this.pointerDown$.next(event);
 		}
-	}
+	};
 
-	private onPointerUp(event: PointerEvent): void {
-		const targetElement = event.target as HTMLElement;
-		if (
-			this.pointerDownTarget &&
-			(!this.trackDataAttribute ||
-				targetElement.hasAttribute(this.trackDataAttribute))
-		) {
-			const pointerUpDataAttribute = this.getTrackData(targetElement);
-			if (
-				this.pointerDownDataAttribute === pointerUpDataAttribute &&
-				!this.hasPointerLeftElement
-			) {
-				this.pointerUp$.next(event);
-			}
-		}
-		this.pointerDownTarget = null; // Reset target after pointerup
+	private onPointerUp = (event: PointerEvent): void => {
+		if (this.isPointerUpValid(event)) this.pointerUp$.next(event);
+
+		this.pointerDownTarget = null;
 		this.pointerDownDataAttribute = null;
-	}
+	};
 
-	private onPointerMove(event: PointerEvent): void {
-		const targetElement = event.target as HTMLElement;
-		if (
-			this.pointerDownTarget &&
-			(!this.elementRef.nativeElement.contains(targetElement) ||
-				(this.trackDataAttribute &&
-					targetElement.hasAttribute(this.trackDataAttribute) &&
-					this.pointerDownDataAttribute !==
-						targetElement.getAttribute(this.trackDataAttribute)))
-		) {
-			this.hasPointerLeftElement = true;
+	private onPointerMove = (event: PointerEvent): void => {
+		if (!event.target || !this.pointerDownTarget) return;
+
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (!targetElement || this.isOutOfBounds(targetElement)) {
+			this.hasPointerExited = true;
 			this.pointerMove$.next(event);
 		}
-	}
+	};
 
-	private onTouchMove(event: TouchEvent): void {
-		const targetElement = document.elementFromPoint(
+	private onTouchMove = (event: TouchEvent): void => {
+		if (!this.pointerDownTarget) return;
+		let targetElement = document.elementFromPoint(
 			event.touches[0].clientX,
 			event.touches[0].clientY
-		) as HTMLElement;
-		if (
-			this.pointerDownTarget &&
-			(!this.elementRef.nativeElement.contains(targetElement) ||
-				(this.trackDataAttribute &&
-					targetElement &&
-					targetElement.hasAttribute(this.trackDataAttribute) &&
-					this.pointerDownDataAttribute !==
-						targetElement.getAttribute(this.trackDataAttribute)))
-		) {
-			this.hasPointerLeftElement = true;
+		) as HTMLElement | null;
+
+		if (!targetElement) return;
+
+		targetElement = this.findElementByAttribute(targetElement);
+
+		if (!targetElement || this.isOutOfBounds(targetElement)) {
+			this.hasPointerExited = true;
 			this.touchMove$.next(event);
 		}
-	}
+	};
 
-	private handleKeyDown(event: KeyboardEvent): void {
-		if (this.keyHandled) return;
+	private onKeyUp = (event: KeyboardEvent): void => {
+		if (!event.target) return;
 
-		this.keyHandled = true; // Mark key as handled
-	}
-
-	private onKeyUp(event: KeyboardEvent): void {
-		const targetElement = event.target as HTMLElement;
-
-		if (
-			(event.key === 'Enter' || event.key === ' ') &&
-			(!this.trackDataAttribute ||
-				targetElement.hasAttribute(this.trackDataAttribute))
-		) {
-			const data = this.getTrackData(targetElement);
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (this.isClickTriggerKey(event.key) && targetElement) {
+			const data = this.getAttributeValue(targetElement);
 			this.onClick.emit({
 				event,
 				data,
@@ -256,26 +196,35 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 						: ClickActionType.SPACE,
 			});
 		}
-		this.keyHandled = false;
-	}
+	};
 
-	private handleTouchHold(event: PointerEvent): void {
-		const targetElement = this.getElementFromEvent(event);
-		const data = this.getTrackData(targetElement);
+	private handleTouchHold = (event: PointerEvent): void => {
+		if (!event.target) return;
 
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (!targetElement) return;
+
+		const data = this.getAttributeValue(targetElement);
 		if (
-			!this.hasPointerLeftElement &&
-			this.isValidTarget(targetElement, data)
+			!this.hasPointerExited &&
+			this.isTargetDataAttributeMatch(targetElement, data)
 		) {
 			this.onTouchHold.emit({ event, data });
 		}
-	}
+	};
 
-	private handlePointerUp(event: PointerEvent): void {
-		const targetElement = this.getElementFromEvent(event);
-		const data = this.getTrackData(targetElement);
+	private handlePointerUp = (event: PointerEvent): void => {
+		if (!event.target) return;
 
-		if (!this.hasPointerLeftElement) {
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (!targetElement) return;
+
+		const data = this.getAttributeValue(targetElement);
+		if (!this.hasPointerExited) {
 			this.onClick.emit({
 				event,
 				data,
@@ -288,43 +237,78 @@ export class ClickTouchHoldDirective implements OnInit, OnDestroy {
 						: undefined,
 			});
 		}
-	}
+	};
 
-	private getElementFromEvent(event: Event): HTMLElement | null {
-		if ((event as TouchEvent).changedTouches) {
-			const touchEvent = event as TouchEvent;
-			return document.elementFromPoint(
-				touchEvent.changedTouches[0].clientX,
-				touchEvent.changedTouches[0].clientY
-			) as HTMLElement;
-		} else {
-			const pointerEvent = event as PointerEvent;
-			return document.elementFromPoint(
-				pointerEvent.clientX,
-				pointerEvent.clientY
-			) as HTMLElement;
+	private findElementByAttribute = (
+		targetElement: HTMLElement
+	): HTMLElement | null => {
+		while (
+			targetElement &&
+			this.dataAttribute &&
+			!targetElement.hasAttribute(this.dataAttribute) &&
+			targetElement.parentElement
+		) {
+			targetElement = targetElement.parentElement;
 		}
-	}
+		return targetElement;
+	};
 
-	private getTrackData(
-		targetElement: HTMLElement | null
-	): string | null {
-		return targetElement &&
-			this.trackDataAttribute &&
-			targetElement.hasAttribute(this.trackDataAttribute)
-			? targetElement.getAttribute(this.trackDataAttribute)
+	private getAttributeValue = (
+		targetElement: HTMLElement
+	): string | null => {
+		if (!targetElement || !this.dataAttribute) return null;
+		const elementWithAttribute =
+			this.findElementByAttribute(targetElement);
+		return elementWithAttribute
+			? elementWithAttribute.getAttribute(this.dataAttribute)
 			: null;
-	}
+	};
 
-	private isValidTarget(
-		targetElement: HTMLElement | null,
+	private isTargetDataAttributeMatch = (
+		targetElement: HTMLElement,
 		data?: string | null
-	): boolean {
+	): boolean => {
 		return (
-			!!targetElement &&
-			(!this.trackDataAttribute ||
-				(targetElement.hasAttribute(this.trackDataAttribute) &&
-					this.pointerDownDataAttribute === data))
+			!this.dataAttribute ||
+			(targetElement.hasAttribute(this.dataAttribute) &&
+				this.pointerDownDataAttribute === data)
 		);
-	}
+	};
+
+	private isOutOfBounds = (targetElement: HTMLElement): boolean => {
+		return (
+			!!this.pointerDownTarget &&
+			(!this.elementRef.nativeElement.contains(targetElement) ||
+				(!!this.dataAttribute &&
+					targetElement.hasAttribute(this.dataAttribute) &&
+					this.pointerDownDataAttribute !==
+						targetElement.getAttribute(this.dataAttribute)))
+		);
+	};
+
+	private isPointerDownValid = (event: PointerEvent): boolean => {
+		return (
+			(event.pointerType === PointerDeviceType.MOUSE &&
+				[0, 2].includes(event.button)) ||
+			(event.pointerType !== PointerDeviceType.MOUSE &&
+				event.button === 0)
+		);
+	};
+
+	private isPointerUpValid = (event: PointerEvent): boolean => {
+		const targetElement = this.findElementByAttribute(
+			event.target as HTMLElement
+		);
+		if (!targetElement) return false;
+
+		const pointerUpDataAttribute =
+			this.getAttributeValue(targetElement);
+		return (
+			this.pointerDownDataAttribute === pointerUpDataAttribute &&
+			!this.hasPointerExited
+		);
+	};
+
+	private isClickTriggerKey = (key: string): boolean =>
+		['ENTER', ' '].includes(key.toUpperCase());
 }

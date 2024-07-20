@@ -7,12 +7,12 @@ import {
 	AfterViewInit,
 	ChangeDetectionStrategy,
 	Component,
-	ElementRef,
+	EventEmitter,
 	HostBinding,
 	Input,
 	OnChanges,
 	OnDestroy,
-	Renderer2,
+	Output,
 	SimpleChanges,
 	ViewChild,
 } from '@angular/core';
@@ -26,10 +26,12 @@ import {
 	GroupedEmoji,
 } from '../../interfaces';
 import { EmojiButtonComponent } from '../emoji-button/emoji-button.component';
+import { emojiCategories } from './../../interfaces/emoji.interface';
 
 import {
 	ClickEvent,
 	ClickTouchHoldDirective,
+	RippleDirective,
 	TouchHoldEvent,
 } from 'chit-chat/src/lib/utils';
 
@@ -41,6 +43,7 @@ import {
 		ScrollingModule,
 		ClickTouchHoldDirective,
 		EmojiButtonComponent,
+		RippleDirective,
 	],
 	templateUrl: './vertical-emoji-picker.component.html',
 	styleUrl: './vertical-emoji-picker.component.scss',
@@ -59,7 +62,7 @@ export class VerticalEmojiPickerComponent
 	@Input()
 	emojiSize: EmojiSizeKey = 'default';
 
-	emojiSizeInPx: number;
+	emojiSizeInPx: number = 0;
 
 	@Input()
 	height: number = 400;
@@ -73,16 +76,33 @@ export class VerticalEmojiPickerComponent
 	@HostBinding('style.--item-size-multiplier')
 	itemSizeMultiplier: number = 1.5;
 
-	itemSize: number;
+	itemSize: number = 0;
+
+	@Input()
+	emojiCategories: EmojiCategory[] = [...emojiCategories];
 
 	mappedEmojis: Map<string, Emoji> = mappedEmojis;
-	groupedEmojis: GroupedEmoji[] = groupedEmojis;
 
-	currentCategory: EmojiCategory;
+	@Input()
+	emojis: GroupedEmoji[] = groupedEmojis;
+
+	@Input()
+	currentCategory: EmojiCategory = this.emojiCategories[0];
+
+	@Input()
+	scrollWheelStep?: number;
+
+	//REMOVE TWO WAY BINDING?
+	@Output()
+	currentCategoryChange = new EventEmitter<EmojiCategory>();
 
 	scrollIndex: number = 0;
 
-	rows: EmojiPickerRow[];
+	manuallyNavigated: boolean = false;
+
+	rows: EmojiPickerRow[] = [];
+
+	touchHoldEventActive: boolean = false;
 
 	destroy$ = new Subject<void>();
 
@@ -91,22 +111,8 @@ export class VerticalEmojiPickerComponent
 	@HostBinding('style.--emoji-size')
 	emoSize?: string;
 
-	constructor(private renderer: Renderer2, private el: ElementRef) {
-		this.emojiSizeInPx = this.calculateEmojiSize();
-		this.emoSize = `${this.emojiSizeInPx}px`;
-
-		this.itemSize = this.toFixedAndFloor(
-			this.emojiSizeInPx * this.itemSizeMultiplier,
-			2
-		);
-
-		this.rows = this.calculateEmojiRows();
-
-		this.currentCategory =
-			this.rows[0].type === 'emoji'
-				? this.rows[0].value[0].category
-				: (this.rows[0].value as EmojiCategory);
-	}
+	@Output()
+	onClick = new EventEmitter<Emoji>();
 
 	ngAfterViewInit() {
 		this.viewport?.renderedRangeStream
@@ -118,50 +124,48 @@ export class VerticalEmojiPickerComponent
 					-(this.viewport?.getOffsetToRenderedContentStart() || 0) +
 					'px';
 			});
+		this.emojiSizeInPx = this.calculateEmojiSize();
+		this.emoSize = `${this.emojiSizeInPx}px`;
+
+		this.itemSize = this.toFixedAndFloor(
+			this.emojiSizeInPx * this.itemSizeMultiplier,
+			2
+		);
+
+		this.rows = this.generateEmojiRows();
+
+		if (this.rows.length === 0) return;
+
+		this.currentCategory =
+			this.rows[0].type === 'emoji'
+				? this.rows[0].value[0].category
+				: (this.rows[0].value as EmojiCategory);
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes['emojiSize']) {
+		if (
+			changes['emojiSize'] &&
+			!changes['emojiSize'].isFirstChange()
+		) {
 			this.emojiSizeInPx = this.calculateEmojiSize();
 			this.emoSize = `${this.emojiSizeInPx}px`;
 			this.itemSize = this.emojiSizeInPx * this.itemSizeMultiplier;
-			this.rows = this.calculateEmojiRows();
+			this.rows = this.generateEmojiRows();
 		}
 
-		if (changes['width']) {
-			this.rows = this.calculateEmojiRows();
+		if (changes['width'] && !changes['width'].isFirstChange()) {
+			this.rows = this.generateEmojiRows();
+		}
 
-			this.currentCategory =
-				this.rows[0].type === 'emoji'
-					? this.rows[0].value[0].category
-					: (this.rows[0].value as EmojiCategory);
+		if (changes['emojis'] && !changes['emojis'].isFirstChange()) {
+			this.rows = this.generateEmojiRows();
 		}
 	}
 
 	ngOnDestroy() {
 		this.destroy$.next();
+		this.destroy$.complete();
 	}
-
-	// private initEventListeners() {
-	// 	// Handle mouse down events
-	// 	console.log(this.el.nativeElement);
-	// 	this.renderer.listen(
-	// 		this.el.nativeElement,
-	// 		'mousedown',
-	// 		(event) => {
-	// 			this.handlePointerDown(event);
-	// 		}
-	// 	);
-
-	// 	// Handle touch start events
-	// 	this.renderer.listen(
-	// 		this.el.nativeElement,
-	// 		'touchstart',
-	// 		(event) => {
-	// 			this.handlePointerUp(event);
-	// 		}
-	// 	);
-	// }
 
 	private calculateEmojiSize = () => {
 		const viewportWidth = this.getViewportWidth();
@@ -193,33 +197,39 @@ export class VerticalEmojiPickerComponent
 	};
 
 	handleScrolledIndexChanged = (index: number) => {
+		if (this.rows.length === 0) return;
 		this.scrollIndex = index;
 
 		const previousRow = this.rows[index - 1];
 		const currentRow = this.rows[index];
 
-		if (!previousRow) {
-			this.currentCategory =
-				currentRow.type === 'emoji'
-					? currentRow.value[0].category
-					: (currentRow.value as EmojiCategory);
-			return;
-		}
+		this.setCurrentCategory(
+			previousRow
+				? previousRow.type === 'emoji'
+					? previousRow.value[0].category
+					: (previousRow.value as EmojiCategory)
+				: currentRow.type === 'emoji'
+				? currentRow.value[0].category
+				: (currentRow.value as EmojiCategory),
+			!this.manuallyNavigated
+		);
 
-		this.currentCategory =
-			previousRow.type === 'emoji'
-				? previousRow.value[0].category
-				: (previousRow.value as EmojiCategory);
+		this.manuallyNavigated = false;
 	};
 
-	calculateEmojiRows = (): EmojiPickerRow[] => {
+	setCurrentCategory = (category: EmojiCategory, emit: boolean) => {
+		this.currentCategory = category;
+		if (emit) this.currentCategoryChange.emit(this.currentCategory);
+	};
+
+	generateEmojiRows = (): EmojiPickerRow[] => {
 		const maxEmojisPerRow = this.calculateAmountEmojiInRows(
 			this.emojiSizeInPx
 		);
 
 		const rows: EmojiPickerRow[] = [];
 
-		groupedEmojis.forEach((group) => {
+		this.emojis.forEach((group) => {
 			// Add the category title as a row
 			rows.push({
 				id: crypto.randomUUID(),
@@ -236,7 +246,6 @@ export class VerticalEmojiPickerComponent
 				});
 			}
 		});
-
 		return rows;
 	};
 
@@ -279,36 +288,59 @@ export class VerticalEmojiPickerComponent
 		return emoji.value;
 	};
 
-	// protected handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
-	// 	if (!!this.activeTouchHoldEvent) {
-	// 		this.onEmojiTouchHold.emit({
-	// 			event: this.activeTouchHoldEvent,
-	// 			emoji,
-	// 		});
-	// 		this.activeTouchHoldEvent = undefined;
-	// 	}
-
-	// 	if (
-	// 		!this.activeTouchHoldEvent ||
-	// 		(this.activeTouchHoldEvent === 'mouse' &&
-	// 			!!emoji.skinTones &&
-	// 			emoji.skinTones.length > 0)
-	// 	)
-	// 		this.onEmojiClick.emit({ event: e, emoji });
-	// };
-
 	handleTouchHold = (e: TouchHoldEvent) => {
-		// this.touchHoldEventActive = true;
-
 		if (!e.data) return;
+		const emoji = mappedEmojis.get(e.data);
+		alert(emoji?.value);
+		this.touchHoldEventActive =
+			!!emoji && !!emoji.skinTones && emoji.skinTones.length > 0;
+
 		// Call the method to show the popover with the target element and the emoji
-		console.log('gets to touchHold', mappedEmojis.get(e.data), e);
 	};
 	handleClick = (e: ClickEvent) => {
-		if (!e.data) return;
+		console.log(e);
+		if (!e.data || this.touchHoldEventActive) {
+			this.touchHoldEventActive = false;
+			return;
+		}
+
+		const emoji = mappedEmojis.get(e.data);
+
 		// Call the method to show the popover with the target element and the emoji
-		console.log('gets to click', mappedEmojis.get(e.data), e);
+		console.log('gets to click', emoji);
 
 		// console.log('pointer out', e);
 	};
+
+	navigateToCategory = (category: EmojiCategory) => {
+		if (!this.emojiCategories.includes(category))
+			throw new Error(
+				`Couldn't navigate to category ${category} because it's not in the list of emojiCategories`
+			);
+
+		const index = this.calculateIndexOfCategory(category);
+		if (index === -1)
+			throw new Error(
+				`Couldn't navigate to category ${category} because couldn't find index in viewport`
+			);
+
+		this.manuallyNavigated = true;
+
+		this.viewport?.scrollToIndex(index + 1);
+	};
+
+	calculateIndexOfCategory = (category: EmojiCategory) => {
+		return this.rows.findIndex(
+			(row) => row.type === 'category' && row.value === category
+		);
+	};
+
+	onWheel(event: WheelEvent): void {
+		event.preventDefault();
+		const step = this.scrollWheelStep ?? this.itemSize * 4;
+		const scrollAmount = Math.sign(event.deltaY) * step;
+		this.viewport?.scrollToOffset(
+			this.viewport?.measureScrollOffset() + scrollAmount
+		);
+	}
 }

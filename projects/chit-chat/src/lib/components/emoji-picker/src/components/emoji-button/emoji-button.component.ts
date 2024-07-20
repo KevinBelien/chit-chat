@@ -6,10 +6,12 @@ import {
 } from '@angular/core';
 import { Emoji } from '../../interfaces';
 
+import { RippleDirective } from 'chit-chat/src/lib/utils';
+
 @Component({
 	selector: 'ch-emoji-button',
 	standalone: true,
-	imports: [CommonModule],
+	imports: [CommonModule, RippleDirective],
 	templateUrl: './emoji-button.component.html',
 	styleUrl: './emoji-button.component.scss',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,15 +24,5 @@ export class EmojiButtonComponent {
 	@Input()
 	emoji?: Emoji;
 
-	private touchHoldTriggered: boolean = false;
-
 	constructor() {}
-
-	protected handleEmojiClick = (e: MouseEvent, emoji: Emoji) => {
-		if (this.touchHoldTriggered) {
-			this.touchHoldTriggered = false;
-
-			return;
-		}
-	};
 }

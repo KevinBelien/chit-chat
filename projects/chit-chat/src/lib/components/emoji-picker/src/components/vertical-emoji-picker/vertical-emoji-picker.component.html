@@ -3,11 +3,12 @@
 	[ngClass]="{ 'ch-scroll-hidden': !scrollbarVisible }"
 	[style.height]="'100%'"
 	[itemSize]="itemSize"
-	[minBufferPx]="height"
-	[maxBufferPx]="height"
+	[minBufferPx]="300"
+	[maxBufferPx]="450"
+	(wheel)="onWheel($event)"
 	(scrolledIndexChange)="handleScrolledIndexChanged($event)"
 	chClickTouchHold
-	trackDataAttribute="data-emoji"
+	dataAttribute="data-emoji"
 	(onClick)="handleClick($event)"
 	(onTouchHold)="handleTouchHold($event)"
 >
@@ -43,9 +44,11 @@
 				*ngFor="let emoji of row.value; trackBy: trackEmoji"
 			>
 				<!-- <div class="emoji-container"> -->
-				<button class="ch-emoji-btn" [attr.data-emoji]="emoji.name">
-					<span class="ch-emoji">{{ emoji.value }}</span>
-				</button>
+
+				<ch-emoji-button
+					[emoji]="emoji"
+					[attr.data-emoji]="emoji.name"
+				></ch-emoji-button>
 			</ng-container>
 		</ng-container>
 	</div>

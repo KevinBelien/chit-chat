@@ -1,5 +1,9 @@
 <div class="ch-emoji-picker">
-	<ch-emoji-tabs></ch-emoji-tabs>
+	<ch-emoji-tabs
+		[emojiCategories]="emojiCategories"
+		[selectedTab]="selectedCategory"
+		(onTabClicked)="handleCategoryTabClicked($event)"
+	></ch-emoji-tabs>
 	<div class="ch-emoji-picker-container">
 		<ng-container
 			*ngIf="
@@ -10,8 +14,11 @@
 			<ch-vertical-emoji-picker
 				[height]="height"
 				[width]="width"
+				[emojis]="emojis"
 				[emojiSize]="emojiSize"
+				[(currentCategory)]="selectedCategory"
 				[scrollbarVisible]="scrollbarVisible"
+				[emojiCategories]="emojiCategories"
 			></ch-vertical-emoji-picker>
 		</ng-container>
 

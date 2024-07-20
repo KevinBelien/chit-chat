@@ -40,8 +40,6 @@ export class SplitPaneComponent implements OnChanges, AfterViewInit {
 
 	width: number;
 
-	contentVisible: boolean = false;
-
 	@Output()
 	onSidePaneVisibilityChanged = new EventEmitter<boolean>();
 

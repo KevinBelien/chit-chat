@@ -6,11 +6,10 @@ import {
 } from '@angular/fire/compat';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AuthService } from 'chit-chat/src/lib/auth';
-import {
-	LibConfig,
-	LibConfigService,
-} from 'chit-chat/src/lib/lib-config';
+
 import { ScreenService } from 'chit-chat/src/lib/utils';
+import { LibConfig } from './lib-config/interfaces';
+import { LibConfigService } from './lib-config/services';
 
 @NgModule({
 	declarations: [],

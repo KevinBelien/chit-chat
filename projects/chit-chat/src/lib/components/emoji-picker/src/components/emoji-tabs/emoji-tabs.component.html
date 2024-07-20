@@ -2,47 +2,19 @@
 	<ng-container
 		*ngFor="let category of emojiCategories; trackBy: trackCategory"
 	>
-		<!-- <svg
+		<ch-button
 			chHover
 			(hoverChange)="handleHoverChange($event, category)"
-			class="ch-icon"
-			xmlns="http://www.w3.org/2000/svg"
-			height="24px"
-			width="24px"
-			viewBox="0 -960 960 960"
-		>
-			<path
-				[attr.d]="
-					categoryHovered === category
-						? emojiCategoryIcons[category].solid
-						: emojiCategoryIcons[category].outline
-				"
-			></path>
-		</svg> -->
-		<!-- <ch-icon
-			chHover
-			(hoverChange)="handleHoverChange($event, category)"
-			[iconPath]="
-				categoryHovered === category
-					? emojiCategoryIcons[category].solid
-					: emojiCategoryIcons[category].outline
-			"
-		>
-		</ch-icon> -->
-
-		<!-- <ch-button
-			chHover
-			(hoverChange)="handleHoverChange($event, category)"
-			label="hello"
-			type="danger"
 			fill="clear"
-			shape="round"
+			type="contrast"
+			[cssClass]="selectedTab === category ? 'ch-button-active' : ''"
 			[icon]="
 				categoryHovered === category
 					? emojiCategoryIcons[category].solid
 					: emojiCategoryIcons[category].outline
 			"
+			(onClick)="handleCategoryButtonClick($event, category)"
 		>
-		</ch-button> -->
+		</ch-button>
 	</ng-container>
 </div>
