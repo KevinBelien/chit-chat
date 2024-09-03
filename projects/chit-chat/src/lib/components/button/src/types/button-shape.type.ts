@@ -1,1 +1,1 @@
-export type ButtonShape = 'round' | 'default';
+export type ButtonShape = 'round' | 'square';

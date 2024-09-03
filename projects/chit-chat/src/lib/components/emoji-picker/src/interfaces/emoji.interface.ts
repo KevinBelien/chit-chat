@@ -15,6 +15,7 @@ export interface AlternativeSkinTone {
 }
 
 export const skinTones = [
+	'default',
 	'light',
 	'medium-light',
 	'medium',

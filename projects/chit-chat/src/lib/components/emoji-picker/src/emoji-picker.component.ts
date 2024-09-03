@@ -14,7 +14,7 @@ import {
 import { EmojiTabsComponent } from './components/emoji-tabs/emoji-tabs.component';
 import { HorizontalEmojiPickerComponent } from './components/horizontal-emoji-picker/horizontal-emoji-picker.component';
 import { VerticalEmojiPickerComponent } from './components/vertical-emoji-picker/vertical-emoji-picker.component';
-import { groupedEmojis } from './data';
+import { emojis, groupedEmojis } from './data';
 import { EmojiPickerOrientation } from './enums';
 import { EmojiSizeKey } from './enums/emoji-size.enum';
 import {
@@ -22,6 +22,7 @@ import {
 	GroupedEmoji,
 	emojiCategories,
 } from './interfaces';
+import { EmojiDataService } from './services';
 
 @Component({
 	selector: 'ch-emoji-picker',
@@ -32,6 +33,7 @@ import {
 		HorizontalEmojiPickerComponent,
 		EmojiTabsComponent,
 	],
+	providers: [EmojiDataService],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 
 	templateUrl: './emoji-picker.component.html',
@@ -81,10 +83,28 @@ export class EmojiPickerComponent
 
 	readonly Orientations = EmojiPickerOrientation;
 
-	constructor(private renderer: Renderer2) {}
+	flatEmojis = [...emojis];
+
+	constructor(
+		private renderer: Renderer2,
+		private emojiDataService: EmojiDataService
+	) {}
 
 	ngOnInit(): void {
 		this.loadCountryFlagEmojiPolyfill();
+
+		// console.log(
+		// 	groupedEmojis.map((record) => {
+		// 		return Object.assign(record, {
+		// 			emojis: record.emojis.map((emoji) =>
+		// 				Object.assign(
+		// 					{ ...emoji },
+		// 					{ name: emoji.name.toLowerCase() }
+		// 				)
+		// 			),
+		// 		});
+		// 	})
+		// );
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {

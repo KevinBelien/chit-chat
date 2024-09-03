@@ -39,7 +39,7 @@ export class ButtonComponent {
 	@Input() fill: ButtonFill = 'solid';
 	@Input() iconPosition: IconPosition = 'left';
 	@Input() raised: boolean = false;
-	@Input() shape: ButtonShape = 'default';
+	@Input() shape: ButtonShape = 'square';
 	@Input() tabIndex: number | null = null;
 
 	@Output() onClick = new EventEmitter<MouseEvent>();
